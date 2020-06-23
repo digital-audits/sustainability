@@ -5,49 +5,42 @@ import {Collect} from '../collect/collect';
 import {Audit} from '../audits/audit';
 import {PageContext } from '../types/cluster-settings';
 import { log } from '../utils/utils';
-import { Page, LaunchOptions, Browser } from 'puppeteer';
+import { LaunchOptions, Browser } from 'puppeteer';
+import {AuditSettings} from '../types/cluster-settings'
 
 
-interface AuditSettings {
-	id?:string
-	page?:Page
-	launchSettings?:LaunchOptions
-	connectionSettings?:SA.Settings.ConnectionSettings
-	
-}
+
 export default class Sustainability  {
-	
-	private browser = {} as Browser
 
 	async audit(url:string, options?:AuditSettings){
-		let page:Page
-		try{
-		if(!options?.page){
-			const output = await this.startNewConnectionAndReturnPage()
-			page = output.page
-			this.browser = output.browser
-		}else{
-			page=options.page
-		}
-		const pageContext = {page,url}
-		const results = await this.handler(pageContext)
+		const browser = options?.browser || await this.startNewConnectionAndReturnBrowser()
+		try {
+			const page = await browser.newPage()
+			try{
+				const pageContext = {page,url}
+				const results = await this.handler(pageContext)
 
-		console.log(JSON.stringify(results))
+				return results
+			}
+			catch(error){
+				log(`Error: Audit failed with message: ${error.message}`)
+				process.exit(1)
+			}finally{
+				await page.close()
+			}
+		} catch (error) {
+			log(`Error: Failed to launch page`)
+			process.exit(1)
+		} finally{
+			await browser.close()
 		}
-		catch(error){
-			log(`Error: Audit failed with message: ${error.message}`)
-		}finally{
-			await this.browser.close()
-		}
-
 	}
 
-	async startNewConnectionAndReturnPage(){
+	async startNewConnectionAndReturnBrowser():Promise<Browser>{
 		const connection = new Connection()
 		const browser = await connection.setUp()
-		const page = await browser.newPage()
 
-		return {page,browser}
+		return browser
 	}
 
 	async handler(pageContextRaw: PageContext) {

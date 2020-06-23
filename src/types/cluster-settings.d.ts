@@ -16,6 +16,13 @@ export interface ClusterOptions {
 	puppeteer: any;
 }
 
+export interface AuditSettings {
+	id?:string
+	browser:Browser
+	launchSettings?:LaunchOptions
+	connectionSettings?:SA.Settings.ConnectionSettings
+}
+
 export interface Tracker {
 	urls(): void;
 	dispose(): void;
