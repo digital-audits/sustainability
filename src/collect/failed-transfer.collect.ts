@@ -1,31 +1,31 @@
-import {Collect} from './collect';
-import {safeNavigateTimeout} from '../helpers/navigateTimeout';
-import { PageContext } from '../types/cluster-settings';
-import { debugGenerator } from '../utils/utils';
-import { log } from 'util';
+import Collect from './collect';
+import { PageContext } from '../types/index';
+import * as util from '../utils/utils';
+import {Response} from 'puppeteer'
 
-const debug = debugGenerator('Failed transfer collect')
+const debug = util.debugGenerator('Failed transfer collect')
 
-export class CollectFailedTransfers extends Collect {
-	private static collectId:string='failedtransfercollect'
+export default class CollectFailedTransfers extends Collect {
+	collectId:SA.Audit.CollectorsIds='failedtransfercollect'
 	static get id(){
 		return this.collectId
 	}
-	static async collect(pageContext: PageContext): Promise<any> {
+	static async collect(pageContext: PageContext): Promise<SA.Traces.CollectFailedTransferTraces | undefined> {
 
 		debug('running')
 		const {page} = pageContext;
-		const result: any = [];
-		page.on('response', (response: any) => {
-			const status = response.status;
-			const url = response.url;
+		const result: SA.Traces.FailedRequest[] = [];
+		page.on('response', (response: Response) => {
+			const status = response.status();
+			const url = response.url();
 			if (status >= 400) {
 				const information = {
 					url,
 					code: status,
-					statusText: response._statusText,
-					failureText: response._request._failureText,
-					requestId: response._request._requestId
+					statusText: response.statusText(),
+					failureText: response.request().failure()?.errorText,
+					//@ts-ignore
+					requestId: response.request()._requestId
 				};
 
 				result.push(information);
@@ -33,14 +33,14 @@ export class CollectFailedTransfers extends Collect {
 		});
 
 		try {
-			debug('Waiting for navigation to load')
-			await safeNavigateTimeout(page, 'networkidle0', debug);
+			await util.safeNavigateTimeout(page, 'networkidle0', debug);
 			debug('done')
 			return {
 				failed: result
 			};
 		} catch (error) {
-			log(`Error: At failed transfer collect with message: ${error.message}`)
+			util.log(`Error: At failed transfer collect with message: ${error.message}`)
+			return undefined
 		}
 	}
 }

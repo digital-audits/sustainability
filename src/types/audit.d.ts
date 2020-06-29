@@ -12,11 +12,11 @@ declare global {
 			/** Audit category: Server or Design */
 			category: 'server' | 'design';
 			/** Traces names this audit requires */
-			collectors: Array<ScoreWeights>;
+			collectors?: Array<CollectorsIds>;
 		}
 		export type ScoreDisplayMode = 'numeric' | 'binary' | 'skip';
 
-		export type ScoreWeights =
+		export type CollectorsIds =
 			'transfercollect'
 			| 'redirectcollect'
 			| 'failedtransfercollect'
@@ -27,7 +27,7 @@ declare global {
 			| 'imagescollect'
 			| 'consolecollect'
 			| 'assetscollect'
-			
+
 
 		export interface Result {
 			score?: number;

@@ -1,26 +1,25 @@
+
 import Connection from '../connection/connection';
-import {Commander} from '../commander/commander';
-import {generate} from '../helpers/uuid-generator';
-import {Collect} from '../collect/collect';
-import {Audit} from '../audits/audit';
-import {PageContext } from '../types/cluster-settings';
+import Commander from '../commander/commander';
+import {PageContext } from '../types/index';
 import { log } from '../utils/utils';
 import { LaunchOptions, Browser } from 'puppeteer';
-import {AuditSettings} from '../types/cluster-settings'
-
-
+import {AuditSettings} from '../types/index'
+import * as util from '../utils/utils'
 
 export default class Sustainability  {
 
-	async audit(url:string, options?:AuditSettings){
-		const browser = options?.browser || await this.startNewConnectionAndReturnBrowser()
-		try {
-			const page = await browser.newPage()
-			try{
-				const pageContext = {page,url}
-				const results = await this.handler(pageContext)
+	public static async audit(url:string, options?:AuditSettings){
 
-				return results
+		const sustainability = new Sustainability()
+		const browser = options?.browser || await sustainability.startNewConnectionAndReturnBrowser(options?.launchSettings)
+		try {
+			const page = options?.page || await browser.newPage()
+
+			try{
+				const pageContext = {page, url}
+				const report = await sustainability.handler(pageContext, options)
+				return report
 			}
 			catch(error){
 				log(`Error: Audit failed with message: ${error.message}`)
@@ -29,38 +28,36 @@ export default class Sustainability  {
 				await page.close()
 			}
 		} catch (error) {
-			log(`Error: Failed to launch page`)
+			log(`Error: Failed to launch page: ${error.message}`)
 			process.exit(1)
 		} finally{
 			await browser.close()
 		}
 	}
 
-	async startNewConnectionAndReturnBrowser():Promise<Browser>{
-		const connection = new Connection()
-		const browser = await connection.setUp()
-
+	private async startNewConnectionAndReturnBrowser(options?:LaunchOptions):Promise<Browser>{
+		const browser = await Connection.setUp(options)
 		return browser
 	}
 
-	async handler(pageContextRaw: PageContext) {
+	private async handler(pageContextRaw: PageContext, options?:AuditSettings) {
 		const startTime = Date.now();
-		const commander = new Commander();
 
-		const projectId = generate();
+		const projectId = options?.id || util.generate()
 		const {url} = pageContextRaw;
-		const _page = await commander.setUp(pageContextRaw);
-		const pageContext = {...pageContextRaw, page: _page};
+		const page = await Commander.setUp(pageContextRaw, options?.connectionSettings);
+
+		const pageContext = {...pageContextRaw, page};
 
 		// @ts-ignore allSettled lacks typescript support
 		const results = await Promise.allSettled([
-			commander.navigate(pageContext),
-			commander.asyncEvaluate(pageContext)
+			Commander.navigate(pageContext),
+			Commander.asyncEvaluate(pageContext)
 		]);
 
-		const resultsParsed = Collect.parseAllSettled(results, true);
-		const audits = Audit.groupAudits(resultsParsed);
-		const globalScore = Audit.computeScore(audits);
+		const resultsParsed = util.parseAllSettled(results, true);
+		const audits = util.groupAudits(resultsParsed);
+		const globalScore = util.computeScore(audits);
 
 		const meta = {
 			id: projectId,

@@ -1,20 +1,20 @@
-import {Collect} from './collect';
-import {safeNavigateTimeout} from '../helpers/navigateTimeout';
-import { PageContext } from '../types/cluster-settings';
-import { debugGenerator } from '../utils/utils';
-import { log } from 'util';
+import Collect from './collect';
+import { PageContext } from '../types/index';
+import * as util from '../utils/utils';
+import {Response} from 'puppeteer'
 
-const debug = debugGenerator('Redirect collect')
-export class CollectRedirect extends Collect {
-	private static collectId:string='redirectcollect'
+
+const debug = util.debugGenerator('Redirect collect')
+export default class CollectRedirect extends Collect {
+	collectId:SA.Audit.CollectorsIds='redirectcollect'
 	static get id(){
 		return this.collectId
 	}
-	static async collect(pageContext: PageContext): Promise<any> {
+	static async collect(pageContext: PageContext): Promise<SA.Traces.CollectRedirectTraces | undefined> {
 		debug('running')
-		const results: any = [];
-		const {page} = pageContext;
-		page.on('response', (response: any) => {
+		const results: SA.Traces.RedirectResponse[] = [];
+		const {page, url} = pageContext;
+		page.on('response', (response: Response) => {
 			const status = response.status();
 			const url = response.url();
 
@@ -27,23 +27,40 @@ export class CollectRedirect extends Collect {
 					url
 				).toString();
 				const information = {
-					requestId: response._request._requestId,
+					//@ts-ignore
+					requestId: response.request()._requestId,
 					url,
-					redirectsTo,
-					redirectChain: response._request._redirectChain
+					redirectsTo
 				};
 
 				results.push(information);
 			}
 		});
+		const getPageUrl = () =>{
+			const urls = new Set<URL>();
+			const initialUrl = new URL(url);
+			urls.add(initialUrl);
+			const redirect = results.find(
+				record => new URL(record.url).hostname === initialUrl.hostname
+			)?.redirectsTo;
+
+			if (redirect) {
+				urls.add(new URL(redirect));
+			}
+			return Array.from(urls.values())
+		}
 		try {
-			await safeNavigateTimeout(page, 'networkidle0', debug);
+			await util.safeNavigateTimeout(page, 'networkidle0', debug);
+			const urls = getPageUrl()
 			debug('done')
 			return {
+				urls,
 				redirect: results
+
 			};
 		} catch (error) {
-			log(`Error: Redirect collect failed with message: ${error.message}`);
+			util.log(`Error: Redirect collect failed with message: ${error.message}`);
+			return undefined
 		}
 	}
 }

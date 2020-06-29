@@ -1,10 +1,9 @@
-import {Audit} from './audit';
+import Audit from './audit';
 import {variables} from '../references/references';
 import {DEFAULT} from '../settings/settings';
 import {sum} from '../bin/statistics';
-import {isGreenServerMem} from '../helpers/isGreenServer';
-import {URL} from 'url';
-import { debugGenerator , log} from '../utils/utils';
+import {isGreenServerMem} from '../utils/utils';
+import * as util from '../utils/utils';
 
 /**
  * @fileoverview Compute gCO2eq considering server location,
@@ -14,8 +13,8 @@ import { debugGenerator , log} from '../utils/utils';
 const MB_TO_BYTES = 1024 * 1024;
 const GB_TO_MB = 1024;
 
-const debug = debugGenerator('Carbonfootprint Audit')
-export class CarbonFootprintAudit extends Audit {
+const debug = util.debugGenerator('Carbonfootprint Audit')
+export default class CarbonFootprintAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'carbonfootprint',
@@ -28,20 +27,20 @@ export class CarbonFootprintAudit extends Audit {
 	}
 
 	static async audit(
-		traces: SA.DataLog.Traces
+		traces: SA.Traces.Traces
 	): Promise<SA.Audit.Result | undefined> {
-		
+
 
 			/* Const getGeoLocation = (ip:string) => {
-            //2 letter ISO-3166-1 country code https://www.iban.com/country-codes 
+            //2 letter ISO-3166-1 country code https://www.iban.com/country-codes
             const country = geoip.lookup(ip)?.country
-            
+
             if(country){
                 return country
             }
 
             return 'AVG'
-                
+
             }
 
         const getGeoLocationMem = memoize(getGeoLocation)
@@ -53,13 +52,12 @@ export class CarbonFootprintAudit extends Audit {
 						const isGreen = await isGreenServerMem(
 							record.response.remoteAddress.ip
 						);
-						return isGreen?.green;
+						return isGreen?.green || false;
 					});
 					const isGreen = await Promise.all(pArray);
 					return traces.record.map((record, index) => {
 						return {
 							id: record.request.requestId,
-							host: new URL(record.response.url).host,
 							size: record.CDP.compressedSize.value,
 							unSize: record.response.uncompressedSize.value,
 							ip: record.response.remoteAddress.ip,
@@ -90,16 +88,16 @@ export class CarbonFootprintAudit extends Audit {
 			const records = await getValidRecords();
 			debug('evaluating total page weight')
 			const totalTransfersize = sum(
-				records.map((record: any) =>{
+				records.map(record =>{
 					return record.size
 				}
 				)
 			);
 			debug('evaluating file size by record type')
 			const recordsByFileSize = traces.record.reduce((acc, record) => {
-				acc[record.request.resourceType] = acc[record.request.resourceType]? 
+				acc[record.request.resourceType] = acc[record.request.resourceType]?
 				acc[record.request.resourceType]+=record.CDP.compressedSize.value :record.CDP.compressedSize.value
-				
+
 				return acc;
 			}, {} as Record<string, number>);
 
@@ -115,7 +113,7 @@ export class CarbonFootprintAudit extends Audit {
 					};
 				}
 			);
-			const totalWattage = records.map((record: any) => {
+			const totalWattage = records.map(record => {
 				let size;
 				if (record.size !== 0) {
 					size = record.size;
@@ -141,8 +139,8 @@ export class CarbonFootprintAudit extends Audit {
 
 			const {median, p10} = DEFAULT.REPORT.scoring.CF;
 			debug('computing log normal score')
-			const score = Audit.computeLogNormalScore({median, p10}, metric) || 0;
-			const meta = Audit.successOrFailureMeta(CarbonFootprintAudit.meta, score);
+			const score = util.computeLogNormalScore({median, p10}, metric) || 0;
+			const meta = util.successOrFailureMeta(CarbonFootprintAudit.meta, score);
 			debug('done')
 			return {
 				meta,
@@ -157,6 +155,6 @@ export class CarbonFootprintAudit extends Audit {
 					}
 				}
 			};
-		
+
 	}
 }

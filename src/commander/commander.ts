@@ -2,15 +2,13 @@ import {Page} from 'puppeteer';
 import {DEFAULT} from '../settings/settings';
 import path = require('path');
 import fs = require('fs');
-import {createTracker, safeReject} from '../helpers/safeReject';
-import {Collect} from '../collect/collect'
-import {Tracker, PageContext} from '../types/cluster-settings';
-import { debugGenerator, log } from '../utils/utils';
+import {Tracker, PageContext} from '../types/index';
+import * as util from '../utils/utils';
 
-const debug = debugGenerator('Commander')
+const debug = util.debugGenerator('Commander')
 
-export class Commander {
-	private settings = DEFAULT.CONNECTION_SETTINGS;
+class Commander {
+	private settings = {} as SA.Settings.ConnectionSettingsPrivate;
 	private readonly audits = DEFAULT.AUDITS;
 	private tracker = {} as Tracker;
 
@@ -21,26 +19,26 @@ export class Commander {
 		try {
 			debug('Running set up')
 			const {page, url} = pageContext;
-			if (settings) {
-				this.settings = settings;
-			}
+			this.settings = settings ? {...DEFAULT.CONNECTION_SETTINGS, ...settings}:
+			DEFAULT.CONNECTION_SETTINGS
 
-			this.tracker = createTracker(page);
+			this.tracker = util.createTracker(page);
 
 
 			// Page.setJavaScriptEnabled(false); Speeds up process drastically
 
+
 			await Promise.all([
 				page.setViewport({
-					width: this.settings.emulatedDevices[0].viewport.width,
-					height: this.settings.emulatedDevices[0].viewport.height
+					width: this.settings.emulatedDevice.viewport.width,
+					height: this.settings.emulatedDevice.viewport.height
 				}),
-				page.setUserAgent(this.settings.emulatedDevices[0].userAgent),
+				page.setUserAgent(this.settings.emulatedDevice.userAgent),
 				page.browserContext().overridePermissions(url, ['geolocation']),
 				page.setGeolocation({
-					latitude: this.settings.locations[1].latitude,
-					longitude: this.settings.locations[1].longitude,
-					accuracy: this.settings.locations[1].accuracy
+					latitude: this.settings.location.latitude,
+					longitude: this.settings.location.longitude,
+					accuracy: this.settings.location.accuracy
 				}),
 				page.setCacheEnabled(false),
 				page.setBypassCSP(true),
@@ -56,9 +54,10 @@ export class Commander {
 					)
 				)
 			]);
+
 			return page;
 		} catch (error) {
-			log(`Setup error ${error.message}`);
+			util.log(`Setup error ${error.message}`);
 			process.exit(1)
 		}
 	}
@@ -86,55 +85,31 @@ export class Commander {
 			page.removeAllListeners('response');
 			debug('Done navigation')
 		} catch (error) {
-			safeReject(error, this.tracker);
-			process.exit(1)
+			util.safeReject(error, this.tracker);
+
 		}
 	}
 
 	async asyncEvaluate(pageContext:PageContext): Promise<Array<Promise<any>>> {
 		try {
-		debug('Runnining collectors')
-		const collectMap = new Map(this.audits.collectors.map((col:any)=>[col.id,col.collect(pageContext)]))
-		// @ts-ignore
-		return Promise.allSettled(
-			this.audits.audits.map(async (audit:any) => {
-				const applicableCollects = audit.meta.collectors
-				//@ts-ignore
-				const trace = await Promise.allSettled(applicableCollects.map((ap:any)=>{
-					return collectMap.get(ap)
-				}))
-				debug(`done collector/s ${[...applicableCollects]} now parsing the traces`)
-				const parsed = Collect.parseAllSettled(trace)
-				debug(`running audit ${audit.meta.id}`)
-				return audit.audit(parsed)
-			})
-		);
-		} catch (error) {
-			log(`Error: Commander returned ${error.message}`)
-			return new Promise((resolve,_)=>resolve(undefined))
-		}
-	}
+	 		debug('Runnining collectors')
+	 			// @ts-ignore
+	 		const traces = await Promise.allSettled(
+	 			this.audits.collectors.map((collect:any) => collect.collect(pageContext))
+	 		);
+	 		debug('Finished collectors now parsing the traces')
+	 		const parsedTraces = util.parseAllSettled(traces);
+	 		debug('Running audits')
+	 		// @ts-ignore
+	 		return Promise.allSettled(
+	 			this.audits.audits.map((audit:any) => audit.audit(parsedTraces))
+	 		);
+	 		} catch (error) {
+	 			util.log(`Error: Commander failed with ${error.message}`)
+	 			return new Promise((resolve,_)=>resolve(undefined))
+	 		}
+	 	}
 
 }
 
-
-/**
- * try {
-		debug('Runnining collectors')
-			// @ts-ignore
-		const traces = await Promise.allSettled(
-			this.audits.collectors.map(collect => collect(pageContext))
-		);
-		debug('Finished collectors now parsing the traces')
-		const parsedTraces = Collect.parseAllSettled(traces);
-		debug('Running audits')
-		// @ts-ignore
-		return Promise.allSettled(
-			this.audits.audits.map(audit => audit(parsedTraces))
-		);
-		} catch (error) {
-			log(`Error: Commander returned ${error.message}`)
-			return new Promise((resolve,_)=>resolve(undefined))
-		}
-	}
- */
+export default new Commander()

@@ -1,8 +1,8 @@
-import {Audit} from './audit';
+import Audit from './audit';
 import csstree = require('css-tree');
-import { debugGenerator } from '../utils/utils';
+import * as util from '../utils/utils';
 
-const debug = debugGenerator('UsesFontSubsetting Audit')
+const debug = util.debugGenerator('UsesFontSubsetting Audit')
 const LOCAL_FONTS = [
 	'ARIAL',
 	'ARIAL BLACK',
@@ -19,7 +19,7 @@ const LOCAL_FONTS = [
 /**
  * @description Find non-local fonts (i.e downloaded) and assert whether they are a subset.
  */
-export class UsesFontSubsettingAudit extends Audit {
+export default class UsesFontSubsettingAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'fontsubsetting',
@@ -42,9 +42,9 @@ export class UsesFontSubsettingAudit extends Audit {
 	 *
 	 *
 	 */
-	static audit(traces: SA.DataLog.Traces):SA.Audit.Result{
-		
-		
+	static audit(traces: SA.Traces.Traces):SA.Audit.Result{
+
+
 		const fontsCharSets = traces.fonts.filter(
 			font => !LOCAL_FONTS.includes(font.name.toUpperCase())
 		);
@@ -110,14 +110,14 @@ export class UsesFontSubsettingAudit extends Audit {
 				return true;
 			});
 
-		let fontSubsets = {} as SA.DataLog.SubfontFormat[]
+		let fontSubsets = {} as SA.Traces.SubfontFormat[]
 		const score = Number(fonts.size > 0);
 		if (score === 0) {
 			fontSubsets = fontsCharSets;
-			
+
 		}
 
-		const meta = Audit.successOrFailureMeta(
+		const meta = util.successOrFailureMeta(
 			UsesFontSubsettingAudit.meta,
 			score
 		);
@@ -126,16 +126,18 @@ export class UsesFontSubsettingAudit extends Audit {
 			meta,
 			score,
 			scoreDisplayMode: 'binary',
-			extendedInfo: {
-				value: fontSubsets
+			...(Array.from(fontSubsets).length ? {
+				extendedInfo : {
+				value:Array.from(fontSubsets)
 			}
+		}: {}),
 		};
 		}
 
 		debug('skipping non applicable audit')
 
 		return{
-			meta: UsesFontSubsettingAudit.meta,
+			meta: util.skipMeta(UsesFontSubsettingAudit.meta),
 			scoreDisplayMode:'skip'
 		}
 	}

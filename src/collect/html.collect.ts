@@ -1,16 +1,18 @@
-import {Collect} from './collect';
-import fs = require('fs');
-import { PageContext } from '../types/cluster-settings';
+import Collect from './collect';
+import { PageContext } from '../types/index'
+import * as util from '../utils/utils'
 
-export class CollectHTML extends Collect {
-	private static collectId:string='htmlcollect'
+const debug = util.debugGenerator('Console Collect')
+export default class CollectHTML extends Collect {
+	collectId:SA.Audit.CollectorsIds='htmlcollect'
 	static get id(){
 		return this.collectId
 	}
-	static async collect(pageContext: PageContext, options?: any): Promise<any> {
+	static async collect(pageContext: PageContext): Promise<SA.Traces.CollectHtmlTraces| undefined> {
 		try {
+			debug('running')
 			const {page} = pageContext;
-			const result = [];
+			const result:string[] = [];
 
 			await page.waitForSelector('body');
 			const javascriptHtml = await page.evaluate(
@@ -18,30 +20,14 @@ export class CollectHTML extends Collect {
 			);
 			const vanillaHtml = await page.content();
 
-			if (vanillaHtml === javascriptHtml) {
-				result.push(javascriptHtml);
-			} else if (vanillaHtml !== javascriptHtml) {
-				result.push(javascriptHtml, vanillaHtml);
-			}
-
-			if (options.production) {
-				const pathName = `as-${Date.now()}.html`;
-				fs.writeFile(
-					`./traces/assets/html/${pathName}`,
-					javascriptHtml,
-					err => {
-						if (err) {
-							throw new Error(err?.message);
-						}
-					}
-				);
-			}
-
+			result.push(vanillaHtml === javascriptHtml ? javascriptHtml: javascriptHtml, vanillaHtml)
+			debug('done')
 			return {
 				html: result
 			};
 		} catch (error) {
-			console.error('HTML-COLLECT', error);
+			util.log(`Error:Console collect failed with message: ${error.message}`)
+			return undefined
 		}
 	}
 }

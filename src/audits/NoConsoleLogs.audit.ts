@@ -1,8 +1,9 @@
-import {Audit} from './audit';
-import { debugGenerator } from '../utils/utils';
+import Audit from './audit';
+import * as util from '../utils/utils';
+import * as fs from 'fs'
 
-const debug = debugGenerator('NoConsoleLogs Audit')
-export class NoConsoleLogsAudit extends Audit {
+const debug = util.debugGenerator('NoConsoleLogs Audit')
+export default class NoConsoleLogsAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'noconsolelogs',
@@ -14,8 +15,13 @@ export class NoConsoleLogsAudit extends Audit {
 		} as SA.Audit.Meta;
 	}
 
-	static audit(traces: SA.DataLog.Traces): SA.Audit.Result {
+	static audit(traces: SA.Traces.Traces): SA.Audit.Result {
 		debug('running')
+		fs.writeFile('traces.txt', JSON.stringify(traces), (err)=>{
+			if(err){
+				console.log(err)
+			}
+		})
 		const dups = new Set();
 		const uniqueResources = traces.console.filter(trace => {
 			const dup = dups.has(trace.text);
@@ -23,15 +29,17 @@ export class NoConsoleLogsAudit extends Audit {
 			return !dup;
 		});
 		const score = Number(uniqueResources.length === 0);
-		const meta = Audit.successOrFailureMeta(NoConsoleLogsAudit.meta, score);
+		const meta = util.successOrFailureMeta(NoConsoleLogsAudit.meta, score);
 		debug('done')
 		return {
 			meta,
 			score,
 			scoreDisplayMode: 'binary',
-			extendedInfo: {
-				value: uniqueResources
+			...(uniqueResources.length ? {
+				extendedInfo : {
+				value:uniqueResources
 			}
+		}: {}),
 		};
 	}
 }

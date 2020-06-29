@@ -1,16 +1,17 @@
-import {Collect} from './collect';
-import {safeNavigateTimeout} from '../helpers/navigateTimeout';
+import Collect from './collect';
+import { PageContext } from '../types/index';
+import * as util from '../utils/utils'
 
-export class CollectPerformance extends Collect {
-	private static collectId:string='performancecollect'
+export default class CollectPerformance extends Collect {
+	collectId:SA.Audit.CollectorsIds='performancecollect'
 	static get id(){
 		return this.collectId
 	}
-	static async collect(passContext: any): Promise<any> {
-		const {page} = passContext;
-		await safeNavigateTimeout(page, 'load');
-		const perf = await page.evaluate(() => performance.toJSON());
-		const metrics = await page.metrics();
+	static async collect(pageContext: PageContext): Promise<SA.Traces.CollectPerformanceTraces> {
+		const {page} = pageContext;
+		await util.safeNavigateTimeout(page, 'load');
+		const perf: Performance = await page.evaluate(() => performance.toJSON());
+		const metrics: SA.Traces.Metrics= await page.metrics();
 		const info = {
 			perf,
 			metrics

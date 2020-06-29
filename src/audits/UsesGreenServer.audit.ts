@@ -1,10 +1,8 @@
-import {Audit} from './audit';
-import {isGreenServerMem} from '../helpers/isGreenServer';
-import {URL} from 'url';
-import { debugGenerator } from '../utils/utils';
+import Audit from './audit';
+import * as util from '../utils/utils';
 
-const debug = debugGenerator('UsesGreenServer Audit')
-export class UsesGreenServerAudit extends Audit {
+const debug = util.debugGenerator('UsesGreenServer Audit')
+export default class UsesGreenServerAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'greenserver',
@@ -17,43 +15,45 @@ export class UsesGreenServerAudit extends Audit {
 	}
 
 	static async audit(
-		traces: SA.DataLog.Traces
+		traces: SA.Traces.Traces
 	): Promise<SA.Audit.Result | undefined> {
 		debug('running')
-		const {url} = traces;
-		const initialHost = new URL(url).hostname;
-		const hosts = new Set();
-		hosts.add(initialHost);
-
-		const redirect = traces.redirect?.find(
-			record => new URL(record.url).hostname === initialHost
-		)?.redirectsTo;
-
-		if (redirect) {
-			hosts.add(new URL(redirect).hostname);
-		}
-
+		const {urls} = traces;
 		const ipAddress = traces.record.find(record => {
-			const hostname = new URL(record.response.url).hostname;
-			return Boolean(Array.from(hosts.values()).includes(hostname));
+			const recordUrl = record.response.url
+			return urls.includes(recordUrl);
 		})?.response.remoteAddress.ip;
 
 		debug('evaluating energy source')
-		const response = await isGreenServerMem(ipAddress!);
+		const response = await util.isGreenServerMem(ipAddress!);
 
-		const {green, hostedby} = response!;
+		if(response){
+			const {green, hostedby} = response;
+			const score = Number(green)
 
-		const score = Number(green) || 0;
-		const meta = Audit.successOrFailureMeta(UsesGreenServerAudit.meta, score);
+			const meta = util.successOrFailureMeta(UsesGreenServerAudit.meta, score);
 
-		debug('done')
-		return {
-			meta,
-			score,
-			scoreDisplayMode: 'binary',
-			extendedInfo: {
-				value: {hostedby}
+			debug('done')
+			return {
+				meta,
+				score,
+				scoreDisplayMode: 'binary',
+				...(hostedby ? {
+					extendedInfo : {
+					value:{hostedby}
+				}
+			}: {}),
+			};
+		}else{
+			debug('failed to fetch response')
+			return {
+				meta: util.skipMeta(UsesGreenServerAudit.meta),
+				scoreDisplayMode:'skip',
+				errorMessage:'Failed to fetch response body'
 			}
-		};
+		}
+
+
+
 	}
 }

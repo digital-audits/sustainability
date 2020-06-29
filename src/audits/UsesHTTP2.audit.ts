@@ -1,13 +1,12 @@
-import {Audit} from './audit';
-import {URL} from 'url';
-import { debugGenerator } from '../utils/utils';
+import Audit from './audit';
+import * as util from '../utils/utils';
 
 /**
  * @fileoverview Audit request in the same origin as host use HTTP2.0
  */
 
- const debug = debugGenerator('UsesHTTP2 Audit')
-export class UsesHTTP2Audit extends Audit {
+ const debug = util.debugGenerator('UsesHTTP2 Audit')
+export default class UsesHTTP2Audit extends Audit {
 	static get meta() {
 		return {
 			id: 'useshttp2',
@@ -23,30 +22,16 @@ export class UsesHTTP2Audit extends Audit {
 	/**
 	 * @param traces requiredTraces
 	 */
-	static audit(traces: SA.DataLog.Traces): SA.Audit.Result | undefined {
+	static audit(traces: SA.Traces.Traces): SA.Audit.Result | undefined {
 		debug('running')
-		const {url} = traces;
-		const urls = new Set();
-		const hosts = new Set();
-		const initialHost = new URL(url).hostname;
-		hosts.add(initialHost);
-
-		// Check if there has been a redirect to initial host
-
-		const redirect = traces.redirect?.find(
-			record => new URL(record.url).hostname === initialHost
-		)?.redirectsTo;
-
-		if (redirect) {
-			hosts.add(new URL(redirect).hostname);
-		}
-
-		const resources = traces.record
+		const {urls} = traces;
+		const auditUrls = new Set();
+		traces.record
 			.filter(record => {
-				const hostname = new URL(record.request.url).hostname;
+				const recordUrl = record.request.url
 				if (record.response.fromServiceWorker) return false;
 				if (record.request.protocol === 'h2') return false;
-				if (!Array.from(hosts.values()).includes(hostname)) return false;
+				if (urls.includes(recordUrl)) return false;
 
 				return true;
 			})
@@ -57,13 +42,13 @@ export class UsesHTTP2Audit extends Audit {
 				};
 			})
 			.filter((record: any) => {
-				if (urls.has(record.url)) return false;
-				urls.add(record.url);
+				if (auditUrls.has(record.url)) return false;
+				auditUrls.add(record.url);
 				return true;
 			});
 
-		const score = Number(urls.size === 0);
-		const meta = Audit.successOrFailureMeta(UsesHTTP2Audit.meta, score);
+		const score = Number(auditUrls.size === 0);
+		const meta = util.successOrFailureMeta(UsesHTTP2Audit.meta, score);
 		debug('done')
 		return {
 			meta,

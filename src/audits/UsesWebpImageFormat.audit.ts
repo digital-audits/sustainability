@@ -1,11 +1,9 @@
-import {Audit} from './audit';
-import { debugGenerator } from '../utils/utils';
+import Audit from './audit';
+import * as util from '../utils/utils';
 
-const debug = debugGenerator('UsesWebPImageFormat Audit')
-const APPLICABLE_IMAGE_MIME_TYPES = ['image/png', 'image/jpeg', 'image/gif'];
-const imageEndRegexp = /\.(?:jpg|gif|png)/
+const debug = util.debugGenerator('UsesWebPImageFormat Audit')
 
-export class UsesWebpImageFormatAudit extends Audit {
+export default class UsesWebpImageFormatAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'webpimages',
@@ -25,8 +23,8 @@ export class UsesWebpImageFormatAudit extends Audit {
 	 * WebP should be used against PNG, JPG or GIF images
 	 */
 
-	
-	static audit(traces: SA.DataLog.Traces): SA.Audit.Result {
+
+	static audit(traces: SA.Traces.Traces): SA.Audit.Result {
 
 		const isAuditApplicable = ():boolean =>{
 			if(!traces.media.images.length) return false
@@ -35,32 +33,24 @@ export class UsesWebpImageFormatAudit extends Audit {
 
 		if(isAuditApplicable()){
 			debug('running')
-			const urls = new Set();
-			const resources = traces.record
-				.reduce(
-					(acc: string[], value) =>
-						value.request.resourceType === 'image' &&
-						APPLICABLE_IMAGE_MIME_TYPES.includes(
-							value.response.headers['content-type']
-						)
-						&& imageEndRegexp.test(value.request.url)
-							? acc.concat(value.request.url)
-							: acc,
-					[]
-				)
-				.filter((url: any) => {
-					if (urls.has(url)) return false;
-					if (url.startsWith('data:')) {
-						urls.add(url.slice(0, 10));
+			const auditUrls = new Set<string>();
+			//@ts-ignore flatMap
+			const mediaImages:string[] = traces.media.images.flatMap(img=>img.src?[img.src]:[])
+				mediaImages
+				.concat(traces.lazyImages)
+				.filter((url) => {
+					if (auditUrls.has(url)) return false;
+					if (url?.startsWith('data:')) {
+						auditUrls.add(url.slice(0, 10));
 						return false;
 					}
-	
-					urls.add(new URL(url).pathname.split('/').filter(Boolean).pop())
+
+					auditUrls.add(url.split('/').filter(Boolean).pop() || url)
 					return true;
 				});
-	
-			const score = Number(urls.size === 0);
-			const meta = Audit.successOrFailureMeta(
+
+			const score = Number(auditUrls.size === 0);
+			const meta = util.successOrFailureMeta(
 				UsesWebpImageFormatAudit.meta,
 				score
 			);
@@ -69,16 +59,18 @@ export class UsesWebpImageFormatAudit extends Audit {
 				meta,
 				score,
 				scoreDisplayMode: 'binary',
-				extendedInfo: {
-					value: Array.from(urls.values())
+				...(auditUrls.size > 0 ? {
+					extendedInfo : {
+					value:Array.from(auditUrls.values())
 				}
+			}: {}),
 			};
 		}
 
 		debug('skipping non applicable audit')
-		
+
 		return {
-			meta:UsesWebpImageFormatAudit.meta,
+			meta:util.skipMeta(UsesWebpImageFormatAudit.meta),
 			scoreDisplayMode: 'skip'
 		}
 	}

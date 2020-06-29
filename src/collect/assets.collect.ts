@@ -1,29 +1,29 @@
-import {Collect} from './collect';
-import {safeNavigateTimeout} from '../helpers/navigateTimeout';
-import {PageContext} from '../types/cluster-settings';
-import { debugGenerator, log } from '../utils/utils';
+import Collect from './collect';
+import {PageContext} from '../types/index';
+import * as util from '../utils/utils';
+import {Request} from 'puppeteer'
 
-const debug = debugGenerator('Collect assets')
-export class CollectAssets extends Collect {
-	private static collectId:string='assetscollect'
 
+const debug = util.debugGenerator('Collect assets')
+export default class CollectAssets extends Collect {
+	collectId:SA.Audit.CollectorsIds='assetscollect'
 	static get id(){
 		return this.collectId
 	}
 	static async collect(
 		pageContext: PageContext
-	): Promise<any> {
+	): Promise<SA.Traces.CollectAssetsTraces | undefined> {
 		try {
 			debug('running')
 			const {page} = pageContext;
-			const sheets: any[] = [];
-			const scripts: any[] = [];
-			page.on('requestfinished', async (request: any) => {
-				const response = request.response();
+			const sheets: SA.Traces.Sheets[] = [];
+			const scripts: SA.Traces.Scripts[] = [];
+			page.on('requestfinished', async (request: Request) => {
+				const response = request.response()!;
 
 				const url = response.url();
 				const resourceType = response.request().resourceType();
-				if (request.redirectChain().length === 0) {
+				if (request.redirectChain().length === 0 && response.ok()) {
 					if (resourceType === 'stylesheet') {
 						const text = await response.text();
 						const stylesheet = {
@@ -45,12 +45,12 @@ export class CollectAssets extends Collect {
 				}
 			});
 
-			await safeNavigateTimeout(page, 'load', debug);
-			const information = await page.evaluate(() => {
-				const styleHrefs: any[] = [];
-				const scriptSrcs: any[] = [];
-				const styles: object[] = [];
-				const scripts: object[] = [];
+			await util.safeNavigateTimeout(page, 'load', debug);
+			const documentInformation = await page.evaluate(() => {
+				const styleHrefs: SA.Traces.Stylesheets[] = [];
+				const scriptSrcs: SA.Traces.Scriptfiles[] = [];
+				const styles: SA.Traces.InlineStyles[] = [];
+				const scripts: SA.Traces.InlineScripts[] = [];
 
 				const isCssStyleTag = (element: any) =>
 					element.tagName === 'STYLE' &&
@@ -128,16 +128,16 @@ export class CollectAssets extends Collect {
 			debug('done')
 			return {
 				css: {
-					info: information.css,
+					info: documentInformation.css,
 					sheets
 				},
 				js: {
-					info: information.js,
+					info: documentInformation.js,
 					scripts
 				}
 			};
 		} catch (error) {
-			log(`Error: Assets collect return message: ${error.message}`)
+			util.log(`Error: Assets collect return message: ${error.message}`)
 			return undefined;
 		}
 	}

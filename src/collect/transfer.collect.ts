@@ -1,31 +1,34 @@
-import {Collect} from './collect';
-import {safeNavigateTimeout} from '../helpers/navigateTimeout';
-import { PageContext } from '../types/cluster-settings';
-import { debugGenerator , log, scrollFunction} from '../utils/utils';
+import Collect from './collect';
+import { PageContext } from '../types/index';
+import * as util from '../utils/utils';
 import { DEFAULT } from '../settings/settings';
 import { Request } from 'puppeteer';
 
 
-const debug = debugGenerator('Transfer collect')
-export class CollectTransfer extends Collect {
-	private static collectId:string='transfercollect'
+const debug = util.debugGenerator('Transfer collect')
+export default class CollectTransfer extends Collect {
+	collectId:SA.Audit.CollectorsIds='transfercollect'
 	static get id(){
 		return this.collectId
 	}
-	static async collect(pageContext: PageContext) {
+	static async collect(pageContext: PageContext): Promise<SA.Traces.CollectTransferTraces | undefined>{
 		try {
 			debug('running')
-			const {page, url} = pageContext;
-			const results: any = [];
-			const protocol: any = [];
-			const CDP: any = [];
+			const {page} = pageContext;
+			const results: SA.Traces.Record[] = [];
+			const protocol: SA.Traces.ProtocolData[] = [];
+			const CDP: SA.Traces.CDPDataPrivate[] = [];
+			const lazyImages:string[] = []
 			const client = await page.target().createCDPSession()
 			await client.send('Network.enable')
-			
+
 			client.on('Network.loadingFinished', (data: any) => {
 				if (data?.encodedDataLength) {
 					const {requestId, encodedDataLength} = data;
-					CDP.push({requestId, encodedDataLength});
+					CDP.push({
+						requestId,
+						encodedDataLength
+					});
 				}
 			});
 
@@ -33,15 +36,15 @@ export class CollectTransfer extends Collect {
 				if (data?.response) {
 					protocol.push({
 						protocol: data.response.protocol,
-						reqId: data.requestId
+						requestId: data.requestId
 					});
 				}
 			});
 
 			page.on('requestfinished', async (request: Request) => {
 				const response = request.response();
-				let responseBody;
-				let uncompressedSize;
+				let responseBody:Buffer;
+				let uncompressedSize: SA.Traces.ByteFormat;
 				// Body can only be accessed for non-redirect responses
 				if(response){
 					try {
@@ -64,63 +67,63 @@ export class CollectTransfer extends Collect {
 							}
 						}
 						debug('failed at redirect response')
-						log(`Error: Transfer collect failed with message: ${error.message}`)
+						util.log(`Error: Transfer collect failed with message: ${error.message}`)
 					}
-
-				const information = {
+				//@ts-ignore
+				const requestId = request._requestId
+				const information: SA.Traces.Record = {
 					request: {
-						//	@ts-ignore
-						requestId: request._requestId,
-						url: request.url(),
+						requestId: requestId,
+						url: new URL(request.url()),
 						resourceType: request.resourceType(),
 						method: request.method(),
 						headers: request.headers(),
-						timestamp: Date.now()
+						timestamp: Date.now(),
+						protocol:(protocol.find(
+							p => p.requestId === requestId
+						)?.protocol)
 					},
 					response: {
 						remoteAddress: response.remoteAddress(),
 						status: response.status(),
-						url: response.url(),
-						fromDiskCache: response.fromCache(),
+						url: new URL(response.url()),
 						fromServiceWorker: response.fromServiceWorker(),
 						headers: response.headers(),
-						securityDetails: response.securityDetails(),
 						uncompressedSize: uncompressedSize,
 						timestamp: Date.now()
+					},
+					CDP: {
+						compressedSize: {
+							value:
+								CDP.find((r: any) => r.requestId === requestId)
+									?.encodedDataLength || 0,
+							units: 'bytes'
+						}
 					}
 				};
 				results.push(information);
 			}
 			});
-
-			await Promise.all([
-				scrollFunction(page, DEFAULT.CONNECTION_SETTINGS.maxScrollInterval, debug).
-				then(()=>debug('done scrolling')),
-				safeNavigateTimeout(page, 'networkidle0', debug)
-			])
-			results.map((info: any) => {
-				info.request.protocol = protocol.find(
-					(p: any) => p.reqId === info.request.requestId
-				)?.protocol;
-				info.CDP = {
-					compressedSize: {
-						value:
-							CDP.find((r: any) => r.requestId === info.request.requestId)
-								?.encodedDataLength || 0,
-						units: 'bytes'
-					}
-				};
-				return {
-					info
-				};
+			const requestListener = () => {
+				page.on('requestfinished', (request: Request) => {
+				if (request.resourceType() === 'image') {
+					lazyImages.push(request.url());
+				}
 			});
+			}
+			await util.safeNavigateTimeout(page, 'networkidle0', debug)
+
+			requestListener()
+			await util.scrollFunction(page, DEFAULT.CONNECTION_SETTINGS.maxScrollInterval, debug)
+			debug('done scrolling')
+
 			debug('done')
 			return {
-				url,
-				record: results
+				record: results,
+				lazyImages
 			};
 		} catch (error) {
-			log(`Error: Transfer collect failed with message: ${error.message}`)
+			util.log(`Error: Transfer collect failed with message: ${error.message}`)
 			return undefined;
 		}
 	}

@@ -9,7 +9,7 @@ declare global {
 		namespace Settings {
 			export interface DefaultSettings {
 				LAUNCH_SETTINGS:LaunchOptions,
-				CONNECTION_SETTINGS:ConnectionSettings
+				CONNECTION_SETTINGS:ConnectionSettingsPrivate
 				CATEGORIES: {
 					server: {description: string};
 					design: {description: string};
@@ -36,10 +36,17 @@ declare global {
 			) => Promise<SA.Audit.Result | undefined> | SA.Audit.Result | undefined;
 
 			export interface ConnectionSettings {
+				maxNavigationTime?: number;
+				maxScrollInterval?: number,
+				emulatedDevice?: EmulatedDevice;
+				location?: EmulatedLocation;
+			}
+
+			export interface ConnectionSettingsPrivate {
 				maxNavigationTime: number;
 				maxScrollInterval: number,
-				emulatedDevices: EmulatedDevice[];
-				locations: EmulatedLocation[];
+				emulatedDevice: EmulatedDevice;
+				location: EmulatedLocation;
 			}
 
 			export interface Scoring {
@@ -50,13 +57,13 @@ declare global {
 				};
 			}
 			export interface EmulatedDevice {
-				name: string;
+				name?: string;
 				userAgent: string;
 				viewport: Viewport;
 			}
 
 			interface EmulatedLocation {
-				name: string;
+				name?: string;
 				latitude: number;
 				longitude: number;
 				accuracy: number;

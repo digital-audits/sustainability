@@ -2,7 +2,7 @@
     "compilerOptions": {
       "rootDir": "./src",
       "outDir": "./build",
-      "target": "ES6",
+      "target": "es2016",
       "lib": ["es2017", "dom"],
       "module": "commonjs",
       "moduleResolution":"Node",
@@ -11,12 +11,11 @@
         "jest"
       ],
       "strict": true,
-      "inlineSourceMap": true,
       "noImplicitReturns":true,
       "declaration": true,
-      "skipLibCheck":true
+      "skipLibCheck":true,
     },
     "include": [
         "./src/**/*"
-    ] 
+    ]
 }

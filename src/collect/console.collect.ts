@@ -1,47 +1,44 @@
-import {Collect} from './collect';
+import Collect from './collect';
 import {ConsoleMessage} from 'puppeteer';
-import {safeNavigateTimeout} from '../helpers/navigateTimeout';
-import { PageContext } from '../types/cluster-settings';
-import { debugGenerator , log} from '../utils/utils';
+import { PageContext } from '../types/index';
+import * as util from '../utils/utils';
 
-const debug = debugGenerator('Console collect')
-
-export class CollectConsole extends Collect {
-	private static collectId:string='consolecollect'
+const debug = util.debugGenerator('Console collect')
+export default class CollectConsole extends Collect {
+	collectId:SA.Audit.CollectorsIds = 'consolecollect'
 	static get id(){
 		return this.collectId
 	}
-	static async collect(pageContext: PageContext): Promise<any> {
+	static async collect(pageContext: PageContext): Promise<SA.Traces.CollectConsoleTraces | undefined> {
 
 		debug('running')
 		const {page} = pageContext;
 
-		const results: object[] = [];
+		const results: SA.Traces.ConsoleMessage[] = [];
 
 		page.on('console', async (message: ConsoleMessage) => {
 			const information = {
 				type: message.type(),
 				text: message.text()
 			};
-
-			/* If (options.debug) {
+			/**
+			Console log client messages. Useful for debugging page evaluate
 				for (let i = 0; i < message.args().length; ++i) {
-					console.log(`${i}: ${message.args()[i]}`);
+					debug(`${i}: ${message.args()[i]}`);
 				}
-			}
-			*/
 
+				*/
 			results.push(information);
 		});
 
 		try {
-			await safeNavigateTimeout(page, 'networkidle0', debug);
-			console.log('done')
+			await util.safeNavigateTimeout(page, 'networkidle0', debug);
 			return {
 				console: results
 			};
 		} catch (error) {
-			log(`Error: Console collect failed with message: ${error.message}`)
+			util.log(`Error: Console collect failed with message: ${error.message}`)
+			return undefined
 		}
 	}
 }

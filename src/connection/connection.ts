@@ -1,30 +1,29 @@
 /**
  * Configuration for the connection
  * Override default config options by calling it with your options.
- * Note the most of those options are related to Puppeteer Cluster options, but
- * also to @Cx.Options
  */
 import {DEFAULT} from '../settings/settings';
-import puppeter = require('puppeteer')
-import { debugGenerator, log } from '../utils/utils';
+import { LaunchOptions, Browser} from 'puppeteer'
+import {launch as puppeteerLaunch} from 'puppeteer'
+import * as util from '../utils/utils';
 
-const debug = debugGenerator('Connection')
+const debug = util.debugGenerator('Connection')
 
-export default class Connection {
-	private settings = DEFAULT
+class Connection {
+	private launchSettings = {} as LaunchOptions
 
-	async setUp(settings?: SA.Settings.DefaultSettings): Promise<puppeter.Browser> {
+	async setUp(launchSettings?: LaunchOptions): Promise<Browser> {
 
-			if (settings) {
-				this.settings = settings;
-			}
+			this.launchSettings = launchSettings || DEFAULT.LAUNCH_SETTINGS
 
 			if(process.env.CHROME_BIN){
-				this.settings.LAUNCH_SETTINGS.executablePath = process.env.CHROME_BIN
+				this.launchSettings.executablePath = process.env.CHROME_BIN
 			}
 			debug('Launching browser')
-			const browser = await puppeter.launch(this.settings.LAUNCH_SETTINGS)
+			const browser = await puppeteerLaunch(this.launchSettings)
 			return browser
-		
+
 	}
 }
+
+export default new Connection()

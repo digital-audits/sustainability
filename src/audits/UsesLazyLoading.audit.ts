@@ -1,11 +1,11 @@
-import {Audit} from './audit';
-import { debugGenerator } from '../utils/utils';
+import Audit from './audit';
+import * as util from '../utils/utils';
 
 /**
  * Test with https://mathiasbynens.be/demo/img-loading-lazy
  */
-const debug = debugGenerator('UsesLazyLoading Audit')
-export class UsesLazyLoadingAudit extends Audit {
+const debug = util.debugGenerator('UsesLazyLoading Audit')
+export default class UsesLazyLoadingAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'lazyloading',
@@ -18,23 +18,22 @@ export class UsesLazyLoadingAudit extends Audit {
 		} as SA.Audit.Meta;
 	}
 
-	static audit(traces: SA.DataLog.Traces): SA.Audit.Result {
-		
-		
+	static audit(traces: SA.Traces.Traces): SA.Audit.Result {
+
+
 		const isAuditApplicable = ():boolean => {
 			if(!traces.media.images.length) return false
 			if(!traces.media.images.some(image=>!image.isVisible)) return false
 
 			return true
 		}
-		
+
 		if (isAuditApplicable()){
 			debug('running')
-			const allImages= traces.record.filter(record=>record.request.resourceType==='image')
-			const score = Number(traces.media.images.length !== allImages.length)
-			const meta = Audit.successOrFailureMeta(UsesLazyLoadingAudit.meta, score);
+			const score = Number(traces.lazyImages.length > 0)
+			const meta = util.successOrFailureMeta(UsesLazyLoadingAudit.meta, score);
 			debug('done')
-	
+
 			return {
 				meta,
 				score,
@@ -45,9 +44,9 @@ export class UsesLazyLoadingAudit extends Audit {
 		debug('skipping non applicable audit')
 
 		return {
-			meta:UsesLazyLoadingAudit.meta,
+			meta:util.skipMeta(UsesLazyLoadingAudit.meta),
 			scoreDisplayMode:'skip'
 		}
-		
+
 	}
 }

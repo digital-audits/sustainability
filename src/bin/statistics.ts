@@ -10,9 +10,7 @@
  * https://www.desmos.com/calculator/p3z5exil8h
  * for an interactive view of the relationship between these parameters and the
  * typical parameterization (location and shape) of the log-normal distribution.
- * @param {{median: number, p10: number}} parameters
- * @param {number} value
- * @return {number}
+ * 
  */
 export function getLogNormalScore(
 	{median, p10}: {median: number; p10: number},
@@ -50,8 +48,7 @@ export function getLogNormalScore(
  * Approximates the Gauss error function, the probability that a random variable
  * from the standard normal distribution lies within [-x, x]. Moved from
  * traceviewer.b.math.erf, based on Abramowitz and Stegun, formula 7.1.26.
- * @param {number} x
- * @return {number}
+ *
  */
 function erf(x: number) {
 	// Erf(-x) = -erf(x);

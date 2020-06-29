@@ -1,22 +1,21 @@
-import {Collect} from './collect';
-import {safeNavigateTimeout} from '../helpers/navigateTimeout';
-import { PageContext } from '../types/cluster-settings';
-import {debugGenerator, log } from '../utils/utils';
+import Collect from './collect';
+import { PageContext } from '../types/index';
+import * as util from '../utils/utils';
 
 
-const debug = debugGenerator('Subfont collect')
+const debug = util.debugGenerator('Subfont collect')
 
-export class CollectSubfont extends Collect {
-	private static collectId:string='subfontcollect'
+export default class CollectSubfont extends Collect {
+	collectId:SA.Audit.CollectorsIds='subfontcollect'
 	static get id(){
 		return this.collectId
 	}
-	static async collect(pageContext: PageContext): Promise<any> {
+	static async collect(pageContext: PageContext): Promise<SA.Traces.CollectSubfontsTraces | undefined> {
 		try {
 			// May be interesting to give a try at Page._client.FontFamilies
 			debug('running')
 			const {page} = pageContext;
-			await safeNavigateTimeout(page,'load', debug);
+			await util.safeNavigateTimeout(page,'load', debug);
 			const result = await page.evaluate(()=>{
 					// @ts-ignore
 					const hanger = new GlyphHanger();
@@ -29,7 +28,8 @@ export class CollectSubfont extends Collect {
 					const fontNames = Object.keys(resultJson)
 
 					const fontsCharSets = Array.from(fontNames).map((font: string) => {
-						return {name: font,
+						return {
+							name: font,
 							value: toHex(resultJson[font])
 						};
 					});
@@ -42,7 +42,8 @@ export class CollectSubfont extends Collect {
 				fonts: result
 			};
 		} catch (error) {
-			log(`Error: Subfont collector failed with message: ${error.message}`)
+			util.log(`Error: Subfont collector failed with message: ${error.message}`)
+			return undefined
 		}
 	}
 }
