@@ -24,14 +24,14 @@ export default class UsesHTTP2Audit extends Audit {
 	 */
 	static audit(traces: SA.Traces.Traces): SA.Audit.Result | undefined {
 		debug('running')
-		const {urls} = traces;
+		const {hosts} = traces;
 		const auditUrls = new Set();
 		traces.record
 			.filter(record => {
 				const recordUrl = record.request.url
 				if (record.response.fromServiceWorker) return false;
 				if (record.request.protocol === 'h2') return false;
-				if (urls.includes(recordUrl)) return false;
+				if (hosts.includes(recordUrl.hostname)) return false;
 
 				return true;
 			})

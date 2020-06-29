@@ -18,7 +18,7 @@ declare global {
 		}
 
 		export interface Traces {
-			urls: Array<URL>
+			hosts: Array<string>
 			html: string[];
 			css: CssTrace;
 			js: JsTrace;
@@ -264,7 +264,7 @@ declare global {
 
 		export interface CollectRedirectTraces{
 			redirect:RedirectResponse[]
-			urls:URL[]
+			hosts:string[]
 		}
 
 		export interface CollectSubfontsTraces{

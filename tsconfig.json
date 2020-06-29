@@ -2,6 +2,7 @@
     "compilerOptions": {
       "rootDir": "./src",
       "outDir": "./build",
+      "checkJs":false,
       "target": "es2016",
       "lib": ["es2017", "dom"],
       "module": "commonjs",
@@ -17,5 +18,8 @@
     },
     "include": [
         "./src/**/*"
+    ],
+    "exclude": [
+      "src/**/*.js"
     ]
 }

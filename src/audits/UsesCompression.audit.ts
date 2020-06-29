@@ -46,7 +46,7 @@ export default class UsesCompressionAudit extends Audit {
 		// Filter images and woff font formats.
 		// js files considered secure (with identifiable content on HTTPS, e.g personal cookies ) should not be compressed (to avoid CRIME & BREACH attacks)
 		let errorMessage:string|undefined = undefined
-		const {urls}= traces
+		const {hosts}= traces
 		let justOneTime:boolean = true
 		const resources = traces.record
 			.filter(record => {
@@ -74,9 +74,9 @@ export default class UsesCompressionAudit extends Audit {
 
 				const recordUrl = record.request.url
 
-				const isSameUrl = urls.includes(recordUrl)
+				const isSameHost = hosts.includes(recordUrl.hostname)
 
-				if(justOneTime && isSameUrl && isNginx()){
+				if(justOneTime && isSameHost && isNginx()){
 					errorMessage = `Possible low gzip compression level detected on NGINX server. Please, consider changing it to at least 5. <a href="https://nginx.org/en/docs/http/ngx_http_gzip_module.html">More info`
 					justOneTime=false
 				}

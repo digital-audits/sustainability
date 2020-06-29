@@ -1,6 +1,6 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
-import * as fs from 'fs'
+
 
 const debug = util.debugGenerator('NoConsoleLogs Audit')
 export default class NoConsoleLogsAudit extends Audit {
@@ -17,11 +17,6 @@ export default class NoConsoleLogsAudit extends Audit {
 
 	static audit(traces: SA.Traces.Traces): SA.Audit.Result {
 		debug('running')
-		fs.writeFile('traces.txt', JSON.stringify(traces), (err)=>{
-			if(err){
-				console.log(err)
-			}
-		})
 		const dups = new Set();
 		const uniqueResources = traces.console.filter(trace => {
 			const dup = dups.has(trace.text);

@@ -18,16 +18,16 @@ export default class UsesGreenServerAudit extends Audit {
 		traces: SA.Traces.Traces
 	): Promise<SA.Audit.Result | undefined> {
 		debug('running')
-		const {urls} = traces;
+		const {hosts} = traces;
 		const ipAddress = traces.record.find(record => {
-			const recordUrl = record.response.url
-			return urls.includes(recordUrl);
+			const recordUrl = record.response.url.hostname
+			return hosts.includes(recordUrl);
 		})?.response.remoteAddress.ip;
 
 		debug('evaluating energy source')
 		const response = await util.isGreenServerMem(ipAddress!);
 
-		if(response){
+		if(response && !response.error){
 			const {green, hostedby} = response;
 			const score = Number(green)
 
@@ -45,7 +45,7 @@ export default class UsesGreenServerAudit extends Audit {
 			}: {}),
 			};
 		}else{
-			debug('failed to fetch response')
+			debug(`failed to fetch response with error: ${response?.error}`)
 			return {
 				meta: util.skipMeta(UsesGreenServerAudit.meta),
 				scoreDisplayMode:'skip',

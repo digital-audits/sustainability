@@ -36,25 +36,25 @@ export default class CollectRedirect extends Collect {
 				results.push(information);
 			}
 		});
-		const getPageUrl = () =>{
-			const urls = new Set<URL>();
-			const initialUrl = new URL(url);
-			urls.add(initialUrl);
+		const getPageHosts = () =>{
+			const hosts= new Set<string>();
+			const initialHost = new URL(url).hostname;
+			hosts.add(initialHost);
 			const redirect = results.find(
-				record => new URL(record.url).hostname === initialUrl.hostname
+				record => new URL(record.url).hostname === initialHost
 			)?.redirectsTo;
 
 			if (redirect) {
-				urls.add(new URL(redirect));
+				hosts.add(new URL(redirect).hostname);
 			}
-			return Array.from(urls.values())
+			return Array.from(hosts.values())
 		}
 		try {
 			await util.safeNavigateTimeout(page, 'networkidle0', debug);
-			const urls = getPageUrl()
+			const hosts = getPageHosts()
 			debug('done')
 			return {
-				urls,
+				hosts,
 				redirect: results
 
 			};

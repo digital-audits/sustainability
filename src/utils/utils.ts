@@ -123,6 +123,7 @@ interface APIResponse {
 	url: string;
 	hostedby: string;
 	hostedbywebsite: string;
+  error?:string;
 }
 const isGreenServer = async (ip: string): Promise<APIResponse | undefined> => {
 	try {
