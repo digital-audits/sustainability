@@ -5,7 +5,7 @@ import * as util from '../utils/utils';
  * @fileoverview Audit request in the same origin as host use HTTP2.0
  */
 
- const debug = util.debugGenerator('UsesHTTP2 Audit')
+const debug = util.debugGenerator('UsesHTTP2 Audit');
 export default class UsesHTTP2Audit extends Audit {
 	static get meta() {
 		return {
@@ -23,12 +23,12 @@ export default class UsesHTTP2Audit extends Audit {
 	 * @param traces requiredTraces
 	 */
 	static audit(traces: SA.Traces.Traces): SA.Audit.Result | undefined {
-		debug('running')
+		debug('running');
 		const {hosts} = traces;
 		const auditUrls = new Set();
 		traces.record
 			.filter(record => {
-				const recordUrl = record.request.url
+				const recordUrl = record.request.url;
 				if (record.response.fromServiceWorker) return false;
 				if (record.request.protocol === 'h2') return false;
 				if (hosts.includes(recordUrl.hostname)) return false;
@@ -49,7 +49,7 @@ export default class UsesHTTP2Audit extends Audit {
 
 		const score = Number(auditUrls.size === 0);
 		const meta = util.successOrFailureMeta(UsesHTTP2Audit.meta, score);
-		debug('done')
+		debug('done');
 		return {
 			meta,
 			score,

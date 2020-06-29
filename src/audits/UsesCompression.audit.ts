@@ -7,7 +7,7 @@ import * as util from '../utils/utils';
  *  the compression ratio and comapres it to the threshold.
  */
 
-const debug = util.debugGenerator('UsesCompression Audit')
+const debug = util.debugGenerator('UsesCompression Audit');
 const RATIO_THRESHOLD = 0.95;
 const APPLICABLE_COMPRESSION_MIME_TYPES = [
 	'text/css',
@@ -22,7 +22,7 @@ const APPLICABLE_COMPRESSION_MIME_TYPES = [
 	'text/plain',
 	'image/svg+xml',
 	'image/x-icon'
-]
+];
 export default class UsesCompressionAudit extends Audit {
 	static get meta() {
 		return {
@@ -36,7 +36,7 @@ export default class UsesCompressionAudit extends Audit {
 	}
 
 	static audit(traces: SA.Traces.Traces): SA.Audit.Result | undefined {
-		debug('running')
+		debug('running');
 		const auditUrls = new Set();
 		const compressionRatio = (compressed: number, uncompressed: number) =>
 			Number.isFinite(compressed) && compressed > 0
@@ -45,40 +45,42 @@ export default class UsesCompressionAudit extends Audit {
 
 		// Filter images and woff font formats.
 		// js files considered secure (with identifiable content on HTTPS, e.g personal cookies ) should not be compressed (to avoid CRIME & BREACH attacks)
-		let errorMessage:string|undefined = undefined
-		const {hosts}= traces
-		let justOneTime:boolean = true
+		let errorMessage: string | undefined;
+		const {hosts} = traces;
+		let justOneTime = true;
 		const resources = traces.record
 			.filter(record => {
-
-				if(!APPLICABLE_COMPRESSION_MIME_TYPES.includes(
-					record.response.headers['content-type']
-				)) return false
+				if (
+					!APPLICABLE_COMPRESSION_MIME_TYPES.includes(
+						record.response.headers['content-type']
+					)
+				)
+					return false;
 
 				const size = record.CDP.compressedSize.value;
-				const unSize =
-					record.response.uncompressedSize.value
+				const unSize = record.response.uncompressedSize.value;
 				const ratio = compressionRatio(size, unSize);
 				if (ratio < RATIO_THRESHOLD) return false;
 
 				return true;
 			})
 			.map(record => {
-				const isNginx = ()=>{
-					if(record.response.headers['server']){
-						const server = record.response.headers['server']
-						return server.toUpperCase().includes('NGINX')
+				const isNginx = () => {
+					if (record.response.headers.server) {
+						const server = record.response.headers.server;
+						return server.toUpperCase().includes('NGINX');
 					}
-					return false
-				}
 
-				const recordUrl = record.request.url
+					return false;
+				};
 
-				const isSameHost = hosts.includes(recordUrl.hostname)
+				const recordUrl = record.request.url;
 
-				if(justOneTime && isSameHost && isNginx()){
-					errorMessage = `Possible low gzip compression level detected on NGINX server. Please, consider changing it to at least 5. <a href="https://nginx.org/en/docs/http/ngx_http_gzip_module.html">More info`
-					justOneTime=false
+				const isSameHost = hosts.includes(recordUrl.hostname);
+
+				if (justOneTime && isSameHost && isNginx()) {
+					errorMessage = `Possible low gzip compression level detected on NGINX server. Please, consider changing it to at least 5. <a href="https://nginx.org/en/docs/http/ngx_http_gzip_module.html">More info`;
+					justOneTime = false;
 				}
 
 				let path = '';
@@ -104,17 +106,19 @@ export default class UsesCompressionAudit extends Audit {
 
 		const score = Number(resources.length === 0);
 		const meta = util.successOrFailureMeta(UsesCompressionAudit.meta, score);
-		debug('done')
+		debug('done');
 		return {
 			meta,
 			score,
 			scoreDisplayMode: 'binary',
-      ...(auditUrls.size > 0 ? {
-        extendedInfo : {
-        value:Array.from(auditUrls.values())
-      }
-    }: {}),
-			...(errorMessage ? { errorMessage } : {})
+			...(auditUrls.size > 0
+				? {
+						extendedInfo: {
+							value: Array.from(auditUrls.values())
+						}
+				  }
+				: {}),
+			...(errorMessage ? {errorMessage} : {})
 		};
 	}
 }

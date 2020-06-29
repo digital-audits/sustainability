@@ -1,17 +1,19 @@
 import Collect from './collect';
-import { PageContext } from '../types/index';
+import {PageContext} from '../types';
 import * as util from '../utils/utils';
-import {Response} from 'puppeteer'
+import {Response} from 'puppeteer';
 
-
-const debug = util.debugGenerator('Redirect collect')
+const debug = util.debugGenerator('Redirect collect');
 export default class CollectRedirect extends Collect {
-	collectId:SA.Audit.CollectorsIds='redirectcollect'
-	static get id(){
-		return this.collectId
+	collectId: SA.Audit.CollectorsIds = 'redirectcollect';
+	static get id() {
+		return this.collectId;
 	}
-	static async collect(pageContext: PageContext): Promise<SA.Traces.CollectRedirectTraces | undefined> {
-		debug('running')
+
+	static async collect(
+		pageContext: PageContext
+	): Promise<SA.Traces.CollectRedirectTraces | undefined> {
+		debug('running');
 		const results: SA.Traces.RedirectResponse[] = [];
 		const {page, url} = pageContext;
 		page.on('response', (response: Response) => {
@@ -27,7 +29,7 @@ export default class CollectRedirect extends Collect {
 					url
 				).toString();
 				const information = {
-					//@ts-ignore
+					// @ts-ignore
 					requestId: response.request()._requestId,
 					url,
 					redirectsTo
@@ -36,8 +38,8 @@ export default class CollectRedirect extends Collect {
 				results.push(information);
 			}
 		});
-		const getPageHosts = () =>{
-			const hosts= new Set<string>();
+		const getPageHosts = () => {
+			const hosts = new Set<string>();
 			const initialHost = new URL(url).hostname;
 			hosts.add(initialHost);
 			const redirect = results.find(
@@ -47,20 +49,21 @@ export default class CollectRedirect extends Collect {
 			if (redirect) {
 				hosts.add(new URL(redirect).hostname);
 			}
-			return Array.from(hosts.values())
-		}
+
+			return Array.from(hosts.values());
+		};
+
 		try {
 			await util.safeNavigateTimeout(page, 'networkidle0', debug);
-			const hosts = getPageHosts()
-			debug('done')
+			const hosts = getPageHosts();
+			debug('done');
 			return {
 				hosts,
 				redirect: results
-
 			};
 		} catch (error) {
 			util.log(`Error: Redirect collect failed with message: ${error.message}`);
-			return undefined
+			return undefined;
 		}
 	}
 }

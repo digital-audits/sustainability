@@ -1,20 +1,20 @@
 import Collect from './collect';
-import {PageContext} from '../types/index';
+import {PageContext} from '../types';
 import * as util from '../utils/utils';
-import {Request} from 'puppeteer'
+import {Request} from 'puppeteer';
 
-
-const debug = util.debugGenerator('Collect assets')
+const debug = util.debugGenerator('Collect assets');
 export default class CollectAssets extends Collect {
-	collectId:SA.Audit.CollectorsIds='assetscollect'
-	static get id(){
-		return this.collectId
+	collectId: SA.Audit.CollectorsIds = 'assetscollect';
+	static get id() {
+		return this.collectId;
 	}
+
 	static async collect(
 		pageContext: PageContext
 	): Promise<SA.Traces.CollectAssetsTraces | undefined> {
 		try {
-			debug('running')
+			debug('running');
 			const {page} = pageContext;
 			const sheets: SA.Traces.Sheets[] = [];
 			const scripts: SA.Traces.Scripts[] = [];
@@ -125,7 +125,7 @@ export default class CollectAssets extends Collect {
 				const jsInfo = {scriptSrcs, scripts};
 				return {css: cssInfo, js: jsInfo};
 			});
-			debug('done')
+			debug('done');
 			return {
 				css: {
 					info: documentInformation.css,
@@ -137,7 +137,7 @@ export default class CollectAssets extends Collect {
 				}
 			};
 		} catch (error) {
-			util.log(`Error: Assets collect return message: ${error.message}`)
+			util.log(`Error: Assets collect return message: ${error.message}`);
 			return undefined;
 		}
 	}

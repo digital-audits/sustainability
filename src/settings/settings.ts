@@ -1,44 +1,42 @@
-import CollectTransfer  from "../collect/transfer.collect";
-import CollectFailedTransfers  from "../collect/failed-transfer.collect";
-import CollectRedirect  from "../collect/redirect.collect";
-import CollectConsole  from "../collect/console.collect";
-import CollectSubfont  from "../collect/subfont.collect";
-import CollectAssets  from "../collect/assets.collect";
-import  CollectImages  from "../collect/images.collect";
-import UsesCompressionAudit  from "../audits/UsesCompression.audit";
-import CarbonFootprintAudit  from "../audits/CarbonFootprint.audit";
-import UsesHTTP2Audit  from "../audits/UsesHTTP2.audit";
-import UsesGreenServerAudit  from "../audits/UsesGreenServer.audit";
-import UsesWebpImageFormatAudit  from "../audits/UsesWebpImageFormat.audit";
-import NoConsoleLogsAudit  from "../audits/NoConsoleLogs.audit";
-import UsesFontSubsettingAudit  from "../audits/UsesFontSubsetting.audit";
-import  UsesLazyLoadingAudit  from "../audits/UsesLazyLoading.audit";
+import CollectTransfer from '../collect/transfer.collect';
+import CollectFailedTransfers from '../collect/failed-transfer.collect';
+import CollectRedirect from '../collect/redirect.collect';
+import CollectConsole from '../collect/console.collect';
+import CollectSubfont from '../collect/subfont.collect';
+import CollectAssets from '../collect/assets.collect';
+import CollectImages from '../collect/images.collect';
+import UsesCompressionAudit from '../audits/UsesCompression.audit';
+import CarbonFootprintAudit from '../audits/CarbonFootprint.audit';
+import UsesHTTP2Audit from '../audits/UsesHTTP2.audit';
+import UsesGreenServerAudit from '../audits/UsesGreenServer.audit';
+import UsesWebpImageFormatAudit from '../audits/UsesWebpImageFormat.audit';
+import NoConsoleLogsAudit from '../audits/NoConsoleLogs.audit';
+import UsesFontSubsettingAudit from '../audits/UsesFontSubsetting.audit';
+import UsesLazyLoadingAudit from '../audits/UsesLazyLoading.audit';
 
 export const DEFAULT: SA.Settings.DefaultSettings = {
 	LAUNCH_SETTINGS: {
-		headless:true,
-		timeout: 30*1000
+		headless: true,
+		timeout: 30 * 1000
 	},
 	CONNECTION_SETTINGS: {
 		maxNavigationTime: 60 * 1000,
-		maxScrollInterval:30,
-		emulatedDevice:
-			{
-				name: 'Desktop 1920x1080',
-				userAgent:
-					'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36',
-				viewport: {
-					width: 1920,
-					height: 1080
-				}
-			},
-		location:
-			{
-				name: 'Seattle',
-				latitude: 47.6062,
-				longitude: -122.3331,
-				accuracy: 100
+		maxScrollInterval: 30,
+		emulatedDevice: {
+			name: 'Desktop 1920x1080',
+			userAgent:
+				'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36',
+			viewport: {
+				width: 1920,
+				height: 1080
 			}
+		},
+		location: {
+			name: 'Seattle',
+			latitude: 47.6062,
+			longitude: -122.3331,
+			accuracy: 100
+		}
 	},
 	CATEGORIES: {
 		server: {

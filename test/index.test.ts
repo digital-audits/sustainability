@@ -1,6 +1,6 @@
-import sustainability from '../src/sustainability/sustainability'
+import sustainability from '../src/sustainability/sustainability';
 
-test('Sustainability is exported', ()=>{
-  expect(sustainability).toBeDefined()
-  expect(typeof sustainability.audit).toBe('function')
-})
+test('Sustainability is exported', () => {
+	expect(sustainability).toBeDefined();
+	expect(typeof sustainability.audit).toBe('function');
+});

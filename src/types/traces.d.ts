@@ -1,4 +1,9 @@
-import {HttpMethod, Headers, Metrics, Request as PuppeterRequest} from 'puppeteer';
+import {
+	HttpMethod,
+	Headers,
+	Metrics,
+	Request as PuppeterRequest
+} from 'puppeteer';
 
 declare global {
 	namespace SA.Traces {
@@ -18,7 +23,7 @@ declare global {
 		}
 
 		export interface Traces {
-			hosts: Array<string>
+			hosts: string[];
 			html: string[];
 			css: CssTrace;
 			js: JsTrace;
@@ -29,15 +34,15 @@ declare global {
 			media: MediaTrace;
 			failed: FailedRequest[];
 			redirect: RedirectResponse[];
-			lazyImages: string[]
+			lazyImages: string[];
 		}
 
 		export interface MediaTrace {
-			images: ImageFormat[]
+			images: ImageFormat[];
 		}
 
 		export interface ImageFormat {
-			isVisible:boolean
+			isVisible: boolean;
 			[key: string]: string;
 		}
 
@@ -52,8 +57,8 @@ declare global {
 		}
 
 		export type SubfontFormat = {
-			name:string
-			value:string[]
+			name: string;
+			value: string[];
 		};
 
 		export interface Metrics {
@@ -95,9 +100,9 @@ declare global {
 			text: string;
 		}
 
-		export interface Scripts{
-			url:string;
-			text:string;
+		export interface Scripts {
+			url: string;
+			text: string;
 		}
 
 		export interface StyleInfo {
@@ -140,19 +145,19 @@ declare global {
 			CDP: CDPData;
 		}
 
-		export interface RequestResponse{
-			request:Request;
-			response:Response
+		export interface RequestResponse {
+			request: Request;
+			response: Response;
 		}
 
-		export interface ProtocolData{
-			protocol:string
-			requestId:string
+		export interface ProtocolData {
+			protocol: string;
+			requestId: string;
 		}
 
-		export interface CDPDataPrivate{
-			requestId:string
-			encodedDataLength:number
+		export interface CDPDataPrivate {
+			requestId: string;
+			encodedDataLength: number;
 		}
 
 		export interface Request {
@@ -235,45 +240,45 @@ declare global {
 			redirectsTo: string;
 		}
 
-/**
+		/**
 	Return Types for Collectors
 */
-		export interface CollectAssetsTraces{
-			css:SA.DataLog.CssTrace,
-			js:SA.DataLog.JsTrace
+		export interface CollectAssetsTraces {
+			css: SA.DataLog.CssTrace;
+			js: SA.DataLog.JsTrace;
 		}
 
-		export interface CollectConsoleTraces{
-			console:ConsoleMessage[]
+		export interface CollectConsoleTraces {
+			console: ConsoleMessage[];
 		}
 
-		export interface CollectFailedTransferTraces{
-			failed:FailedRequest[]
+		export interface CollectFailedTransferTraces {
+			failed: FailedRequest[];
 		}
 
-		export interface CollectHtmlTraces{
-			html:string[]
+		export interface CollectHtmlTraces {
+			html: string[];
 		}
-		export interface CollectImagesTraces{
-			media:MediaTrace
-		}
-
-		export interface CollectPerformanceTraces{
-			performance:PerformanceFormat
+		export interface CollectImagesTraces {
+			media: MediaTrace;
 		}
 
-		export interface CollectRedirectTraces{
-			redirect:RedirectResponse[]
-			hosts:string[]
+		export interface CollectPerformanceTraces {
+			performance: PerformanceFormat;
 		}
 
-		export interface CollectSubfontsTraces{
-			fonts:SubfontFormat[]
+		export interface CollectRedirectTraces {
+			redirect: RedirectResponse[];
+			hosts: string[];
 		}
 
-		export interface CollectTransferTraces{
-			record:Record[]
-			lazyImages:string[]
+		export interface CollectSubfontsTraces {
+			fonts: SubfontFormat[];
+		}
+
+		export interface CollectTransferTraces {
+			record: Record[];
+			lazyImages: string[];
 		}
 	}
 }

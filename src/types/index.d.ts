@@ -2,11 +2,11 @@ import {ConcurrencyImplementationClassType} from 'puppeteer-cluster/dist/concurr
 import {LaunchOptions, Page, Browser} from 'puppeteer';
 
 export interface AuditSettings {
-	id?:string
-	browser?:Browser
-	page?:Page
-	launchSettings?:LaunchOptions
-	connectionSettings?:SA.Settings.ConnectionSettings
+	id?: string;
+	browser?: Browser;
+	page?: Page;
+	launchSettings?: LaunchOptions;
+	connectionSettings?: SA.Settings.ConnectionSettings;
 }
 
 export interface Tracker {
@@ -14,18 +14,17 @@ export interface Tracker {
 	dispose(): void;
 }
 
-export interface PageContext{
+export interface PageContext {
 	page: Page;
-	url:string
+	url: string;
 }
 
-
-export interface PromiseAllSettledFulfilled{
-	status: 'fulfilled'
-	value: Object
+export interface PromiseAllSettledFulfilled {
+	status: 'fulfilled';
+	value: Record<string, unknown>;
 }
 
-export interface PromiseAllSettledRejected{
-	status: 'rejected'
-	reason: Error
+export interface PromiseAllSettledRejected {
+	status: 'rejected';
+	reason: Error;
 }

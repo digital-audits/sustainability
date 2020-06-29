@@ -12,12 +12,12 @@ declare global {
 			/** Audit category: Server or Design */
 			category: 'server' | 'design';
 			/** Traces names this audit requires */
-			collectors?: Array<CollectorsIds>;
+			collectors?: CollectorsIds[];
 		}
 		export type ScoreDisplayMode = 'numeric' | 'binary' | 'skip';
 
 		export type CollectorsIds =
-			'transfercollect'
+			| 'transfercollect'
 			| 'redirectcollect'
 			| 'failedtransfercollect'
 			| 'htmlcollect'
@@ -26,8 +26,7 @@ declare global {
 			| 'performancecollect'
 			| 'imagescollect'
 			| 'consolecollect'
-			| 'assetscollect'
-
+			| 'assetscollect';
 
 		export interface Result {
 			score?: number;
@@ -55,7 +54,7 @@ declare global {
 		export interface AuditByFailOrPassOrSkip {
 			pass: AuditReportFormat[];
 			fail: AuditReportFormat[];
-			skip: SkippedAuditReportFormat[]
+			skip: SkippedAuditReportFormat[];
 		}
 
 		export interface AuditReportFormat {
@@ -68,7 +67,7 @@ declare global {
 		}
 
 		export interface SkippedAuditReportFormat {
-			meta:Meta
+			meta: Meta;
 		}
 	}
 }

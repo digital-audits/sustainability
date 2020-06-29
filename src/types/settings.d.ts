@@ -2,14 +2,14 @@ import {ClusterOptions, TaskFunctionArguments} from './cluster-settings';
 import {Collect, PassContext} from '../collect/collect';
 import {Audit} from '../audits/audit';
 import {CollectTransfer} from '../collect/transfer.collect';
-import { LaunchOptions } from 'puppeteer';
+import {LaunchOptions} from 'puppeteer';
 
 declare global {
 	namespace SA {
 		namespace Settings {
 			export interface DefaultSettings {
-				LAUNCH_SETTINGS:LaunchOptions,
-				CONNECTION_SETTINGS:ConnectionSettingsPrivate
+				LAUNCH_SETTINGS: LaunchOptions;
+				CONNECTION_SETTINGS: ConnectionSettingsPrivate;
 				CATEGORIES: {
 					server: {description: string};
 					design: {description: string};
@@ -37,14 +37,14 @@ declare global {
 
 			export interface ConnectionSettings {
 				maxNavigationTime?: number;
-				maxScrollInterval?: number,
+				maxScrollInterval?: number;
 				emulatedDevice?: EmulatedDevice;
 				location?: EmulatedLocation;
 			}
 
 			export interface ConnectionSettingsPrivate {
 				maxNavigationTime: number;
-				maxScrollInterval: number,
+				maxScrollInterval: number;
 				emulatedDevice: EmulatedDevice;
 				location: EmulatedLocation;
 			}

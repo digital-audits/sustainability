@@ -4,7 +4,7 @@ import * as util from '../utils/utils';
 /**
  * Test with https://mathiasbynens.be/demo/img-loading-lazy
  */
-const debug = util.debugGenerator('UsesLazyLoading Audit')
+const debug = util.debugGenerator('UsesLazyLoading Audit');
 export default class UsesLazyLoadingAudit extends Audit {
 	static get meta() {
 		return {
@@ -19,20 +19,18 @@ export default class UsesLazyLoadingAudit extends Audit {
 	}
 
 	static audit(traces: SA.Traces.Traces): SA.Audit.Result {
+		const isAuditApplicable = (): boolean => {
+			if (!traces.media.images.length) return false;
+			if (!traces.media.images.some(image => !image.isVisible)) return false;
 
+			return true;
+		};
 
-		const isAuditApplicable = ():boolean => {
-			if(!traces.media.images.length) return false
-			if(!traces.media.images.some(image=>!image.isVisible)) return false
-
-			return true
-		}
-
-		if (isAuditApplicable()){
-			debug('running')
-			const score = Number(traces.lazyImages.length > 0)
+		if (isAuditApplicable()) {
+			debug('running');
+			const score = Number(traces.lazyImages.length > 0);
 			const meta = util.successOrFailureMeta(UsesLazyLoadingAudit.meta, score);
-			debug('done')
+			debug('done');
 
 			return {
 				meta,
@@ -41,12 +39,11 @@ export default class UsesLazyLoadingAudit extends Audit {
 			};
 		}
 
-		debug('skipping non applicable audit')
+		debug('skipping non applicable audit');
 
 		return {
-			meta:util.skipMeta(UsesLazyLoadingAudit.meta),
-			scoreDisplayMode:'skip'
-		}
-
+			meta: util.skipMeta(UsesLazyLoadingAudit.meta),
+			scoreDisplayMode: 'skip'
+		};
 	}
 }

@@ -2,7 +2,7 @@ import Audit from './audit';
 import csstree = require('css-tree');
 import * as util from '../utils/utils';
 
-const debug = util.debugGenerator('UsesFontSubsetting Audit')
+const debug = util.debugGenerator('UsesFontSubsetting Audit');
 const LOCAL_FONTS = [
 	'ARIAL',
 	'ARIAL BLACK',
@@ -42,103 +42,104 @@ export default class UsesFontSubsettingAudit extends Audit {
 	 *
 	 *
 	 */
-	static audit(traces: SA.Traces.Traces):SA.Audit.Result{
-
-
+	static audit(traces: SA.Traces.Traces): SA.Audit.Result {
 		const fontsCharSets = traces.fonts.filter(
 			font => !LOCAL_FONTS.includes(font.name.toUpperCase())
 		);
 
-		const isAuditApplicable = ():boolean => {
-			if (!fontsCharSets.length) return false
-			return true
-		}
+		const isAuditApplicable = (): boolean => {
+			if (!fontsCharSets.length) return false;
+			return true;
+		};
 
-		if(isAuditApplicable()){
-			debug('running')
+		if (isAuditApplicable()) {
+			debug('running');
 
-		const fonts = new Set();
-		traces.css.sheets
-			.map(sheet => {
-				const {url} = sheet;
-				const ast = csstree.parse(sheet.text);
+			const fonts = new Set();
+			traces.css.sheets
+				.map(sheet => {
+					const {url} = sheet;
+					const ast = csstree.parse(sheet.text);
 
-				// Check subsetting at @font-face (unicode-range)
-				const fonts: Array<{fontName: string; hasSubset: boolean}> = [];
-				csstree.walk(ast, {
-					enter(node: any) {
-						if (node.type === 'Atrule' && node.name === 'font-face') {
-							const hasSubset: boolean = node.block.children.some((ch: any) => {
-								if (ch.property === 'unicode-range') {
-									return true;
-								}
+					// Check subsetting at @font-face (unicode-range)
+					const fonts: Array<{fontName: string; hasSubset: boolean}> = [];
+					csstree.walk(ast, {
+						enter(node: any) {
+							if (node.type === 'Atrule' && node.name === 'font-face') {
+								const hasSubset: boolean = node.block.children.some(
+									(ch: any) => {
+										if (ch.property === 'unicode-range') {
+											return true;
+										}
 
-								return false;
-							});
-
-							const fontName: string = node.block.children
-								.filter((ch: any) => {
-									if (ch.property === 'font-family') {
-										return true;
+										return false;
 									}
+								);
 
-									return false;
-								})
-								.tail.data.value.children.map((ch: any) => ch.value);
+								const fontName: string = node.block.children
+									.filter((ch: any) => {
+										if (ch.property === 'font-family') {
+											return true;
+										}
 
-							fonts.push({fontName, hasSubset});
+										return false;
+									})
+									.tail.data.value.children.map((ch: any) => ch.value);
+
+								fonts.push({fontName, hasSubset});
+							}
 						}
+					});
+
+					return {
+						url,
+						fontSubsets: fonts
+					};
+				})
+				.filter(resource => {
+					// We need to compare fontnames to nonLocalFonts array
+					if (resource.fontSubsets.some(font => font.hasSubset)) {
+						return true;
 					}
+
+					return false;
+				})
+				.filter(resource => {
+					if (fonts.has(resource.url)) return false;
+					fonts.add(resource.url);
+					return true;
 				});
 
-				return {
-					url,
-					fontSubsets: fonts
-				};
-			})
-			.filter(resource => {
-				// We need to compare fontnames to nonLocalFonts array
-				if (resource.fontSubsets.some(font => font.hasSubset)) {
-					return true;
-				}
-
-				return false;
-			})
-			.filter(resource => {
-				if (fonts.has(resource.url)) return false;
-				fonts.add(resource.url);
-				return true;
-			});
-
-		let fontSubsets = {} as SA.Traces.SubfontFormat[]
-		const score = Number(fonts.size > 0);
-		if (score === 0) {
-			fontSubsets = fontsCharSets;
-
-		}
-
-		const meta = util.successOrFailureMeta(
-			UsesFontSubsettingAudit.meta,
-			score
-		);
-		debug('done')
-		return {
-			meta,
-			score,
-			scoreDisplayMode: 'binary',
-			...(Array.from(fontSubsets).length ? {
-				extendedInfo : {
-				value:Array.from(fontSubsets)
+			let fontSubsets = {} as SA.Traces.SubfontFormat[];
+			const score = Number(fonts.size > 0);
+			if (score === 0) {
+				fontSubsets = fontsCharSets;
 			}
-		}: {}),
-		};
+
+			const meta = util.successOrFailureMeta(
+				UsesFontSubsettingAudit.meta,
+				score
+			);
+			debug('done');
+			return {
+				meta,
+				score,
+				scoreDisplayMode: 'binary',
+				...(Array.from(fontSubsets).length
+					? {
+							extendedInfo: {
+								value: Array.from(fontSubsets)
+							}
+					  }
+					: {})
+			};
 		}
 
-		debug('skipping non applicable audit')
+		debug('skipping non applicable audit');
 
-		return{
+		return {
 			meta: util.skipMeta(UsesFontSubsettingAudit.meta),
-			scoreDisplayMode:'skip'
-		}
+			scoreDisplayMode: 'skip'
+		};
 	}
 }

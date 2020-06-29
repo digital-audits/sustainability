@@ -1,7 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
 
-const debug = util.debugGenerator('UsesGreenServer Audit')
+const debug = util.debugGenerator('UsesGreenServer Audit');
 export default class UsesGreenServerAudit extends Audit {
 	static get meta() {
 		return {
@@ -17,43 +17,42 @@ export default class UsesGreenServerAudit extends Audit {
 	static async audit(
 		traces: SA.Traces.Traces
 	): Promise<SA.Audit.Result | undefined> {
-		debug('running')
+		debug('running');
 		const {hosts} = traces;
 		const ipAddress = traces.record.find(record => {
-			const recordUrl = record.response.url.hostname
+			const recordUrl = record.response.url.hostname;
 			return hosts.includes(recordUrl);
 		})?.response.remoteAddress.ip;
 
-		debug('evaluating energy source')
+		debug('evaluating energy source');
 		const response = await util.isGreenServerMem(ipAddress!);
 
-		if(response && !response.error){
+		if (response && !response.error) {
 			const {green, hostedby} = response;
-			const score = Number(green)
+			const score = Number(green);
 
 			const meta = util.successOrFailureMeta(UsesGreenServerAudit.meta, score);
 
-			debug('done')
+			debug('done');
 			return {
 				meta,
 				score,
 				scoreDisplayMode: 'binary',
-				...(hostedby ? {
-					extendedInfo : {
-					value:{hostedby}
-				}
-			}: {}),
+				...(hostedby
+					? {
+							extendedInfo: {
+								value: {hostedby}
+							}
+					  }
+					: {})
 			};
-		}else{
-			debug(`failed to fetch response with error: ${response?.error}`)
-			return {
-				meta: util.skipMeta(UsesGreenServerAudit.meta),
-				scoreDisplayMode:'skip',
-				errorMessage:'Failed to fetch response body'
-			}
 		}
 
-
-
+		debug(`failed to fetch response with error: ${response?.error}`);
+		return {
+			meta: util.skipMeta(UsesGreenServerAudit.meta),
+			scoreDisplayMode: 'skip',
+			errorMessage: 'Failed to fetch response body'
+		};
 	}
 }

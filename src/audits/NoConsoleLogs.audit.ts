@@ -1,8 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
 
-
-const debug = util.debugGenerator('NoConsoleLogs Audit')
+const debug = util.debugGenerator('NoConsoleLogs Audit');
 export default class NoConsoleLogsAudit extends Audit {
 	static get meta() {
 		return {
@@ -16,7 +15,7 @@ export default class NoConsoleLogsAudit extends Audit {
 	}
 
 	static audit(traces: SA.Traces.Traces): SA.Audit.Result {
-		debug('running')
+		debug('running');
 		const dups = new Set();
 		const uniqueResources = traces.console.filter(trace => {
 			const dup = dups.has(trace.text);
@@ -25,16 +24,18 @@ export default class NoConsoleLogsAudit extends Audit {
 		});
 		const score = Number(uniqueResources.length === 0);
 		const meta = util.successOrFailureMeta(NoConsoleLogsAudit.meta, score);
-		debug('done')
+		debug('done');
 		return {
 			meta,
 			score,
 			scoreDisplayMode: 'binary',
-			...(uniqueResources.length ? {
-				extendedInfo : {
-				value:uniqueResources
-			}
-		}: {}),
+			...(uniqueResources.length
+				? {
+						extendedInfo: {
+							value: uniqueResources
+						}
+				  }
+				: {})
 		};
 	}
 }

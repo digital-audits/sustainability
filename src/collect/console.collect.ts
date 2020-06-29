@@ -1,17 +1,19 @@
 import Collect from './collect';
 import {ConsoleMessage} from 'puppeteer';
-import { PageContext } from '../types/index';
+import {PageContext} from '../types';
 import * as util from '../utils/utils';
 
-const debug = util.debugGenerator('Console collect')
+const debug = util.debugGenerator('Console collect');
 export default class CollectConsole extends Collect {
-	collectId:SA.Audit.CollectorsIds = 'consolecollect'
-	static get id(){
-		return this.collectId
+	collectId: SA.Audit.CollectorsIds = 'consolecollect';
+	static get id() {
+		return this.collectId;
 	}
-	static async collect(pageContext: PageContext): Promise<SA.Traces.CollectConsoleTraces | undefined> {
 
-		debug('running')
+	static async collect(
+		pageContext: PageContext
+	): Promise<SA.Traces.CollectConsoleTraces | undefined> {
+		debug('running');
 		const {page} = pageContext;
 
 		const results: SA.Traces.ConsoleMessage[] = [];
@@ -37,8 +39,8 @@ export default class CollectConsole extends Collect {
 				console: results
 			};
 		} catch (error) {
-			util.log(`Error: Console collect failed with message: ${error.message}`)
-			return undefined
+			util.log(`Error: Console collect failed with message: ${error.message}`);
+			return undefined;
 		}
 	}
 }

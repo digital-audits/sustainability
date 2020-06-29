@@ -1,49 +1,56 @@
 import Collect from './collect';
-import { PageContext } from '../types/index';
+import {PageContext} from '../types';
 import * as util from '../utils/utils';
 
-
-const debug = util.debugGenerator('Subfont collect')
+const debug = util.debugGenerator('Subfont collect');
 
 export default class CollectSubfont extends Collect {
-	collectId:SA.Audit.CollectorsIds='subfontcollect'
-	static get id(){
-		return this.collectId
+	collectId: SA.Audit.CollectorsIds = 'subfontcollect';
+	static get id() {
+		return this.collectId;
 	}
-	static async collect(pageContext: PageContext): Promise<SA.Traces.CollectSubfontsTraces | undefined> {
+
+	static async collect(
+		pageContext: PageContext
+	): Promise<SA.Traces.CollectSubfontsTraces | undefined> {
 		try {
 			// May be interesting to give a try at Page._client.FontFamilies
-			debug('running')
+			debug('running');
 			const {page} = pageContext;
-			await util.safeNavigateTimeout(page,'load', debug);
-			const result = await page.evaluate(()=>{
-					// @ts-ignore
-					const hanger = new GlyphHanger();
-					const toHex = function(codePointArray:number[]){
-						return codePointArray.map(codePoint=>'U+' + codePoint.toString(16).toUpperCase())
-					}
-					hanger.init(document.body);
-					const resultJson = hanger.toJSON();
+			await util.safeNavigateTimeout(page, 'load', debug);
+			const result = await page.evaluate(() => {
+				// @ts-ignore
+				const hanger = new GlyphHanger();
+				const toHex = function(codePointArray: number[]) {
+					return codePointArray.map(
+						codePoint => 'U+' + codePoint.toString(16).toUpperCase()
+					);
+				};
 
-					const fontNames = Object.keys(resultJson)
+				hanger.init(document.body);
+				const resultJson = hanger.toJSON();
 
-					const fontsCharSets = Array.from(fontNames).map((font: string) => {
-						return {
-							name: font,
-							value: toHex(resultJson[font])
-						};
-					});
+				const fontNames = Object.keys(resultJson);
 
-					return fontsCharSets;
-			})
+				const fontsCharSets = Array.from(fontNames).map((font: string) => {
+					return {
+						name: font,
+						value: toHex(resultJson[font])
+					};
+				});
 
-			debug('done')
+				return fontsCharSets;
+			});
+
+			debug('done');
 			return {
 				fonts: result
 			};
 		} catch (error) {
-			util.log(`Error: Subfont collector failed with message: ${error.message}`)
-			return undefined
+			util.log(
+				`Error: Subfont collector failed with message: ${error.message}`
+			);
+			return undefined;
 		}
 	}
 }

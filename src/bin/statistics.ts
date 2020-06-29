@@ -1,4 +1,3 @@
-
 /**
  * Credits to Google Lighthouse Audits
  *
@@ -10,7 +9,7 @@
  * https://www.desmos.com/calculator/p3z5exil8h
  * for an interactive view of the relationship between these parameters and the
  * typical parameterization (location and shape) of the log-normal distribution.
- * 
+ *
  */
 export function getLogNormalScore(
 	{median, p10}: {median: number; p10: number},
