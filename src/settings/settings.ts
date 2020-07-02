@@ -17,7 +17,7 @@ import UsesLazyLoadingAudit from '../audits/UsesLazyLoading.audit';
 export const DEFAULT: SA.Settings.DefaultSettings = {
 	LAUNCH_SETTINGS: {
 		headless: true,
-		timeout: 30 * 1000
+		timeout: 0
 	},
 	CONNECTION_SETTINGS: {
 		maxNavigationTime: 60 * 1000,

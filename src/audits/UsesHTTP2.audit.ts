@@ -22,7 +22,7 @@ export default class UsesHTTP2Audit extends Audit {
 	/**
 	 * @param traces requiredTraces
 	 */
-	static audit(traces: SA.Traces.Traces): SA.Audit.Result | undefined {
+	static audit(traces: SA.Traces.Traces): SA.Audit.Result | SA.Audit.SkipResult | undefined {
 		debug('running');
 		const {hosts} = traces;
 		const auditUrls = new Set();

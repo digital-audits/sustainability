@@ -4,15 +4,15 @@ declare global {
 			/** String identifier of the audit */
 			id: string;
 			/** Short successful audit title */
-			title?: string;
+			title: string;
 			/** Short failed audit title */
-			failureTitle?: string;
+			failureTitle: string;
 			/** Audit description, showcasinng importance and useful information */
 			description: string;
 			/** Audit category: Server or Design */
 			category: 'server' | 'design';
 			/** Traces names this audit requires */
-			collectors?: CollectorsIds[];
+			collectors: CollectorsIds[];
 		}
 		export type ScoreDisplayMode = 'numeric' | 'binary' | 'skip';
 
@@ -29,9 +29,30 @@ declare global {
 			| 'assetscollect';
 
 		export interface Result {
-			score?: number;
+			score: number;
 			scoreDisplayMode: ScoreDisplayMode;
-			meta: Meta;
+			meta: SuccessOrFailureMeta;
+			extendedInfo?: {value: ExtendedInfo};
+			errorMessage?: string;
+		}
+
+		export interface SuccessOrFailureMeta{
+			/** String identifier of the audit */
+			id: string;
+			/** Short successful or failure audit title */
+			title: string;
+			/** Audit description, showcasinng importance and useful information */
+			description: string;
+			/** Audit category: Server or Design */
+			category: 'server' | 'design';
+		}
+		
+
+
+
+		export interface SkipResult{
+			scoreDisplayMode: ScoreDisplayMode;
+			meta: SkipMeta;
 			extendedInfo?: {value: ExtendedInfo};
 			errorMessage?: string;
 		}
@@ -43,7 +64,7 @@ declare global {
 		export interface AuditsByCategory {
 			category: AuditCategoryAndDescription;
 			score: number | null;
-			audits: AuditByFailOrPass;
+			audits: AuditByFailOrPassOrSkip;
 		}
 
 		export interface AuditCategoryAndDescription {
@@ -67,7 +88,16 @@ declare global {
 		}
 
 		export interface SkippedAuditReportFormat {
-			meta: Meta;
+			meta: SkipMeta;
+		}
+
+		export interface SkipMeta{
+			/** String identifier of the audit */
+			id: string;
+			/** Audit category: Server or Design */
+			category: 'server' | 'design';
+			/** Audit description, showcasinng importance and useful information */
+			description: string;
 		}
 	}
 }

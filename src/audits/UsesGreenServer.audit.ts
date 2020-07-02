@@ -16,7 +16,7 @@ export default class UsesGreenServerAudit extends Audit {
 
 	static async audit(
 		traces: SA.Traces.Traces
-	): Promise<SA.Audit.Result | undefined> {
+	): Promise<SA.Audit.Result | SA.Audit.SkipResult | undefined> {
 		debug('running');
 		const {hosts} = traces;
 		const ipAddress = traces.record.find(record => {

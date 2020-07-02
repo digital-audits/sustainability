@@ -7,49 +7,50 @@ import {LaunchOptions, Browser} from 'puppeteer';
 import * as util from '../utils/utils';
 
 export default class Sustainability {
-	public static async audit(url: string, options?: AuditSettings) {
+	public static async audit(url: string, settings?: AuditSettings) {
 		const sustainability = new Sustainability();
 		const browser =
-			options?.browser ??
+			settings?.browser ??
 			(await sustainability.startNewConnectionAndReturnBrowser(
-				options?.launchSettings
+				settings?.launchSettings
 			));
 		try {
-			const page = options?.page ?? (await browser.newPage());
+			const page = settings?.page ?? (await browser?.newPage());
 
 			try {
 				const pageContext = {page, url};
-				const report = await sustainability.handler(pageContext, options);
+				const report = await sustainability.handler(pageContext, settings);
 				return report;
 			} catch (error) {
 				log(`Error: Audit failed with message: ${error.message}`);
-				process.exit(1);
 			} finally {
 				await page.close();
+				process.exit(1)
 			}
 		} catch (error) {
 			log(`Error: Failed to launch page: ${error.message}`);
-			process.exit(1);
 		} finally {
-			await browser.close();
+			await browser?.close();
+			process.exit(1)
+
 		}
 	}
 
 	private async startNewConnectionAndReturnBrowser(
-		options?: LaunchOptions
+		settings?: LaunchOptions
 	): Promise<Browser> {
-		const browser = await Connection.setUp(options);
+		const browser = await Connection.setUp(settings);
 		return browser;
 	}
 
-	private async handler(pageContextRaw: PageContext, options?: AuditSettings) {
+	private async handler(pageContextRaw: PageContext, settings?: AuditSettings) {
 		const startTime = Date.now();
 
-		const projectId = options?.id ?? util.generate();
+		const projectId = settings?.id ?? util.generate();
 		const {url} = pageContextRaw;
 		const page = await Commander.setUp(
 			pageContextRaw,
-			options?.connectionSettings
+			settings?.connectionSettings
 		);
 
 		const pageContext = {...pageContextRaw, page};

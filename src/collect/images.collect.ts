@@ -17,7 +17,7 @@ export default class CollectImages extends Collect {
 		const {page} = pageContext;
 		const fetchImages = async () => {
 			return page.evaluate(() => {
-				const isElementVisible = (element): boolean => {
+				const isElementVisible = (element:HTMLElement): boolean => {
 					const bounding = element.getBoundingClientRect();
 					const isVisible =
 						(bounding.top > 0 &&

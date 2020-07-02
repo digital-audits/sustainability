@@ -35,7 +35,7 @@ export default class UsesCompressionAudit extends Audit {
 		} as SA.Audit.Meta;
 	}
 
-	static audit(traces: SA.Traces.Traces): SA.Audit.Result | undefined {
+	static audit(traces: SA.Traces.Traces): SA.Audit.Result | SA.Audit.SkipResult| undefined {
 		debug('running');
 		const auditUrls = new Set();
 		const compressionRatio = (compressed: number, uncompressed: number) =>

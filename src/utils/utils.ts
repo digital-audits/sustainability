@@ -19,7 +19,7 @@ export function debugGenerator(namespace: string): Debug.IDebugger {
 const logToConsole = Debug('sustainability:log');
 logToConsole.log = console.error.bind(console);
 
-export function log(message): void {
+export function log(message:string): void {
 	logToConsole(message);
 }
 
@@ -186,37 +186,6 @@ export function generate(): string {
 	return uuidv1();
 }
 
-export default async function measure(
-	page: Page,
-	testFunction: CallableFunction
-): Promise<boolean> {
-	const initialObjectsNumber = await countObjects(page);
-	await Reflect.apply(testFunction, null, arguments);
-	const finalObjectsNumber = await countObjects(page);
-
-	return initialObjectsNumber === finalObjectsNumber;
-}
-
-// From https://github.com/chrisguttandin/standardized-audio-context/blob/master/test/memory/module.js
-
-/**
- *
- * @param page Puppeteer Page Object
- * @returns number of total objects
- */
-export const countObjects = async (page: Page): Promise<number> => {
-	const prototypeHandle = await page.evaluateHandle(() => Object.prototype);
-	const objectsHandle = await page.queryObjects(prototypeHandle);
-	const numberOfObjects = await page.evaluate(
-		instances => instances.length,
-		objectsHandle
-	);
-
-	await Promise.all([prototypeHandle.dispose(), objectsHandle.dispose()]);
-
-	return numberOfObjects;
-};
-
 /**
  * Credits to Google Lighthouse
  *
@@ -276,7 +245,7 @@ export function groupAudits(
 	return audits;
 }
 
-export function successOrFailureMeta(meta: SA.Audit.Meta, score: number) {
+export function successOrFailureMeta(meta: SA.Audit.Meta, score: number):SA.Audit.SuccessOrFailureMeta {
 	const {title, failureTitle, collectors, ...output} = meta;
 
 	if (failed(score)) {
@@ -286,7 +255,7 @@ export function successOrFailureMeta(meta: SA.Audit.Meta, score: number) {
 	return {title, ...output};
 }
 
-export function skipMeta(meta: SA.Audit.Meta) {
+export function skipMeta(meta: SA.Audit.Meta): SA.Audit.SkipMeta{
 	return {id: meta.id, category: meta.category, description: meta.description};
 }
 

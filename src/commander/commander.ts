@@ -90,6 +90,7 @@ class Commander {
 			debug('Done navigation');
 		} catch (error) {
 			util.safeReject(error, this.tracker);
+			process.exit(1)
 		}
 	}
 
