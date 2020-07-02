@@ -13,7 +13,6 @@ export default class Sustainability {
 
 		try {
 			if (!settings?.page) {
-				console.log('not here');
 				browser =
 					settings?.browser ??
 					(await sustainability.startNewConnectionAndReturnBrowser(

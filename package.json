@@ -1,6 +1,6 @@
 {
   "name": "sustainability",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "digital sustainability audits for the web",
   "main": "build/index.js",
   "bin": {
