@@ -18,7 +18,9 @@ export default class UsesLazyLoadingAudit extends Audit {
 		} as SA.Audit.Meta;
 	}
 
-	static audit(traces: SA.Traces.Traces): SA.Audit.Result | SA.Audit.SkipResult {
+	static audit(
+		traces: SA.Traces.Traces
+	): SA.Audit.Result | SA.Audit.SkipResult {
 		const isAuditApplicable = (): boolean => {
 			if (!traces.media.images.length) return false;
 			if (!traces.media.images.some(image => !image.isVisible)) return false;

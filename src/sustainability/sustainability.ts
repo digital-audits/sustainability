@@ -1,35 +1,44 @@
 import Connection from '../connection/connection';
 import Commander from '../commander/commander';
 import {PageContext, AuditSettings} from '../types';
-import {LaunchOptions, Browser} from 'puppeteer';
+import {LaunchOptions, Browser, Page} from 'puppeteer';
 
 import * as util from '../utils/utils';
 
 export default class Sustainability {
 	public static async audit(url: string, settings?: AuditSettings) {
 		const sustainability = new Sustainability();
-		const browser =
-			settings?.browser ??
-			(await sustainability.startNewConnectionAndReturnBrowser(
-				settings?.launchSettings
-			));
+		let browser: Browser | undefined;
+		let page: Page;
+
 		try {
-			const page = settings?.page ?? (await browser?.newPage());
+			if (!settings?.page) {
+				console.log('not here');
+				browser =
+					settings?.browser ??
+					(await sustainability.startNewConnectionAndReturnBrowser(
+						settings?.launchSettings
+					));
+				page = await browser.newPage();
+			} else {
+				page = settings.page;
+			}
 
 			try {
 				const pageContext = {page, url};
 				const report = await sustainability.handler(pageContext, settings);
 				return report;
 			} catch (error) {
-				throw new Error (`Error: Audit failed with message: ${error.message}`);
+				throw new Error(`Error: Audit failed with message: ${error.message}`);
 			} finally {
 				await page.close();
 			}
 		} catch (error) {
-			throw new Error (`Error: Failed to launch page: ${error.message}`);
+			throw new Error(`Error: Failed to launch page: ${error.message}`);
 		} finally {
-			await browser?.close();
-
+			if (browser) {
+				await browser.close();
+			}
 		}
 	}
 

@@ -42,7 +42,9 @@ export default class UsesFontSubsettingAudit extends Audit {
 	 *
 	 *
 	 */
-	static audit(traces: SA.Traces.Traces): SA.Audit.Result | SA.Audit.SkipResult {
+	static audit(
+		traces: SA.Traces.Traces
+	): SA.Audit.Result | SA.Audit.SkipResult {
 		const fontsCharSets = traces.fonts.filter(
 			font => !LOCAL_FONTS.includes(font.name.toUpperCase())
 		);

@@ -23,7 +23,9 @@ export default class UsesWebpImageFormatAudit extends Audit {
 	 * WebP should be used against PNG, JPG or GIF images
 	 */
 
-	static audit(traces: SA.Traces.Traces): SA.Audit.Result | SA.Audit.SkipResult{
+	static audit(
+		traces: SA.Traces.Traces
+	): SA.Audit.Result | SA.Audit.SkipResult {
 		const isAuditApplicable = (): boolean => {
 			if (!traces.media.images.length) return false;
 			return true;

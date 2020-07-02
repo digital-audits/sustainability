@@ -19,7 +19,7 @@ export function debugGenerator(namespace: string): Debug.IDebugger {
 const logToConsole = Debug('sustainability:log');
 logToConsole.log = console.error.bind(console);
 
-export function log(message:string): void {
+export function log(message: string): void {
 	logToConsole(message);
 }
 
@@ -113,7 +113,7 @@ export function safeReject(error: Error, tracker?: Tracker) {
 		}
 	}
 
-	throw new Error (`Error: Navigation failed with message: ${error.message}`);
+	throw new Error(`Error: Navigation failed with message: ${error.message}`);
 }
 
 export function createTracker(page: Page): Tracker {
@@ -245,7 +245,10 @@ export function groupAudits(
 	return audits;
 }
 
-export function successOrFailureMeta(meta: SA.Audit.Meta, score: number):SA.Audit.SuccessOrFailureMeta {
+export function successOrFailureMeta(
+	meta: SA.Audit.Meta,
+	score: number
+): SA.Audit.SuccessOrFailureMeta {
 	const {title, failureTitle, collectors, ...output} = meta;
 
 	if (failed(score)) {
@@ -255,7 +258,7 @@ export function successOrFailureMeta(meta: SA.Audit.Meta, score: number):SA.Audi
 	return {title, ...output};
 }
 
-export function skipMeta(meta: SA.Audit.Meta): SA.Audit.SkipMeta{
+export function skipMeta(meta: SA.Audit.Meta): SA.Audit.SkipMeta {
 	return {id: meta.id, category: meta.category, description: meta.description};
 }
 

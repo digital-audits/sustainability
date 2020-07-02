@@ -56,8 +56,7 @@ class Commander {
 
 			return page;
 		} catch (error) {
-			throw new Error (`Setup error ${error.message}`);
-
+			throw new Error(`Setup error ${error.message}`);
 		}
 	}
 
@@ -110,8 +109,7 @@ class Commander {
 				this.audits.audits.map((audit: any) => audit.audit(parsedTraces))
 			);
 		} catch (error) {
-			throw new Error (`Error: Commander failed with ${error.message}`);
-
+			throw new Error(`Error: Commander failed with ${error.message}`);
 		}
 	}
 }

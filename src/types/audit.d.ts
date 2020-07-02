@@ -36,7 +36,7 @@ declare global {
 			errorMessage?: string;
 		}
 
-		export interface SuccessOrFailureMeta{
+		export interface SuccessOrFailureMeta {
 			/** String identifier of the audit */
 			id: string;
 			/** Short successful or failure audit title */
@@ -46,11 +46,8 @@ declare global {
 			/** Audit category: Server or Design */
 			category: 'server' | 'design';
 		}
-		
 
-
-
-		export interface SkipResult{
+		export interface SkipResult {
 			scoreDisplayMode: ScoreDisplayMode;
 			meta: SkipMeta;
 			extendedInfo?: {value: ExtendedInfo};
@@ -91,7 +88,7 @@ declare global {
 			meta: SkipMeta;
 		}
 
-		export interface SkipMeta{
+		export interface SkipMeta {
 			/** String identifier of the audit */
 			id: string;
 			/** Audit category: Server or Design */

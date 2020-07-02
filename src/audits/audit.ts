@@ -5,7 +5,11 @@ export default class Audit {
 
 	static audit(
 		traces: SA.Traces.Traces
-	): Promise<SA.Audit.Result | SA.Audit.SkipResult | undefined> | SA.Audit.Result | SA.Audit.SkipResult | undefined {
+	):
+		| Promise<SA.Audit.Result | SA.Audit.SkipResult | undefined>
+		| SA.Audit.Result
+		| SA.Audit.SkipResult
+		| undefined {
 		return {} as SA.Audit.Result | SA.Audit.SkipResult;
 	}
 }
