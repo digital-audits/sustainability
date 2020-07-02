@@ -1,6 +1,7 @@
 # Digital sustainability audits
-[Sustainability](https://img.shields.io/badge/sustainability-100%25-blue)
-[npm](https://img.shields.io/badge/npm-v0.1.0-orange)](https://www.npmjs.com/package/sustainability)
+[![Sustainability](https://img.shields.io/badge/sustainability-100%25-blue)
+[![npm](https://img.shields.io/badge/npm-v0.1.0-orange)](https://www.npmjs.com/package/sustainability)
+[![Website](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://audits.digital)
 > A de facto standard for the green web paradigm. Computes the carbon footprint (CF) index, determines the energy source of servers, the usage of HTTP2.0, WebP image format, lazy loading on images, font subsetting, etc.
 Effectively generates a customized report. May cut down your site's CF up to the 70%.
 
