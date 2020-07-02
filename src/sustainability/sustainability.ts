@@ -1,7 +1,6 @@
 import Connection from '../connection/connection';
 import Commander from '../commander/commander';
 import {PageContext, AuditSettings} from '../types';
-import {log} from '../utils/utils';
 import {LaunchOptions, Browser} from 'puppeteer';
 
 import * as util from '../utils/utils';
@@ -22,16 +21,14 @@ export default class Sustainability {
 				const report = await sustainability.handler(pageContext, settings);
 				return report;
 			} catch (error) {
-				log(`Error: Audit failed with message: ${error.message}`);
+				throw new Error (`Error: Audit failed with message: ${error.message}`);
 			} finally {
 				await page.close();
-				process.exit(1)
 			}
 		} catch (error) {
-			log(`Error: Failed to launch page: ${error.message}`);
+			throw new Error (`Error: Failed to launch page: ${error.message}`);
 		} finally {
 			await browser?.close();
-			process.exit(1)
 
 		}
 	}

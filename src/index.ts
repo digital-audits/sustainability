@@ -1,1 +1,1 @@
-export {default as sustainability} from './sustainability/sustainability';
+export {default as Sustainability} from './sustainability/sustainability';

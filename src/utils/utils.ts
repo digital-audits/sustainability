@@ -113,7 +113,7 @@ export function safeReject(error: Error, tracker?: Tracker) {
 		}
 	}
 
-	log(`Error: Navigation failed with message: ${error.message}`);
+	throw new Error (`Error: Navigation failed with message: ${error.message}`);
 }
 
 export function createTracker(page: Page): Tracker {

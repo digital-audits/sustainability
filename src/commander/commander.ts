@@ -56,8 +56,8 @@ class Commander {
 
 			return page;
 		} catch (error) {
-			util.log(`Setup error ${error.message}`);
-			process.exit(1);
+			throw new Error (`Setup error ${error.message}`);
+
 		}
 	}
 
@@ -90,7 +90,6 @@ class Commander {
 			debug('Done navigation');
 		} catch (error) {
 			util.safeReject(error, this.tracker);
-			process.exit(1)
 		}
 	}
 
@@ -111,8 +110,8 @@ class Commander {
 				this.audits.audits.map((audit: any) => audit.audit(parsedTraces))
 			);
 		} catch (error) {
-			util.log(`Error: Commander failed with ${error.message}`);
-			return await new Promise((resolve, _) => resolve(undefined));
+			throw new Error (`Error: Commander failed with ${error.message}`);
+
 		}
 	}
 }

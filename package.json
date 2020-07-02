@@ -9,7 +9,7 @@
   "types": "build/index.d.ts",
   "scripts": {
     "test": "jest",
-    "dev": "DEBUG='sustainability:*' ts-node-dev --respawn --poll --clear ./src/index.ts",
+    "dev": "DEBUG='sustainability:*' ts-node-dev --respawn --poll --clear ./src/index2.ts",
     "format": "xo --fix",
     "build": "tsc"
   },
@@ -18,6 +18,7 @@
     "type": "git",
     "url": "https://github.com/digital-audits/sustainability.git"
   },
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "funding": {
     "type":"opencollective",
     "url":"https://opencollective.com/das"
