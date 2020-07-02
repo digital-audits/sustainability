@@ -2,7 +2,7 @@
 
 import * as minimist from 'minimist'
 import * as Debug from 'debug'
-import {sustainability} from './index'
+import {Sustainability} from './index'
 import {AuditSettings} from './types'
 import * as fs from 'fs'
 import * as util from './utils/utils'
@@ -109,7 +109,7 @@ try {
  }: {})
    }
 
-sustainability.audit(url, Object.keys(options).length ? options: {})
+Sustainability.audit(url, Object.keys(options).length ? options: {})
 .then((report)=>{
   if (argv['output']) {
      const filename = argv['output'];

@@ -1,6 +1,6 @@
 {
   "name": "sustainability",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "digital sustainability audits for the web",
   "main": "build/index.js",
   "bin": {
@@ -9,7 +9,7 @@
   "types": "build/index.d.ts",
   "scripts": {
     "test": "jest",
-    "dev": "DEBUG='sustainability:*' ts-node-dev --respawn --poll --clear ./src/index2.ts",
+    "dev": "DEBUG='sustainability:*' ts-node-dev --respawn --poll --clear ./src/index.ts",
     "format": "xo --fix",
     "build": "tsc"
   },
