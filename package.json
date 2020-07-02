@@ -1,6 +1,6 @@
 {
   "name": "sustainability",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "digital sustainability audits for the web",
   "main": "build/index.js",
   "bin": {
@@ -17,6 +17,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/digital-audits/sustainability.git"
+  },
+  "funding": {
+    "type":"opencollective",
+    "url":"https://opencollective.com/das"
   },
   "license": "AGPL-3.0",
   "peerDependencies": {
