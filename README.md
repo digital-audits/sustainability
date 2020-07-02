@@ -1,6 +1,6 @@
 # Digital sustainability audits
 [![Sustainability](https://img.shields.io/badge/sustainability-100%25-blue)]
-[![Version](https://img.shields.io/badge/npm-v0.1.0-orange)](https://www.npmjs.com/package/sustainability)
+[![npm](https://img.shields.io/badge/npm-v0.1.0-orange)](https://www.npmjs.com/package/sustainability)
 > A de facto standard for the green web paradigm. Computes the carbon footprint (CF) index, determines the energy source of servers, the usage of HTTP2.0, WebP image format, lazy loading on images, font subsetting, etc.
 Effectively generates a customized report. May cut down your site's CF up to the 70%.
 
@@ -8,10 +8,10 @@ Effectively generates a customized report. May cut down your site's CF up to the
 - [Usage](#Usage)
 - [Debugging](#Debugging)
 - [API](#API)
-- [With a server](#With a server)
-- [Give it a spin](#Give it a spin)
+- [With a server](#with-a-server)
+- [Give it a spin](#give-it-a-spin)
 - [FAQS](#FAQS)
-- [Contributions](#Contributions are welcomed)
+- [Contributions](#contributions-are-welcomed)
 
 ## What does it do
 
@@ -154,9 +154,9 @@ Visit [DAS](https://audits.digital/) to test the software with **environmental a
 
 ## Contributions are welcomed
 
-This is open-source software. I highly encourage everyone interested to help pushing up this project.
-Core development? Join the team! Make sure you read first the contributions-dev notes.
-Visibility, business aspects, sharing your thoughts? Join us on [Slack](https://join.slack.com/t/das-e2x6193/shared_invite/zt-fk08bitv-vWB6_OIJTncf93OvcRdKnQ).
+This is open-source software. I highly encourage everyone interested to help pushing up this project.\
+Core development? Join the team! Make sure you read first the contributions-dev notes.\
+Visibility, business aspects, sharing your thoughts? Join us on [Slack](https://join.slack.com/t/das-e2x6193/shared_invite/zt-fk08bitv-vWB6_OIJTncf93OvcRdKnQ).\
 Sponsoring? Help us to keep the project running in  [Open Collective](https://opencollective.com/das).
 
 
