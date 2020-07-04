@@ -1,18 +1,20 @@
 import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
+import { ImageFormat, CollectImagesTraces} from '../types/traces';
+import { CollectorsIds } from '../types/audit';
 
 const debug = util.debugGenerator('Collect images');
 
 export default class CollectImages extends Collect {
-	collectId: SA.Audit.CollectorsIds = 'imagescollect';
+	collectId: CollectorsIds = 'imagescollect';
 	static get id() {
 		return this.collectId;
 	}
 
 	static async collect(
 		pageContext: PageContext
-	): Promise<SA.Traces.CollectImagesTraces> {
+	): Promise<CollectImagesTraces> {
 		debug('running');
 		const {page} = pageContext;
 		const fetchImages = async () => {
@@ -32,7 +34,7 @@ export default class CollectImages extends Collect {
 
 				return Array.from(document.body.querySelectorAll('img')).map(
 					(img: HTMLImageElement) => {
-						const attrObject = {} as SA.Traces.ImageFormat;
+						const attrObject = {} as ImageFormat;
 						attrObject.isVisible = isElementVisible(img);
 						img.getAttributeNames().forEach(name => {
 							attrObject[name] = img.getAttribute(name)!;

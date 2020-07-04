@@ -1,5 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
+import { Meta, Result } from '../types/audit';
+import { Traces } from '../types/traces';
 
 const debug = util.debugGenerator('NoConsoleLogs Audit');
 export default class NoConsoleLogsAudit extends Audit {
@@ -11,10 +13,10 @@ export default class NoConsoleLogsAudit extends Audit {
 			description: `It is important to keep the console log clean of error, warning or info outputs.`,
 			category: 'design',
 			collectors: ['consolecollect']
-		} as SA.Audit.Meta;
+		} as Meta;
 	}
 
-	static audit(traces: SA.Traces.Traces): SA.Audit.Result {
+	static audit(traces: Traces): Result {
 		debug('running');
 		const dups = new Set();
 		const uniqueResources = traces.console.filter(trace => {

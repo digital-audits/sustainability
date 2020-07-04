@@ -1,12 +1,12 @@
-import {ConcurrencyImplementationClassType} from 'puppeteer-cluster/dist/concurrency/ConcurrencyImplementation';
 import {LaunchOptions, Page, Browser} from 'puppeteer';
+import { ConnectionSettings } from './settings';
 
 export interface AuditSettings {
 	id?: string;
 	browser?: Browser;
 	page?: Page;
 	launchSettings?: LaunchOptions;
-	connectionSettings?: SA.Settings.ConnectionSettings;
+	connectionSettings?: ConnectionSettings;
 }
 
 export interface Tracker {

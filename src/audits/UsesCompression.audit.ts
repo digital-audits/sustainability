@@ -1,5 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
+import { Traces } from '../types/traces';
+import { Meta, SkipResult, Result } from '../types/audit';
 /**
  * @fileoverview Audits if compression is used. Instead of looking for the content encoding
  *  Response header, which may not reflect the origin server configuration if it serves
@@ -32,12 +34,12 @@ export default class UsesCompressionAudit extends Audit {
 			description: `Compression is important because it reduces the total amount of data transferred to clients`,
 			category: 'server',
 			collectors: ['transfercollect', 'redirectcollect']
-		} as SA.Audit.Meta;
+		} as Meta;
 	}
 
 	static audit(
-		traces: SA.Traces.Traces
-	): SA.Audit.Result | SA.Audit.SkipResult | undefined {
+		traces: Traces
+	): Result | SkipResult | undefined {
 		debug('running');
 		const auditUrls = new Set();
 		const compressionRatio = (compressed: number, uncompressed: number) =>

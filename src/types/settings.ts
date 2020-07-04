@@ -1,12 +1,7 @@
-import {ClusterOptions, TaskFunctionArguments} from './cluster-settings';
-import {Collect, PassContext} from '../collect/collect';
-import {Audit} from '../audits/audit';
-import {CollectTransfer} from '../collect/transfer.collect';
+
 import {LaunchOptions} from 'puppeteer';
 
-declare global {
-	namespace SA {
-		namespace Settings {
+
 			export interface DefaultSettings {
 				LAUNCH_SETTINGS: LaunchOptions;
 				CONNECTION_SETTINGS: ConnectionSettingsPrivate;
@@ -28,13 +23,6 @@ declare global {
 				audits: any;
 			}
 
-			type CollectorFunction = (
-				passContext: TaskFunctionArguments<any>
-			) => Promise<any>;
-			type AuditFunction = (
-				parsedTraces: any
-			) => Promise<SA.Audit.Result | undefined> | SA.Audit.Result | undefined;
-
 			export interface ConnectionSettings {
 				maxNavigationTime?: number;
 				maxScrollInterval?: number;
@@ -47,6 +35,7 @@ declare global {
 				maxScrollInterval: number;
 				emulatedDevice: EmulatedDevice;
 				location: EmulatedLocation;
+				maxThrottle:number;
 			}
 
 			export interface Scoring {
@@ -73,7 +62,3 @@ declare global {
 				width: number;
 				height: number;
 			}
-		}
-	}
-}
-export {};

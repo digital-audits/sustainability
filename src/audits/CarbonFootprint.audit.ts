@@ -4,6 +4,8 @@ import {DEFAULT} from '../settings/settings';
 import {sum} from '../bin/statistics';
 import {isGreenServerMem} from '../utils/utils';
 import * as util from '../utils/utils';
+import { Meta, Result } from '../types/audit';
+import { Traces } from '../types/traces';
 
 /**
  * @fileoverview Compute gCO2eq considering server location,
@@ -23,12 +25,12 @@ export default class CarbonFootprintAudit extends Audit {
 			description: `The carbon footprint is the total amount of greenhouse gases released into the atmosphere to directly and indirectly support a particular activity. Keeping it as low as possible it’s key to prevent the climate change.`,
 			category: 'server',
 			collectors: ['transfercollect']
-		} as SA.Audit.Meta;
+		} as Meta;
 	}
 
 	static async audit(
-		traces: SA.Traces.Traces
-	): Promise<SA.Audit.Result | undefined> {
+		traces: Traces
+	): Promise<Result | undefined> {
 		/* Const getGeoLocation = (ip:string) => {
             //2 letter ISO-3166-1 country code https://www.iban.com/country-codes
             const country = geoip.lookup(ip)?.country

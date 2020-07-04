@@ -2,22 +2,24 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {Request} from 'puppeteer';
+import { Stylesheets, InlineStyles, InlineScripts, Scripts, Scriptfiles, Sheets, CollectAssetsTraces} from '../types/traces';
+import { CollectorsIds } from '../types/audit';
 
 const debug = util.debugGenerator('Collect assets');
 export default class CollectAssets extends Collect {
-	collectId: SA.Audit.CollectorsIds = 'assetscollect';
+	collectId: CollectorsIds = 'assetscollect';
 	static get id() {
 		return this.collectId;
 	}
 
 	static async collect(
 		pageContext: PageContext
-	): Promise<SA.Traces.CollectAssetsTraces | undefined> {
+	): Promise<CollectAssetsTraces | undefined> {
 		try {
 			debug('running');
 			const {page} = pageContext;
-			const sheets: SA.Traces.Sheets[] = [];
-			const scripts: SA.Traces.Scripts[] = [];
+			const sheets: Sheets[] = [];
+			const scripts: Scripts[] = [];
 			page.on('requestfinished', async (request: Request) => {
 				const response = request.response()!;
 
@@ -47,10 +49,10 @@ export default class CollectAssets extends Collect {
 
 			await util.safeNavigateTimeout(page, 'load', debug);
 			const documentInformation = await page.evaluate(() => {
-				const styleHrefs: SA.Traces.Stylesheets[] = [];
-				const scriptSrcs: SA.Traces.Scriptfiles[] = [];
-				const styles: SA.Traces.InlineStyles[] = [];
-				const scripts: SA.Traces.InlineScripts[] = [];
+				const styleHrefs: Stylesheets[] = [];
+				const scriptSrcs: Scriptfiles[] = [];
+				const styles: InlineStyles[] = [];
+				const scripts: InlineScripts[] = [];
 
 				const isCssStyleTag = (element: any) =>
 					element.tagName === 'STYLE' &&

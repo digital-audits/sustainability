@@ -7,9 +7,11 @@ import {
 } from '../types';
 import memoizee = require('memoizee');
 import fetch from 'node-fetch';
+import AbortController from 'abort-controller';
 import {DEFAULT} from '../settings/settings';
 import {v1 as uuidv1} from 'uuid';
 import {getLogNormalScore, sum, groupBy} from '../bin/statistics';
+import { AuditByFailOrPassOrSkip, Meta, SkipMeta, AuditReportFormat, SuccessOrFailureMeta, AuditsByCategory, Result} from '../types/audit';
 
 export function debugGenerator(namespace: string): Debug.IDebugger {
 	const debug = Debug(`sustainability: ${namespace}`);
@@ -143,15 +145,26 @@ interface APIResponse {
 	error?: string;
 }
 const isGreenServer = async (ip: string): Promise<APIResponse | undefined> => {
+	const controller = new AbortController();
+	const timeout = setTimeout(() => {
+		controller.abort();
+	}, DEFAULT.CONNECTION_SETTINGS.maxThrottle);
+
 	try {
 		const url = `${GREEN_SERVER_API}/${ip}`;
-		const response = await (await fetch(url)).json();
+		const response = await fetch(url, {
+			signal:controller.signal
+		})
 
-		return response;
+		const responseToJson = await response.json()
+
+		clearTimeout(timeout)
+		return responseToJson;
 	} catch (error) {
 		log(
 			`Error: Failed to fetch response from green server API. ${error.message}`
 		);
+		clearTimeout(timeout)
 		return await new Promise(resolve => resolve(undefined));
 	}
 };
@@ -215,21 +228,21 @@ export function computeScore(audits: any) {
 }
 
 export function groupAudits(
-	list: SA.Audit.Result[]
-): SA.Audit.AuditsByCategory[] {
+	list: Result[]
+): AuditsByCategory[] {
 	const resultsGrouped = groupBy(
 		list,
-		(audit: SA.Audit.Result) => audit.meta.category
+		(audit: Result) => audit.meta.category
 	);
 	const audits = Array.from(resultsGrouped.keys()).map(
 		(key: 'server' | 'design') => {
 			const groupByKey = resultsGrouped.get(key);
 			const auditsByFailOrPassOrSkip = successOrFailureOrSkipAudits(groupByKey);
 			const groupByKeyNonSkip = groupByKey.filter(
-				(result: SA.Audit.Result) => result.scoreDisplayMode !== 'skip'
+				(result: Result) => result.scoreDisplayMode !== 'skip'
 			);
 			const auditScoreRaw =
-				sum(groupByKeyNonSkip.map((result: SA.Audit.Result) => result.score)) /
+				sum(groupByKeyNonSkip.map((result: Result) => result.score)) /
 				groupByKeyNonSkip.length;
 			const auditScore = Math.round(auditScoreRaw * 100);
 			const catDescription = DEFAULT.CATEGORIES[key].description;
@@ -246,9 +259,9 @@ export function groupAudits(
 }
 
 export function successOrFailureMeta(
-	meta: SA.Audit.Meta,
+	meta: Meta,
 	score: number
-): SA.Audit.SuccessOrFailureMeta {
+): SuccessOrFailureMeta {
 	const {title, failureTitle, collectors, ...output} = meta;
 
 	if (failed(score)) {
@@ -258,7 +271,7 @@ export function successOrFailureMeta(
 	return {title, ...output};
 }
 
-export function skipMeta(meta: SA.Audit.Meta): SA.Audit.SkipMeta {
+export function skipMeta(meta: Meta): SkipMeta {
 	return {id: meta.id, category: meta.category, description: meta.description};
 }
 
@@ -271,8 +284,8 @@ export function failed(score: number) {
 }
 
 export function successOrFailureOrSkipAudits(
-	audits: SA.Audit.AuditReportFormat[]
-): SA.Audit.AuditByFailOrPassOrSkip {
+	audits: AuditReportFormat[]
+): AuditByFailOrPassOrSkip {
 	const out = audits.reduce(
 		(object, v) => {
 			const skipAudit = v.scoreDisplayMode === 'skip';
@@ -284,7 +297,7 @@ export function successOrFailureOrSkipAudits(
 			).push(v);
 			return object;
 		},
-		{pass: [], fail: [], skip: []} as SA.Audit.AuditByFailOrPassOrSkip
+		{pass: [], fail: [], skip: []} as AuditByFailOrPassOrSkip
 	);
 
 	return out;

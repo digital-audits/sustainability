@@ -4,17 +4,18 @@ import path = require('path');
 import fs = require('fs');
 import {Tracker, PageContext} from '../types';
 import * as util from '../utils/utils';
+import { ConnectionSettingsPrivate, ConnectionSettings } from '../types/settings';
 
 const debug = util.debugGenerator('Commander');
 
 class Commander {
-	private settings = {} as SA.Settings.ConnectionSettingsPrivate;
+	private settings = {} as ConnectionSettingsPrivate;
 	private readonly audits = DEFAULT.AUDITS;
 	private tracker = {} as Tracker;
 
 	async setUp(
 		pageContext: PageContext,
-		settings?: SA.Settings.ConnectionSettings
+		settings?: ConnectionSettings
 	): Promise<Page> {
 		try {
 			debug('Running set up');

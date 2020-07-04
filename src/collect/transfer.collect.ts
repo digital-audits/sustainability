@@ -3,23 +3,25 @@ import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {DEFAULT} from '../settings/settings';
 import {Request} from 'puppeteer';
+import { CollectTransferTraces, ProtocolData, CDPDataPrivate , Record, ByteFormat} from '../types/traces';
+import { CollectorsIds } from '../types/audit';
 
 const debug = util.debugGenerator('Transfer collect');
 export default class CollectTransfer extends Collect {
-	collectId: SA.Audit.CollectorsIds = 'transfercollect';
+	collectId: CollectorsIds = 'transfercollect';
 	static get id() {
 		return this.collectId;
 	}
 
 	static async collect(
 		pageContext: PageContext
-	): Promise<SA.Traces.CollectTransferTraces | undefined> {
+	): Promise<CollectTransferTraces | undefined> {
 		try {
 			debug('running');
 			const {page} = pageContext;
-			const results: SA.Traces.Record[] = [];
-			const protocol: SA.Traces.ProtocolData[] = [];
-			const CDP: SA.Traces.CDPDataPrivate[] = [];
+			const results: Record[] = [];
+			const protocol: ProtocolData[] = [];
+			const CDP: CDPDataPrivate[] = [];
 			const lazyImages: string[] = [];
 			const client = await page.target().createCDPSession();
 			await client.send('Network.enable');
@@ -46,7 +48,7 @@ export default class CollectTransfer extends Collect {
 			page.on('requestfinished', async (request: Request) => {
 				const response = request.response();
 				let responseBody: Buffer;
-				let uncompressedSize: SA.Traces.ByteFormat;
+				let uncompressedSize: ByteFormat;
 				// Body can only be accessed for non-redirect responses
 				if (response) {
 					try {
@@ -79,7 +81,7 @@ export default class CollectTransfer extends Collect {
 
 					// @ts-ignore
 					const requestId = request._requestId;
-					const information: SA.Traces.Record = {
+					const information: Record = {
 						request: {
 							requestId,
 							url: new URL(request.url()),

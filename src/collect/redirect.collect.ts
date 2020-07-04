@@ -2,19 +2,21 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {Response} from 'puppeteer';
+import { CollectorsIds } from '../types/audit';
+import { CollectRedirectTraces, RedirectResponse } from '../types/traces';
 
 const debug = util.debugGenerator('Redirect collect');
 export default class CollectRedirect extends Collect {
-	collectId: SA.Audit.CollectorsIds = 'redirectcollect';
+	collectId: CollectorsIds = 'redirectcollect';
 	static get id() {
 		return this.collectId;
 	}
 
 	static async collect(
 		pageContext: PageContext
-	): Promise<SA.Traces.CollectRedirectTraces | undefined> {
+	): Promise<CollectRedirectTraces | undefined> {
 		debug('running');
-		const results: SA.Traces.RedirectResponse[] = [];
+		const results: RedirectResponse[] = [];
 		const {page, url} = pageContext;
 		page.on('response', (response: Response) => {
 			const status = response.status();

@@ -2,21 +2,23 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {Response} from 'puppeteer';
+import { CollectorsIds } from '../types/audit';
+import { CollectFailedTransferTraces, FailedRequest } from '../types/traces';
 
 const debug = util.debugGenerator('Failed transfer collect');
 
 export default class CollectFailedTransfers extends Collect {
-	collectId: SA.Audit.CollectorsIds = 'failedtransfercollect';
+	collectId: CollectorsIds = 'failedtransfercollect';
 	static get id() {
 		return this.collectId;
 	}
 
 	static async collect(
 		pageContext: PageContext
-	): Promise<SA.Traces.CollectFailedTransferTraces | undefined> {
+	): Promise<CollectFailedTransferTraces | undefined> {
 		debug('running');
 		const {page} = pageContext;
-		const result: SA.Traces.FailedRequest[] = [];
+		const result: FailedRequest[] = [];
 		page.on('response', (response: Response) => {
 			const status = response.status();
 			const url = response.url();

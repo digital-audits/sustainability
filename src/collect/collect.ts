@@ -1,21 +1,23 @@
 import {PageContext} from '../types';
+import { CollectHtmlTraces, CollectAssetsTraces, CollectImagesTraces, CollectConsoleTraces, CollectRedirectTraces, CollectSubfontsTraces, CollectTransferTraces, CollectPerformanceTraces, CollectFailedTransferTraces } from '../types/traces';
+import { CollectorsIds } from '../types/audit';
 
 export default class Collect {
-	public static collectId: SA.Audit.CollectorsIds;
+	public static collectId:CollectorsIds;
 	static get id() {
 		return this.collectId;
 	}
 
 	collect(pageContext: PageContext) {
 		return {} as
-			| SA.Traces.CollectHtmlTraces
-			| SA.Traces.CollectAssetsTraces
-			| SA.Traces.CollectImagesTraces
-			| SA.Traces.CollectConsoleTraces
-			| SA.Traces.CollectRedirectTraces
-			| SA.Traces.CollectSubfontsTraces
-			| SA.Traces.CollectTransferTraces
-			| SA.Traces.CollectPerformanceTraces
-			| SA.Traces.CollectFailedTransferTraces;
+			| CollectHtmlTraces
+			| CollectAssetsTraces
+			| CollectImagesTraces
+			| CollectConsoleTraces
+			| CollectRedirectTraces
+			| CollectSubfontsTraces
+			| CollectTransferTraces
+			| CollectPerformanceTraces
+			| CollectFailedTransferTraces;
 	}
 }

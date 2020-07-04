@@ -1,18 +1,20 @@
 import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
+import { CollectorsIds } from '../types/audit';
+import { CollectSubfontsTraces } from '../types/traces';
 
 const debug = util.debugGenerator('Subfont collect');
 
 export default class CollectSubfont extends Collect {
-	collectId: SA.Audit.CollectorsIds = 'subfontcollect';
+	collectId: CollectorsIds = 'subfontcollect';
 	static get id() {
 		return this.collectId;
 	}
 
 	static async collect(
 		pageContext: PageContext
-	): Promise<SA.Traces.CollectSubfontsTraces | undefined> {
+	): Promise<CollectSubfontsTraces | undefined> {
 		try {
 			// May be interesting to give a try at Page._client.FontFamilies
 			debug('running');

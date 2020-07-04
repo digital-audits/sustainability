@@ -1,12 +1,4 @@
-import {
-	HttpMethod,
-	Headers,
-	Metrics,
-	Request as PuppeterRequest
-} from 'puppeteer';
 
-declare global {
-	namespace SA.Traces {
 		export interface Format {
 			uid: string;
 			url: string;
@@ -28,7 +20,7 @@ declare global {
 			css: CssTrace;
 			js: JsTrace;
 			record: Record[];
-			console: ConsoleMessage[];
+			console: ConsoleMessageFormat[];
 			performance: PerformanceFormat;
 			fonts: SubfontFormat[];
 			media: MediaTrace;
@@ -42,11 +34,10 @@ declare global {
 		}
 
 		export interface ImageFormat {
-			isVisible: boolean;
-			[key: string]: string;
+			[key: string]: string | boolean
 		}
 
-		export interface ConsoleMessage {
+		export interface ConsoleMessageFormat {
 			type: string;
 			text: string;
 		}
@@ -244,12 +235,12 @@ declare global {
 	Return Types for Collectors
 */
 		export interface CollectAssetsTraces {
-			css: SA.DataLog.CssTrace;
-			js: SA.DataLog.JsTrace;
+			css: CssTrace;
+			js: JsTrace;
 		}
 
 		export interface CollectConsoleTraces {
-			console: ConsoleMessage[];
+			console: ConsoleMessageFormat[];
 		}
 
 		export interface CollectFailedTransferTraces {
@@ -280,6 +271,3 @@ declare global {
 			record: Record[];
 			lazyImages: string[];
 		}
-	}
-}
-export {};

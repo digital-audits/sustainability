@@ -1,5 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
+import { Meta, SkipResult, Result } from '../types/audit';
+import { Traces } from '../types/traces';
 
 /**
  * @fileoverview Audit request in the same origin as host use HTTP2.0
@@ -16,15 +18,15 @@ export default class UsesHTTP2Audit extends Audit {
             multiplexing, server push, binary headers and increased security.`,
 			category: 'server',
 			collectors: ['transfercollect', 'redirectcollect']
-		} as SA.Audit.Meta;
+		} as Meta;
 	}
 
 	/**
 	 * @param traces requiredTraces
 	 */
 	static audit(
-		traces: SA.Traces.Traces
-	): SA.Audit.Result | SA.Audit.SkipResult | undefined {
+		traces: Traces
+	): Result | SkipResult | undefined {
 		debug('running');
 		const {hosts} = traces;
 		const auditUrls = new Set();

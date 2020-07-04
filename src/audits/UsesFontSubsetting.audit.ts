@@ -1,6 +1,8 @@
 import Audit from './audit';
 import csstree = require('css-tree');
 import * as util from '../utils/utils';
+import { SubfontFormat, Traces } from '../types/traces';
+import { Result, SkipResult, Meta } from '../types/audit';
 
 const debug = util.debugGenerator('UsesFontSubsetting Audit');
 const LOCAL_FONTS = [
@@ -28,7 +30,7 @@ export default class UsesFontSubsettingAudit extends Audit {
 			description: `Font subsetting is a method to only download the character sets of use. `,
 			category: 'design',
 			collectors: ['assetscollect', 'subfontcollect']
-		} as SA.Audit.Meta;
+		} as Meta;
 	}
 
 	// Csstraces / css/ styles/ href | text
@@ -43,8 +45,8 @@ export default class UsesFontSubsettingAudit extends Audit {
 	 *
 	 */
 	static audit(
-		traces: SA.Traces.Traces
-	): SA.Audit.Result | SA.Audit.SkipResult {
+		traces: Traces
+	): Result | SkipResult {
 		const fontsCharSets = traces.fonts.filter(
 			font => !LOCAL_FONTS.includes(font.name.toUpperCase())
 		);
@@ -112,7 +114,7 @@ export default class UsesFontSubsettingAudit extends Audit {
 					return true;
 				});
 
-			let fontSubsets = {} as SA.Traces.SubfontFormat[];
+			let fontSubsets = {} as SubfontFormat[];
 			const score = Number(fonts.size > 0);
 			if (score === 0) {
 				fontSubsets = fontsCharSets;

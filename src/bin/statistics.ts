@@ -1,3 +1,5 @@
+import { Result } from "../types/audit";
+
 /**
  * Credits to Google Lighthouse Audits
  *
@@ -69,7 +71,7 @@ export function sum(array: number[]) {
 	return array.reduce((total: number, actual: number) => total + actual);
 }
 
-export function groupBy(list: SA.Audit.Result[], keyGetter: CallableFunction) {
+export function groupBy(list: Result[], keyGetter: CallableFunction) {
 	const map = new Map();
 	list.forEach(item => {
 		const key = keyGetter(item);

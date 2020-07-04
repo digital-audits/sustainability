@@ -1,15 +1,18 @@
+import { Meta, Result, SkipResult } from "../types/audit";
+import { Traces } from "../types/traces";
+
 export default class Audit {
-	static get meta(): SA.Audit.Meta {
-		return {} as SA.Audit.Meta;
+	static get meta(): Meta {
+		return {} as Meta;
 	}
 
 	static audit(
-		traces: SA.Traces.Traces
+		traces: Traces
 	):
-		| Promise<SA.Audit.Result | SA.Audit.SkipResult | undefined>
-		| SA.Audit.Result
-		| SA.Audit.SkipResult
+		| Promise<Result | SkipResult | undefined>
+		| Result
+		| SkipResult
 		| undefined {
-		return {} as SA.Audit.Result | SA.Audit.SkipResult;
+		return {} as Result | SkipResult;
 	}
 }

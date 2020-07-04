@@ -1,5 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
+import { Meta, Result, SkipResult } from '../types/audit';
+import { Traces } from '../types/traces';
 
 const debug = util.debugGenerator('UsesGreenServer Audit');
 export default class UsesGreenServerAudit extends Audit {
@@ -11,12 +13,12 @@ export default class UsesGreenServerAudit extends Audit {
 			description: `It is important to make sure a server uses renewable-powered energy to host a website. Green hosting your website it is as easy as selecting a green web hosting provider.`,
 			category: 'server',
 			collectors: ['transfercollect', 'redirectcollect']
-		} as SA.Audit.Meta;
+		} as Meta;
 	}
 
 	static async audit(
-		traces: SA.Traces.Traces
-	): Promise<SA.Audit.Result | SA.Audit.SkipResult | undefined> {
+		traces: Traces
+	): Promise<Result | SkipResult | undefined> {
 		debug('running');
 		const {hosts} = traces;
 		const ipAddress = traces.record.find(record => {

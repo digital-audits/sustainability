@@ -1,17 +1,19 @@
 import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
+import { CollectorsIds } from '../types/audit';
+import { CollectHtmlTraces } from '../types/traces';
 
 const debug = util.debugGenerator('Console Collect');
 export default class CollectHTML extends Collect {
-	collectId: SA.Audit.CollectorsIds = 'htmlcollect';
+	collectId: CollectorsIds = 'htmlcollect';
 	static get id() {
 		return this.collectId;
 	}
 
 	static async collect(
 		pageContext: PageContext
-	): Promise<SA.Traces.CollectHtmlTraces | undefined> {
+	): Promise<CollectHtmlTraces | undefined> {
 		try {
 			debug('running');
 			const {page} = pageContext;

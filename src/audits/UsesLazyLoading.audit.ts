@@ -1,5 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
+import { Meta, Result, SkipResult } from '../types/audit';
+import { Traces } from '../types/traces';
 
 /**
  * Test with https://mathiasbynens.be/demo/img-loading-lazy
@@ -15,12 +17,12 @@ export default class UsesLazyLoadingAudit extends Audit {
 				'Lazy loading is a powerful feature. It instructs the browser not to download an asset until an specific event happens. Now it is natively supported on HTML on img and iframe elements. <a href="https://developer.mozilla.org/en-US/docs/Web/Performance/Lazy_loading">More info</a>.',
 			category: 'design',
 			collectors: ['transfercollect', 'imagescollect']
-		} as SA.Audit.Meta;
+		} as Meta;
 	}
 
 	static audit(
-		traces: SA.Traces.Traces
-	): SA.Audit.Result | SA.Audit.SkipResult {
+		traces: Traces
+	): Result | SkipResult {
 		const isAuditApplicable = (): boolean => {
 			if (!traces.media.images.length) return false;
 			if (!traces.media.images.some(image => !image.isVisible)) return false;

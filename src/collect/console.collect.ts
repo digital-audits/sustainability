@@ -1,22 +1,24 @@
 import Collect from './collect';
-import {ConsoleMessage} from 'puppeteer';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
+import {ConsoleMessage} from 'puppeteer'
+import { CollectConsoleTraces, ConsoleMessageFormat} from '../types/traces';
+import { CollectorsIds } from '../types/audit';
 
 const debug = util.debugGenerator('Console collect');
 export default class CollectConsole extends Collect {
-	collectId: SA.Audit.CollectorsIds = 'consolecollect';
+	collectId: CollectorsIds = 'consolecollect';
 	static get id() {
 		return this.collectId;
 	}
 
 	static async collect(
 		pageContext: PageContext
-	): Promise<SA.Traces.CollectConsoleTraces | undefined> {
+	): Promise<CollectConsoleTraces | undefined> {
 		debug('running');
 		const {page} = pageContext;
 
-		const results: SA.Traces.ConsoleMessage[] = [];
+		const results: ConsoleMessageFormat[] = [];
 
 		page.on('console', async (message: ConsoleMessage) => {
 			const information = {

@@ -1,5 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
+import { Meta, SkipResult, Result } from '../types/audit';
+import { Traces } from '../types/traces';
 
 const debug = util.debugGenerator('UsesWebPImageFormat Audit');
 
@@ -13,7 +15,7 @@ export default class UsesWebpImageFormatAudit extends Audit {
 				'WebP images provides superior lossless and lossy compression for images on the web. They maintain a low file size and high quality at the same time.  Although browser support is good (77%) you may use WebP images along with other fallback sources.',
 			category: 'design',
 			collectors: ['transfercollect', 'imagescollect']
-		} as SA.Audit.Meta;
+		} as Meta;
 	}
 
 	/**
@@ -24,8 +26,8 @@ export default class UsesWebpImageFormatAudit extends Audit {
 	 */
 
 	static audit(
-		traces: SA.Traces.Traces
-	): SA.Audit.Result | SA.Audit.SkipResult {
+		traces: Traces
+	): Result | SkipResult {
 		const isAuditApplicable = (): boolean => {
 			if (!traces.media.images.length) return false;
 			return true;
