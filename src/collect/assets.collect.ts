@@ -2,8 +2,17 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {Request} from 'puppeteer';
-import { Stylesheets, InlineStyles, InlineScripts, Scripts, Scriptfiles, Sheets, CollectAssetsTraces} from '../types/traces';
-import { CollectorsIds } from '../types/audit';
+import {
+	Stylesheets,
+	InlineStyles,
+	InlineScripts,
+	Scripts,
+	Scriptfiles,
+	Sheets,
+	CollectAssetsTraces
+} from '../types/traces';
+import {CollectorsIds} from '../types/audit';
+import { ConnectionSettingsPrivate } from '../types/settings';
 
 const debug = util.debugGenerator('Collect assets');
 export default class CollectAssets extends Collect {
@@ -13,7 +22,7 @@ export default class CollectAssets extends Collect {
 	}
 
 	static async collect(
-		pageContext: PageContext
+		pageContext: PageContext, settings:ConnectionSettingsPrivate
 	): Promise<CollectAssetsTraces | undefined> {
 		try {
 			debug('running');
@@ -47,7 +56,7 @@ export default class CollectAssets extends Collect {
 				}
 			});
 
-			await util.safeNavigateTimeout(page, 'load', debug);
+			await util.safeNavigateTimeout(page, 'load', settings.maxNavigationTime, debug);
 			const documentInformation = await page.evaluate(() => {
 				const styleHrefs: Stylesheets[] = [];
 				const scriptSrcs: Scriptfiles[] = [];

@@ -1,5 +1,5 @@
 import {LaunchOptions, Page, Browser} from 'puppeteer';
-import { ConnectionSettings } from './settings';
+import {ConnectionSettings} from './settings';
 
 export interface AuditSettings {
 	id?: string;

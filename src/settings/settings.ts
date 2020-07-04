@@ -13,7 +13,7 @@ import UsesWebpImageFormatAudit from '../audits/UsesWebpImageFormat.audit';
 import NoConsoleLogsAudit from '../audits/NoConsoleLogs.audit';
 import UsesFontSubsettingAudit from '../audits/UsesFontSubsetting.audit';
 import UsesLazyLoadingAudit from '../audits/UsesLazyLoading.audit';
-import { DefaultSettings } from '../types/settings';
+import {DefaultSettings} from '../types/settings';
 
 export const DEFAULT: DefaultSettings = {
 	LAUNCH_SETTINGS: {
@@ -23,7 +23,7 @@ export const DEFAULT: DefaultSettings = {
 	CONNECTION_SETTINGS: {
 		maxNavigationTime: 60 * 1000,
 		maxScrollInterval: 30,
-		maxThrottle:5000,
+		maxThrottle: 5000,
 		emulatedDevice: {
 			name: 'Desktop 1920x1080',
 			userAgent:

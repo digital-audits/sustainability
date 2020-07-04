@@ -4,8 +4,8 @@ import {DEFAULT} from '../settings/settings';
 import {sum} from '../bin/statistics';
 import {isGreenServerMem} from '../utils/utils';
 import * as util from '../utils/utils';
-import { Meta, Result } from '../types/audit';
-import { Traces } from '../types/traces';
+import {Meta, Result} from '../types/audit';
+import {Traces} from '../types/traces';
 
 /**
  * @fileoverview Compute gCO2eq considering server location,
@@ -28,9 +28,7 @@ export default class CarbonFootprintAudit extends Audit {
 		} as Meta;
 	}
 
-	static async audit(
-		traces: Traces
-	): Promise<Result | undefined> {
+	static async audit(traces: Traces): Promise<Result | undefined> {
 		/* Const getGeoLocation = (ip:string) => {
             //2 letter ISO-3166-1 country code https://www.iban.com/country-codes
             const country = geoip.lookup(ip)?.country

@@ -1,7 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
-import { Meta, SkipResult, Result } from '../types/audit';
-import { Traces } from '../types/traces';
+import {Meta, SkipResult, Result} from '../types/audit';
+import {Traces} from '../types/traces';
 
 const debug = util.debugGenerator('UsesWebPImageFormat Audit');
 
@@ -25,9 +25,7 @@ export default class UsesWebpImageFormatAudit extends Audit {
 	 * WebP should be used against PNG, JPG or GIF images
 	 */
 
-	static audit(
-		traces: Traces
-	): Result | SkipResult {
+	static audit(traces: Traces): Result | SkipResult {
 		const isAuditApplicable = (): boolean => {
 			if (!traces.media.images.length) return false;
 			return true;

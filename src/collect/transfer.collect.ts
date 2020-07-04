@@ -1,10 +1,16 @@
 import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
-import {DEFAULT} from '../settings/settings';
 import {Request} from 'puppeteer';
-import { CollectTransferTraces, ProtocolData, CDPDataPrivate , Record, ByteFormat} from '../types/traces';
-import { CollectorsIds } from '../types/audit';
+import {
+	CollectTransferTraces,
+	ProtocolData,
+	CDPDataPrivate,
+	Record,
+	ByteFormat
+} from '../types/traces';
+import {CollectorsIds} from '../types/audit';
+import { ConnectionSettingsPrivate} from '../types/settings';
 
 const debug = util.debugGenerator('Transfer collect');
 export default class CollectTransfer extends Collect {
@@ -14,7 +20,7 @@ export default class CollectTransfer extends Collect {
 	}
 
 	static async collect(
-		pageContext: PageContext
+		pageContext: PageContext, settings:ConnectionSettingsPrivate
 	): Promise<CollectTransferTraces | undefined> {
 		try {
 			debug('running');
@@ -120,12 +126,12 @@ export default class CollectTransfer extends Collect {
 				});
 			};
 
-			await util.safeNavigateTimeout(page, 'networkidle0', debug);
+			await util.safeNavigateTimeout(page, 'networkidle0', settings.maxNavigationTime, debug);
 
 			requestListener();
 			await util.scrollFunction(
 				page,
-				DEFAULT.CONNECTION_SETTINGS.maxScrollInterval,
+				settings.maxScrollInterval,
 				debug
 			);
 			debug('done scrolling');

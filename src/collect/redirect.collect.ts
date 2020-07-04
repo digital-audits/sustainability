@@ -2,8 +2,9 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {Response} from 'puppeteer';
-import { CollectorsIds } from '../types/audit';
-import { CollectRedirectTraces, RedirectResponse } from '../types/traces';
+import {CollectorsIds} from '../types/audit';
+import {CollectRedirectTraces, RedirectResponse} from '../types/traces';
+import { ConnectionSettingsPrivate } from '../types/settings';
 
 const debug = util.debugGenerator('Redirect collect');
 export default class CollectRedirect extends Collect {
@@ -13,7 +14,7 @@ export default class CollectRedirect extends Collect {
 	}
 
 	static async collect(
-		pageContext: PageContext
+		pageContext: PageContext, settings:ConnectionSettingsPrivate
 	): Promise<CollectRedirectTraces | undefined> {
 		debug('running');
 		const results: RedirectResponse[] = [];
@@ -56,7 +57,7 @@ export default class CollectRedirect extends Collect {
 		};
 
 		try {
-			await util.safeNavigateTimeout(page, 'networkidle0', debug);
+			await util.safeNavigateTimeout(page, 'networkidle0', settings.maxNavigationTime, debug);
 			const hosts = getPageHosts();
 			debug('done');
 			return {

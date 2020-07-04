@@ -1,7 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
-import { Meta, Result, SkipResult } from '../types/audit';
-import { Traces } from '../types/traces';
+import {Meta, Result, SkipResult} from '../types/audit';
+import {Traces} from '../types/traces';
 
 const debug = util.debugGenerator('UsesGreenServer Audit');
 export default class UsesGreenServerAudit extends Audit {
@@ -16,9 +16,7 @@ export default class UsesGreenServerAudit extends Audit {
 		} as Meta;
 	}
 
-	static async audit(
-		traces: Traces
-	): Promise<Result | SkipResult | undefined> {
+	static async audit(traces: Traces): Promise<Result | SkipResult | undefined> {
 		debug('running');
 		const {hosts} = traces;
 		const ipAddress = traces.record.find(record => {

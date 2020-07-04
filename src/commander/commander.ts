@@ -4,7 +4,7 @@ import path = require('path');
 import fs = require('fs');
 import {Tracker, PageContext} from '../types';
 import * as util from '../utils/utils';
-import { ConnectionSettingsPrivate, ConnectionSettings } from '../types/settings';
+import {ConnectionSettingsPrivate, ConnectionSettings} from '../types/settings';
 
 const debug = util.debugGenerator('Commander');
 
@@ -82,7 +82,7 @@ class Commander {
 							'Forced end of navigation because the URL surpassed the maxNavigationTime'
 						)
 					),
-				DEFAULT.CONNECTION_SETTINGS.maxNavigationTime
+				this.settings.maxNavigationTime
 			);
 			await Promise.race([navigateAndClearTimeout(), stopPromise]);
 			page.removeAllListeners('requestfinished');
@@ -99,7 +99,7 @@ class Commander {
 			// @ts-ignore
 			const traces = await Promise.allSettled(
 				this.audits.collectors.map((collect: any) =>
-					collect.collect(pageContext)
+					collect.collect(pageContext, this.settings)
 				)
 			);
 			debug('Finished collectors now parsing the traces');

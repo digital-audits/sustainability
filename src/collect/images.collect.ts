@@ -1,8 +1,9 @@
 import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
-import { ImageFormat, CollectImagesTraces} from '../types/traces';
-import { CollectorsIds } from '../types/audit';
+import {ImageFormat, CollectImagesTraces} from '../types/traces';
+import {CollectorsIds} from '../types/audit';
+import { ConnectionSettingsPrivate } from '../types/settings';
 
 const debug = util.debugGenerator('Collect images');
 
@@ -12,9 +13,7 @@ export default class CollectImages extends Collect {
 		return this.collectId;
 	}
 
-	static async collect(
-		pageContext: PageContext
-	): Promise<CollectImagesTraces> {
+	static async collect(pageContext: PageContext, settings:ConnectionSettingsPrivate): Promise<CollectImagesTraces> {
 		debug('running');
 		const {page} = pageContext;
 		const fetchImages = async () => {
@@ -45,7 +44,7 @@ export default class CollectImages extends Collect {
 			});
 		};
 
-		await util.safeNavigateTimeout(page, 'load', debug);
+		await util.safeNavigateTimeout(page, 'load', settings.maxNavigationTime, debug);
 		debug('Fetching document images');
 		const images = await fetchImages();
 		debug('done');

@@ -1,6 +1,6 @@
 {
   "name": "sustainability",
-  "version": "0.2.4",
+  "version": "0.2.6",
   "description": "digital sustainability audits for the web",
   "main": "build/index.js",
   "bin": {
@@ -17,9 +17,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/digital-audits/sustainability.git"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
   },
   "funding": {
     "type": "opencollective",

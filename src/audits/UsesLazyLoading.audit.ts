@@ -1,7 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
-import { Meta, Result, SkipResult } from '../types/audit';
-import { Traces } from '../types/traces';
+import {Meta, Result, SkipResult} from '../types/audit';
+import {Traces} from '../types/traces';
 
 /**
  * Test with https://mathiasbynens.be/demo/img-loading-lazy
@@ -20,9 +20,7 @@ export default class UsesLazyLoadingAudit extends Audit {
 		} as Meta;
 	}
 
-	static audit(
-		traces: Traces
-	): Result | SkipResult {
+	static audit(traces: Traces): Result | SkipResult {
 		const isAuditApplicable = (): boolean => {
 			if (!traces.media.images.length) return false;
 			if (!traces.media.images.some(image => !image.isVisible)) return false;

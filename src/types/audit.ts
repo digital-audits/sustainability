@@ -56,16 +56,16 @@ export interface ExtendedInfo {
 	[key: string]: any;
 }
 
-export interface AuditReportMeta{
-	id:string
-	url:string
-	timing: Array<string | number>
+export interface AuditReportMeta {
+	id: string;
+	url: string;
+	timing: Array<string | number>;
 }
 
-export interface Report{
-	globalScore:number
-	meta:AuditReportMeta
-	audits:AuditsByCategory[]
+export interface Report {
+	globalScore: number;
+	meta: AuditReportMeta;
+	audits: AuditsByCategory[];
 }
 
 export interface AuditsByCategory {

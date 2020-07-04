@@ -1,7 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
-import { Meta, SkipResult, Result } from '../types/audit';
-import { Traces } from '../types/traces';
+import {Meta, SkipResult, Result} from '../types/audit';
+import {Traces} from '../types/traces';
 
 /**
  * @fileoverview Audit request in the same origin as host use HTTP2.0
@@ -24,9 +24,7 @@ export default class UsesHTTP2Audit extends Audit {
 	/**
 	 * @param traces requiredTraces
 	 */
-	static audit(
-		traces: Traces
-	): Result | SkipResult | undefined {
+	static audit(traces: Traces): Result | SkipResult | undefined {
 		debug('running');
 		const {hosts} = traces;
 		const auditUrls = new Set();

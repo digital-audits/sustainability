@@ -4,10 +4,13 @@ import {PageContext, AuditSettings} from '../types';
 import {LaunchOptions, Browser, Page} from 'puppeteer';
 
 import * as util from '../utils/utils';
-import { Report } from '../types/audit';
+import {Report} from '../types/audit';
 
 export default class Sustainability {
-	public static async audit(url: string, settings?: AuditSettings):Promise<Report> {
+	public static async audit(
+		url: string,
+		settings?: AuditSettings
+	): Promise<Report> {
 		const sustainability = new Sustainability();
 		let browser: Browser | undefined;
 		let page: Page;
@@ -32,6 +35,7 @@ export default class Sustainability {
 				throw new Error(`Error: Audit failed with message: ${error.message}`);
 			} finally {
 				await page.close();
+
 			}
 		} catch (error) {
 			throw new Error(`Error: Failed to launch page: ${error.message}`);
@@ -74,7 +78,7 @@ export default class Sustainability {
 		const meta = {
 			id: projectId,
 			url,
-			timing: [new Date(startTime).toISOString(), Date.now()-startTime]
+			timing: [new Date(startTime).toISOString(), Date.now() - startTime]
 		};
 		return {
 			globalScore,

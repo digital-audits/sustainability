@@ -11,7 +11,15 @@ import AbortController from 'abort-controller';
 import {DEFAULT} from '../settings/settings';
 import {v1 as uuidv1} from 'uuid';
 import {getLogNormalScore, sum, groupBy} from '../bin/statistics';
-import { AuditByFailOrPassOrSkip, Meta, SkipMeta, AuditReportFormat, SuccessOrFailureMeta, AuditsByCategory, Result} from '../types/audit';
+import {
+	AuditByFailOrPassOrSkip,
+	Meta,
+	SkipMeta,
+	AuditReportFormat,
+	SuccessOrFailureMeta,
+	AuditsByCategory,
+	Result
+} from '../types/audit';
 
 export function debugGenerator(namespace: string): Debug.IDebugger {
 	const debug = Debug(`sustainability: ${namespace}`);
@@ -153,19 +161,19 @@ const isGreenServer = async (ip: string): Promise<APIResponse | undefined> => {
 	try {
 		const url = `${GREEN_SERVER_API}/${ip}`;
 		const response = await fetch(url, {
-			signal:controller.signal
-		})
+			signal: controller.signal
+		});
 
-		const responseToJson = await response.json()
+		const responseToJson = await response.json();
 
-		clearTimeout(timeout)
 		return responseToJson;
 	} catch (error) {
 		log(
 			`Error: Failed to fetch response from green server API. ${error.message}`
 		);
-		clearTimeout(timeout)
 		return await new Promise(resolve => resolve(undefined));
+	} finally {
+		clearTimeout(timeout)
 	}
 };
 
@@ -174,6 +182,7 @@ export const isGreenServerMem = memoizee(isGreenServer, {async: true});
 export async function safeNavigateTimeout(
 	page: Page,
 	waitUntil: LoadEvent,
+	maxNavigationTime:number,
 	debug?: CallableFunction,
 	cb?: CallableFunction
 ) {
@@ -190,7 +199,7 @@ export async function safeNavigateTimeout(
 	const stopPromise = new Promise(x => (stopCallback = x));
 	const stopNavigation = setTimeout(
 		() => stopCallback(cb),
-		DEFAULT.CONNECTION_SETTINGS.maxNavigationTime
+		maxNavigationTime
 	);
 	return Promise.race([navigate(), stopPromise]);
 }
@@ -227,13 +236,8 @@ export function computeScore(audits: any) {
 	return Math.round(sum(audits.map((audit: any) => audit.score)) / 2);
 }
 
-export function groupAudits(
-	list: Result[]
-): AuditsByCategory[] {
-	const resultsGrouped = groupBy(
-		list,
-		(audit: Result) => audit.meta.category
-	);
+export function groupAudits(list: Result[]): AuditsByCategory[] {
+	const resultsGrouped = groupBy(list, (audit: Result) => audit.meta.category);
 	const audits = Array.from(resultsGrouped.keys()).map(
 		(key: 'server' | 'design') => {
 			const groupByKey = resultsGrouped.get(key);

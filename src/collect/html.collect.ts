@@ -1,8 +1,8 @@
 import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
-import { CollectorsIds } from '../types/audit';
-import { CollectHtmlTraces } from '../types/traces';
+import {CollectorsIds} from '../types/audit';
+import {CollectHtmlTraces} from '../types/traces';
 
 const debug = util.debugGenerator('Console Collect');
 export default class CollectHTML extends Collect {

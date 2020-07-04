@@ -1,7 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
-import { Meta, Result } from '../types/audit';
-import { Traces } from '../types/traces';
+import {Meta, Result} from '../types/audit';
+import {Traces} from '../types/traces';
 
 const debug = util.debugGenerator('NoConsoleLogs Audit');
 export default class NoConsoleLogsAudit extends Audit {

@@ -1,5 +1,5 @@
-import { Meta, Result, SkipResult } from "../types/audit";
-import { Traces } from "../types/traces";
+import {Meta, Result, SkipResult} from '../types/audit';
+import {Traces} from '../types/traces';
 
 export default class Audit {
 	static get meta(): Meta {

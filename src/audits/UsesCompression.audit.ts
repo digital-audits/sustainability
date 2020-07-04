@@ -1,7 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
-import { Traces } from '../types/traces';
-import { Meta, SkipResult, Result } from '../types/audit';
+import {Traces} from '../types/traces';
+import {Meta, SkipResult, Result} from '../types/audit';
 /**
  * @fileoverview Audits if compression is used. Instead of looking for the content encoding
  *  Response header, which may not reflect the origin server configuration if it serves
@@ -37,9 +37,7 @@ export default class UsesCompressionAudit extends Audit {
 		} as Meta;
 	}
 
-	static audit(
-		traces: Traces
-	): Result | SkipResult | undefined {
+	static audit(traces: Traces): Result | SkipResult | undefined {
 		debug('running');
 		const auditUrls = new Set();
 		const compressionRatio = (compressed: number, uncompressed: number) =>

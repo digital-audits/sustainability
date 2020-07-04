@@ -1,4 +1,4 @@
-import { Result } from "../types/audit";
+import {Result} from '../types/audit';
 
 /**
  * Credits to Google Lighthouse Audits

@@ -1,8 +1,8 @@
 import Audit from './audit';
 import csstree = require('css-tree');
 import * as util from '../utils/utils';
-import { SubfontFormat, Traces } from '../types/traces';
-import { Result, SkipResult, Meta } from '../types/audit';
+import {SubfontFormat, Traces} from '../types/traces';
+import {Result, SkipResult, Meta} from '../types/audit';
 
 const debug = util.debugGenerator('UsesFontSubsetting Audit');
 const LOCAL_FONTS = [
@@ -44,9 +44,7 @@ export default class UsesFontSubsettingAudit extends Audit {
 	 *
 	 *
 	 */
-	static audit(
-		traces: Traces
-	): Result | SkipResult {
+	static audit(traces: Traces): Result | SkipResult {
 		const fontsCharSets = traces.fonts.filter(
 			font => !LOCAL_FONTS.includes(font.name.toUpperCase())
 		);
