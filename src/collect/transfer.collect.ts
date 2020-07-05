@@ -10,7 +10,7 @@ import {
 	ByteFormat
 } from '../types/traces';
 import {CollectorsIds} from '../types/audit';
-import { ConnectionSettingsPrivate} from '../types/settings';
+import {ConnectionSettingsPrivate} from '../types/settings';
 
 const debug = util.debugGenerator('Transfer collect');
 export default class CollectTransfer extends Collect {
@@ -20,7 +20,8 @@ export default class CollectTransfer extends Collect {
 	}
 
 	static async collect(
-		pageContext: PageContext, settings:ConnectionSettingsPrivate
+		pageContext: PageContext,
+		settings: ConnectionSettingsPrivate
 	): Promise<CollectTransferTraces | undefined> {
 		try {
 			debug('running');
@@ -118,28 +119,10 @@ export default class CollectTransfer extends Collect {
 					results.push(information);
 				}
 			});
-			const requestListener = () => {
-				page.on('requestfinished', (request: Request) => {
-					if (request.resourceType() === 'image') {
-						lazyImages.push(request.url());
-					}
-				});
-			};
-
-			await util.safeNavigateTimeout(page, 'networkidle0', settings.maxNavigationTime, debug);
-
-			requestListener();
-			await util.scrollFunction(
-				page,
-				settings.maxScrollInterval,
-				debug
-			);
-			debug('done scrolling');
 
 			debug('done');
 			return {
-				record: results,
-				lazyImages
+				record: results
 			};
 		} catch (error) {
 			util.log(`Error: Transfer collect failed with message: ${error.message}`);

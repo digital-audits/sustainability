@@ -173,7 +173,7 @@ const isGreenServer = async (ip: string): Promise<APIResponse | undefined> => {
 		);
 		return await new Promise(resolve => resolve(undefined));
 	} finally {
-		clearTimeout(timeout)
+		clearTimeout(timeout);
 	}
 };
 
@@ -182,7 +182,7 @@ export const isGreenServerMem = memoizee(isGreenServer, {async: true});
 export async function safeNavigateTimeout(
 	page: Page,
 	waitUntil: LoadEvent,
-	maxNavigationTime:number,
+	maxNavigationTime: number,
 	debug?: CallableFunction,
 	cb?: CallableFunction
 ) {
@@ -197,10 +197,7 @@ export async function safeNavigateTimeout(
 	};
 
 	const stopPromise = new Promise(x => (stopCallback = x));
-	const stopNavigation = setTimeout(
-		() => stopCallback(cb),
-		maxNavigationTime
-	);
+	const stopNavigation = setTimeout(() => stopCallback(cb), maxNavigationTime);
 	return Promise.race([navigate(), stopPromise]);
 }
 

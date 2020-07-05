@@ -4,7 +4,7 @@ import * as util from '../utils/utils';
 import {ConsoleMessage} from 'puppeteer';
 import {CollectConsoleTraces, ConsoleMessageFormat} from '../types/traces';
 import {CollectorsIds} from '../types/audit';
-import { ConnectionSettingsPrivate } from '../types/settings';
+import {ConnectionSettingsPrivate} from '../types/settings';
 
 const debug = util.debugGenerator('Console collect');
 export default class CollectConsole extends Collect {
@@ -14,7 +14,8 @@ export default class CollectConsole extends Collect {
 	}
 
 	static async collect(
-		pageContext: PageContext, settings:ConnectionSettingsPrivate
+		pageContext: PageContext,
+		settings: ConnectionSettingsPrivate
 	): Promise<CollectConsoleTraces | undefined> {
 		debug('running');
 		const {page} = pageContext;
@@ -37,7 +38,12 @@ export default class CollectConsole extends Collect {
 		});
 
 		try {
-			await util.safeNavigateTimeout(page, 'networkidle0', settings.maxNavigationTime, debug);
+			await util.safeNavigateTimeout(
+				page,
+				'networkidle0',
+				settings.maxNavigationTime,
+				debug
+			);
 			return {
 				console: results
 			};

@@ -35,7 +35,6 @@ export default class Sustainability {
 				throw new Error(`Error: Audit failed with message: ${error.message}`);
 			} finally {
 				await page.close();
-
 			}
 		} catch (error) {
 			throw new Error(`Error: Failed to launch page: ${error.message}`);

@@ -14,6 +14,7 @@ import NoConsoleLogsAudit from '../audits/NoConsoleLogs.audit';
 import UsesFontSubsettingAudit from '../audits/UsesFontSubsetting.audit';
 import UsesLazyLoadingAudit from '../audits/UsesLazyLoading.audit';
 import {DefaultSettings} from '../types/settings';
+import CollectLazyImages from '../collect/lazyimages.collect';
 
 export const DEFAULT: DefaultSettings = {
 	LAUNCH_SETTINGS: {
@@ -58,7 +59,8 @@ export const DEFAULT: DefaultSettings = {
 			CollectConsole,
 			CollectSubfont,
 			CollectAssets,
-			CollectImages
+			CollectImages,
+			CollectLazyImages
 		],
 		audits: [
 			UsesCompressionAudit,

@@ -4,7 +4,7 @@ import * as util from '../utils/utils';
 import {CollectorsIds} from '../types/audit';
 import {CollectPerformanceTraces} from '../types/traces';
 import {Metrics} from 'puppeteer';
-import { ConnectionSettingsPrivate } from '../types/settings';
+import {ConnectionSettingsPrivate} from '../types/settings';
 
 export default class CollectPerformance extends Collect {
 	collectId: CollectorsIds = 'performancecollect';
@@ -13,7 +13,8 @@ export default class CollectPerformance extends Collect {
 	}
 
 	static async collect(
-		pageContext: PageContext, settings:ConnectionSettingsPrivate
+		pageContext: PageContext,
+		settings: ConnectionSettingsPrivate
 	): Promise<CollectPerformanceTraces> {
 		const {page} = pageContext;
 		await util.safeNavigateTimeout(page, 'load', settings.maxNavigationTime);

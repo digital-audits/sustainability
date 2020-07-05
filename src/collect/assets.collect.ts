@@ -12,7 +12,7 @@ import {
 	CollectAssetsTraces
 } from '../types/traces';
 import {CollectorsIds} from '../types/audit';
-import { ConnectionSettingsPrivate } from '../types/settings';
+import {ConnectionSettingsPrivate} from '../types/settings';
 
 const debug = util.debugGenerator('Collect assets');
 export default class CollectAssets extends Collect {
@@ -22,7 +22,8 @@ export default class CollectAssets extends Collect {
 	}
 
 	static async collect(
-		pageContext: PageContext, settings:ConnectionSettingsPrivate
+		pageContext: PageContext,
+		settings: ConnectionSettingsPrivate
 	): Promise<CollectAssetsTraces | undefined> {
 		try {
 			debug('running');
@@ -56,7 +57,12 @@ export default class CollectAssets extends Collect {
 				}
 			});
 
-			await util.safeNavigateTimeout(page, 'load', settings.maxNavigationTime, debug);
+			await util.safeNavigateTimeout(
+				page,
+				'load',
+				settings.maxNavigationTime,
+				debug
+			);
 			const documentInformation = await page.evaluate(() => {
 				const styleHrefs: Stylesheets[] = [];
 				const scriptSrcs: Scriptfiles[] = [];

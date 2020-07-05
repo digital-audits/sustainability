@@ -268,5 +268,8 @@ export interface CollectSubfontsTraces {
 
 export interface CollectTransferTraces {
 	record: Record[];
+}
+
+export interface CollectLazyImagesTraces {
 	lazyImages: string[];
 }
