@@ -1,4 +1,4 @@
-[![DAS](https://github.com/digital-audits/sustainability/blobl/master/logo.png)
+[![DAS](https://github.com/digital-audits/sustainability/blob/master/logo.png)
 # Digital sustainability audits
 [![Sustainability](https://img.shields.io/badge/sustainability-100%25-blue)](https://audits.digital)
 [![npm](https://img.shields.io/badge/npm-v0.2.7-orange)](https://www.npmjs.com/package/sustainability)
