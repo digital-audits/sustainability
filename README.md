@@ -156,8 +156,11 @@ Visit [DAS](https://audits.digital/) to test the software with **environmental a
 ## Contributions are welcomed
 
 This is open-source software. I highly encourage everyone interested to help pushing up this project.\
-Core development? Join the team! Make sure you read first the contributions-dev notes.\
+
+Core development? Join the team! Make sure you read first the [contributions-dev notes.](https://github.com/digital-audits/sustainability/blob/master/CONTRIBUTION-dev.md)\
+
 Visibility, business aspects, sharing your thoughts? Join us on [Slack](https://join.slack.com/t/das-e2x6193/shared_invite/zt-fk08bitv-vWB6_OIJTncf93OvcRdKnQ).\
+
 Sponsoring? Help us to keep the project running in  [Open Collective](https://opencollective.com/das).
 
 
