@@ -74,13 +74,13 @@ Finally, you need to append the newly created collector to collectors containing
 This is done by changing the `settings/settings.ts` file:
 
 ```js
-	AUDITS: {
-		collectors: [
-			...
-			CollectPerformance  // <--Add your new collector here
-            ]
-        ...
-        }
+AUDITS: {
+  collectors: [
+  ...
+  CollectPerformance  // <--Add your new collector here
+  ]
+  ...
+}
 ```
 
 #### Working with the app's utils
@@ -111,11 +111,11 @@ class Commander {
 
     ...
     page.evaluateOnNewDocument(
-					fs.readFileSync(
-						path.resolve(__dirname, '../bin/your-script.js'),
-						'utf8'
-					)
-				)
+	  fs.readFileSync(
+	    path.resolve(__dirname, '../bin/your-script.js'),
+		  'utf8'
+	  )
+	)
    )
 }
 ```
@@ -126,8 +126,8 @@ Install your dependency with `npm install` and simply add it.
 
 ```js
 page.evaluateOnNewDocument(
-					fs.readFileSync(require.resolve('some-dep'), 'utf8')
-				)
+  fs.readFileSync(require.resolve('some-dep'), 'utf8')
+)
 ```
 
 ## Extending the audits
@@ -200,8 +200,8 @@ In our previous example..
         }
             //Non-applicable Audit
             return {
-			    meta: util.skipMeta(PerformanceAudit.meta),
-			    scoreDisplayMode: 'skip'
+			  meta: util.skipMeta(PerformanceAudit.meta),
+			  scoreDisplayMode: 'skip'
 		    };
         
      }
@@ -213,25 +213,25 @@ This is done by changing the `settings/settings.ts` file:
 
 ```js
 AUDITS: {
-		audits: [
-			...
-            PerformanceAudit // <--Add your new audit here
-		]
+  audits: [
+	...
+    PerformanceAudit // <--Add your new audit here
+  ]
 	},
 ```
 
 ## Clone locally
 Make sure to fetch the latest release from Master branch.
 
-1- Git clone
+**1- Git clone**
 
 `git clone https://github.com/digital-audits/sustainability`
 
-2- cd to folder
+**2- cd to folder**
 
 `cd sustainability/`
 
-3- npm install
+**3- npm install**
 
 `npm i`
 
