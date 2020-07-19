@@ -54,8 +54,6 @@ export default class Sustainability {
 
 	private async handler(pageContextRaw: PageContext, settings?: AuditSettings) {
 		const startTime = Date.now();
-
-		const projectId = settings?.id ?? util.generate();
 		const {url} = pageContextRaw;
 		const page = await Commander.setUp(
 			pageContextRaw,
@@ -75,7 +73,6 @@ export default class Sustainability {
 		const globalScore = util.computeScore(audits);
 
 		const meta = {
-			id: projectId,
 			url,
 			timing: [new Date(startTime).toISOString(), Date.now() - startTime]
 		};

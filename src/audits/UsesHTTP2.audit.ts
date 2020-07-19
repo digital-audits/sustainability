@@ -33,7 +33,8 @@ export default class UsesHTTP2Audit extends Audit {
 				const recordUrl = record.request.url;
 				if (record.response.fromServiceWorker) return false;
 				if (record.request.protocol === 'h2') return false;
-				if (hosts.includes(recordUrl.hostname)) return false;
+				if (record.request.protocol === 'data') return false;
+				if (!hosts.includes(recordUrl.hostname)) return false;
 
 				return true;
 			})

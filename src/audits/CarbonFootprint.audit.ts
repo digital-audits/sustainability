@@ -7,10 +7,7 @@ import * as util from '../utils/utils';
 import {Meta, Result} from '../types/audit';
 import {Traces} from '../types/traces';
 
-/**
- * @fileoverview Compute gCO2eq considering server location,
- *                  server greenness per individual resource.
- */
+
 
 const MB_TO_BYTES = 1024 * 1024;
 const GB_TO_MB = 1024;
@@ -22,12 +19,16 @@ export default class CarbonFootprintAudit extends Audit {
 			id: 'carbonfootprint',
 			title: `Website’s carbon footprint is moderate`,
 			failureTitle: `Website’s carbon footprint is high`,
-			description: `The carbon footprint is the total amount of greenhouse gases released into the atmosphere to directly and indirectly support a particular activity. Keeping it as low as possible it’s key to prevent the climate change.`,
+			description: `The carbon footprint is the total amount of greenhouse gases released into the atmosphere for directly or indirectly supporting a particular activity. Keeping it as low as possible it’s key to prevent the climate change.`,
 			category: 'server',
 			collectors: ['transfercollect']
 		} as Meta;
 	}
-
+/**
+ * @workflow 
+ * 	Compute gCO2eq considering server location,
+ *   server greenness per individual resource.
+ */
 	static async audit(traces: Traces): Promise<Result | undefined> {
 		/* Const getGeoLocation = (ip:string) => {
             //2 letter ISO-3166-1 country code https://www.iban.com/country-codes
@@ -65,10 +66,10 @@ export default class CarbonFootprintAudit extends Audit {
 			};
 
 			return getGreenRecord();
-
+//TODO: Bring the carbon data by regions first
 			/* Return records.map(record=>{
 
-                    //TODO: Bring the carbon data by regions first
+                    
                    /* if(record.isGreen === false){
                         const location = getGeoLocationMem(record.ip)
 

@@ -9,7 +9,7 @@
   "types": "build/index.d.ts",
   "scripts": {
     "test": "jest",
-    "dev": "DEBUG='sustainability:*' ts-node-dev --respawn --poll --clear ./src/index.ts",
+    "dev": "DEBUG='sustainability:*' ts-node-dev --respawn --poll --clear ./src/index-dev.ts",
     "format": "xo --fix",
     "build": "tsc"
   },
@@ -55,8 +55,7 @@
     "debug": "^4.1.1",
     "memoizee": "^0.4.14",
     "minimist": "^1.2.5",
-    "node-fetch": "^2.6.0",
-    "uuid": "^7.0.3"
+    "node-fetch": "^2.6.0"
   },
   "xo": {
     "prettier": "true"

@@ -9,7 +9,6 @@ import memoizee = require('memoizee');
 import fetch from 'node-fetch';
 import AbortController from 'abort-controller';
 import {DEFAULT} from '../settings/settings';
-import {v1 as uuidv1} from 'uuid';
 import {getLogNormalScore, sum, groupBy} from '../bin/statistics';
 import {
 	AuditByFailOrPassOrSkip,
@@ -201,10 +200,6 @@ export async function safeNavigateTimeout(
 	return Promise.race([navigate(), stopPromise]);
 }
 
-export function generate(): string {
-	return uuidv1();
-}
-
 /**
  * Credits to Google Lighthouse
  *
@@ -265,7 +260,7 @@ export function successOrFailureMeta(
 ): SuccessOrFailureMeta {
 	const {title, failureTitle, collectors, ...output} = meta;
 
-	if (failed(score)) {
+	if (hasFailed(score)) {
 		return {title: failureTitle, ...output};
 	}
 
@@ -276,7 +271,7 @@ export function skipMeta(meta: Meta): SkipMeta {
 	return {id: meta.id, category: meta.category, description: meta.description};
 }
 
-export function failed(score: number) {
+export function hasFailed(score: number) {
 	if (score === 0 || score <= 0.49) {
 		return true;
 	}
@@ -292,7 +287,7 @@ export function successOrFailureOrSkipAudits(
 			const skipAudit = v.scoreDisplayMode === 'skip';
 			(skipAudit
 				? object.skip
-				: failed(v.score)
+				: hasFailed(v.score)
 				? object.fail
 				: object.pass
 			).push(v);
@@ -302,4 +297,16 @@ export function successOrFailureOrSkipAudits(
 	);
 
 	return out;
+}
+
+export function removeQuotes(text:string):string{
+	if (text.indexOf(`'`) === 0) {
+		return text.replace(/'/g, '');
+	}
+
+	if (text.indexOf('"') === 0) {
+		return text.replace(/"/g, '');
+	}
+
+	return text
 }

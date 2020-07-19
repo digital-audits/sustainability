@@ -48,8 +48,18 @@ export interface PerformanceFormat {
 
 export type SubfontFormat = {
 	name: string;
-	value: string[];
+	value: FontInformation
 };
+
+export interface GHOutput{
+	[key:string]:FontInformation
+}
+
+export interface FontInformation{
+	glyphs: string[],
+	weights: number[],
+	styles: string[]
+}
 
 export interface Metrics {
 	/** The timestamp when the metrics sample was taken. */

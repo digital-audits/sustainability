@@ -54,7 +54,6 @@ export const DEFAULT: DefaultSettings = {
 	AUDITS: {
 		collectors: [
 			CollectTransfer,
-			CollectFailedTransfers,
 			CollectRedirect,
 			CollectConsole,
 			CollectSubfont,

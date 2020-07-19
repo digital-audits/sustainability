@@ -29,7 +29,6 @@ export default class CollectTransfer extends Collect {
 			const results: Record[] = [];
 			const protocol: ProtocolData[] = [];
 			const CDP: CDPDataPrivate[] = [];
-			const lazyImages: string[] = [];
 			const client = await page.target().createCDPSession();
 			await client.send('Network.enable');
 
@@ -115,12 +114,15 @@ export default class CollectTransfer extends Collect {
 								units: 'bytes'
 							}
 						}
+
+					
 					};
 					results.push(information);
 				}
 			});
 
 			debug('done');
+
 			return {
 				record: results
 			};

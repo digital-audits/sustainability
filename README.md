@@ -126,7 +126,6 @@ Sustainability module provides a method to run the sustainability audits on a UR
 
 - `URL` <[string]> A valid and reachable URL to evaluate. **Warning**: You are responsible for providing a valid URL.
 - `settings` <[Object]> Set of configurable settings for the audit. May include the following fields:
-    - `id` <[string]> ID of the report. Default to UUID v1.
     - `browser` <[Browser]> Your own puppeteer's browser instance. If you set this options, the API won't spawn a browser instance. This may be useful if you want to make use of the `launch.connect(wsEndpoint)` method to remotely run a headless browser and pass it to the API. **Warning**: You will be responsible for handling the browser instance.
     - `page` <[Page]> Your own puppeteer's page instance. If you set this setting, the API won't spawn a page instance and merely behave like a function. **Warning**: All previously page settings will be overridden.
     - `launchSettings` <[Object]> passed to [puppeteer.launch]. Refer to [Puppeteer] documentation for more information. Defaults to `{}`.

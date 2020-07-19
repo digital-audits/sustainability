@@ -57,7 +57,6 @@ export interface ExtendedInfo {
 }
 
 export interface AuditReportMeta {
-	id: string;
 	url: string;
 	timing: Array<string | number>;
 }

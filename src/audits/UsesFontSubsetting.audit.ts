@@ -5,18 +5,6 @@ import {SubfontFormat, Traces} from '../types/traces';
 import {Result, SkipResult, Meta} from '../types/audit';
 
 const debug = util.debugGenerator('UsesFontSubsetting Audit');
-const LOCAL_FONTS = [
-	'ARIAL',
-	'ARIAL BLACK',
-	'COMIC SANS MS',
-	'GEORGIA',
-	'IMPACT',
-	'TIMES NEW ROMAN',
-	'TREBUCHET MS',
-	'VERDANA',
-	'-APPLE-SYSTEM',
-	'*'
-];
 
 /**
  * @description Find non-local fonts (i.e downloaded) and assert whether they are a subset.
@@ -27,44 +15,35 @@ export default class UsesFontSubsettingAudit extends Audit {
 			id: 'fontsubsetting',
 			title: 'Use font subsetting',
 			failureTitle: `Don’t use font subsetting`,
-			description: `Font subsetting is a method to only download the character sets of use. `,
+			description: `Font subsetting is a method to only download the character sets of use. <a href="https://web.dev/reduce-webfont-size/#unicode-range-subsetting">More info</a>`,
 			category: 'design',
 			collectors: ['assetscollect', 'subfontcollect']
 		} as Meta;
 	}
-
-	// Csstraces / css/ styles/ href | text
 	/**
-	 * @applicable if uses nonLocalfonts (i.e fonts that are downloaded)
+	 * @applicable if font resources were downloaded and fonts traces exists.
 	 *
-	 * @fileoverview The workflow is:
-	 * 1-Filter out local fonts (not downloaded)
-	 * 2-Find for each font if it is subsetted in :
-	 *      2.1 @font-face rules using unicode range propiety
-	 *
+	 * 
+	 * @workflow 1-Walk CSS sheets to find font-face rules and extract the font-family value and assess whether 
+	 * 	unicode-range directive is present (hence font is subsetted).
+	 * 
+	 * 	2-Filter out those that are not included in the fonts traces.
 	 *
 	 */
 	static audit(traces: Traces): Result | SkipResult {
-		const fontsCharSets = traces.fonts.filter(
-			font => !LOCAL_FONTS.includes(font.name.toUpperCase())
-		);
-
 		const isAuditApplicable = (): boolean => {
-			if (!fontsCharSets.length) return false;
+			if (!traces.record.some(resource=>resource.request.resourceType === 'font')) return false;
+			if (!(traces.fonts.length >0)) return false
 			return true;
 		};
 
 		if (isAuditApplicable()) {
 			debug('running');
-
-			const fonts = new Set();
+			const allPageFontNames = traces.fonts.map(font=>font.name)
+			const fonts: Array<{fontName: string; hasSubset: boolean}> = [];
 			traces.css.sheets
 				.map(sheet => {
-					const {url} = sheet;
 					const ast = csstree.parse(sheet.text);
-
-					// Check subsetting at @font-face (unicode-range)
-					const fonts: Array<{fontName: string; hasSubset: boolean}> = [];
 					csstree.walk(ast, {
 						enter(node: any) {
 							if (node.type === 'Atrule' && node.name === 'font-face') {
@@ -77,8 +56,8 @@ export default class UsesFontSubsettingAudit extends Audit {
 										return false;
 									}
 								);
-
-								const fontName: string = node.block.children
+								let fontName:string|undefined;
+								node.block.children
 									.filter((ch: any) => {
 										if (ch.property === 'font-family') {
 											return true;
@@ -86,36 +65,35 @@ export default class UsesFontSubsettingAudit extends Audit {
 
 										return false;
 									})
-									.tail.data.value.children.map((ch: any) => ch.value);
-
-								fonts.push({fontName, hasSubset});
+									.tail.data.value.children.map((ch: any) => {
+										if((ch.value && ch.value!=='') || ch.name){
+											const text = ch.value || ch.name
+											fontName = util.removeQuotes(text)
+										}
+										
+									});
+								if(fontName){
+									fonts.push({fontName, hasSubset});
+								}
+								
 							}
 						}
 					});
-
-					return {
-						url,
-						fontSubsets: fonts
-					};
 				})
-				.filter(resource => {
-					// We need to compare fontnames to nonLocalFonts array
-					if (resource.fontSubsets.some(font => font.hasSubset)) {
-						return true;
+				const nonSubsetFonts = fonts.filter(font => {
+					if (font.hasSubset){
+						return false;
 					}
-
-					return false;
-				})
-				.filter(resource => {
-					if (fonts.has(resource.url)) return false;
-					fonts.add(resource.url);
 					return true;
-				});
+				})
+				
 
 			let fontSubsets = {} as SubfontFormat[];
-			const score = Number(fonts.size > 0);
+			const score = Number(nonSubsetFonts.length === 0);
 			if (score === 0) {
-				fontSubsets = fontsCharSets;
+				const fontChars = traces.fonts.filter(font=>nonSubsetFonts.map(subfont=>subfont.fontName.toLocaleLowerCase())
+								.includes(font.name.toLocaleLowerCase())) 
+				fontSubsets = (fontChars.length > 0) ? fontChars : traces.fonts 
 			}
 
 			const meta = util.successOrFailureMeta(

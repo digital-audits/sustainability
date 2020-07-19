@@ -2,7 +2,7 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {CollectorsIds} from '../types/audit';
-import {CollectSubfontsTraces} from '../types/traces';
+import {CollectSubfontsTraces, SubfontFormat, FontInformation, GHOutput} from '../types/traces';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
 const debug = util.debugGenerator('Subfont collect');
@@ -27,26 +27,22 @@ export default class CollectSubfont extends Collect {
 				settings.maxNavigationTime,
 				debug
 			);
-			const result = await page.evaluate(() => {
+			const result:SubfontFormat[] = await page.evaluate(() => {
 				// @ts-ignore
 				const hanger = new GlyphHanger();
-				const toHex = function(codePointArray: number[]) {
-					return codePointArray.map(
-						codePoint => 'U+' + codePoint.toString(16).toUpperCase()
-					);
-				};
-
 				hanger.init(document.body);
-				const resultJson = hanger.toJSON();
+				const resultJson:GHOutput = hanger.toJSON();
 
 				const fontNames = Object.keys(resultJson);
 
 				const fontsCharSets = Array.from(fontNames).map((font: string) => {
 					return {
 						name: font,
-						value: toHex(resultJson[font])
+						value: resultJson[font]
 					};
 				});
+
+				
 
 				return fontsCharSets;
 			});

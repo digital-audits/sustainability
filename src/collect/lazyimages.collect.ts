@@ -45,7 +45,7 @@ export default class CollectLazyImages extends Collect {
 				lazyImages
 			};
 		} catch (error) {
-			util.log(`Error: Lazy images collect faield with message: ${error}`);
+			util.log(`Error: Lazy images collect failed with message: ${error}`);
 			return undefined;
 		}
 	}

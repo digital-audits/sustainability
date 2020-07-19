@@ -1,3 +1,4 @@
+//adapted from glyphhanger https://github.com/filamentgroup/glyphhanger
 (function(root, factory) {
 	if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
 		// CommonJS
@@ -11,6 +12,8 @@
 		this.globalSet = new CharacterSet();
 		this.fontFamilySets = {};
 		this.displayFontFamilyNames = {};
+		this.displayFontStyles = {}
+		this.displayFontWeights= {}
 		this.defaultFontFamily = 'serif';
 
 		if (typeof window !== 'undefined') {
@@ -65,9 +68,10 @@
 									null
 								);
 								const text = this.getNodeValue(textNode);
+								const extra = this.getExtraInfo(textNode, null)
 								// Console.log( "font-family `" + fontFamily + "` has text: ", text );
 
-								this.saveGlyphs(text, fontFamily);
+								this.saveGlyphs(text, fontFamily, extra);
 							}.bind(this)
 						);
 
@@ -77,15 +81,17 @@
 							node,
 							':before'
 						);
+						const extra = this.getExtraInfo(node, ':before')
 						// Console.log( "(:before) font-family `" + beforeFamily + "` has text: ", beforeContent );
-						this.saveGlyphs(beforeContent, beforeFamily);
+						this.saveGlyphs(beforeContent, beforeFamily, extra);
 					}
 
 					const afterContent = this.getPseudoContent(node, ':after');
 					if (afterContent) {
 						const afterFamily = this.getFontFamilyNameFromNode(node, ':after');
+						const extra = this.getExtraInfo(node, ':after')
 						// Console.log( "(:after) font-family `" + afterFamily + "` has text: ", afterContent );
-						this.saveGlyphs(afterContent, afterFamily);
+						this.saveGlyphs(afterContent, afterFamily, extra);
 					}
 				}.bind(this)
 			);
@@ -159,6 +165,26 @@
 		return this.getFontFamilyName(fontFamilyList);
 	};
 
+	GH.prototype.getExtraInfo = function(node, pseudo) {
+		let context = node;
+		if (node.nodeType === 3) {
+			context = node.parentNode;
+		}
+		let fontStyle,
+		fontWeight;
+		if (context) {
+			const style = this.win.getComputedStyle(context, pseudo)
+				.getPropertyValue('font-style');
+			fontStyle = style || 'normal'
+			const weight = this.win.getComputedStyle(context, pseudo)
+				.getPropertyValue('font-weight');
+			fontWeight = weight || '400'
+		}
+		
+
+		return {fontStyle, fontWeight}
+	}
+
 	GH.prototype.fakeInnerText = function(node) {
 		const value = node.nodeValue.trim();
 
@@ -199,6 +225,10 @@
 		return node.textContent || innerText || '';
 	};
 
+	GH.prototype.getFontStyle = function(node) {
+
+	}
+
 	GH.prototype.hasValue = function(node) {
 		return (node.textContent || node.nodeValue).trim().length > 0;
 	};
@@ -216,18 +246,30 @@
 		return all;
 	};
 
-	GH.prototype.saveGlyphs = function(text, fontFamily) {
+	GH.prototype.saveGlyphs = function(text, fontFamily, extra) {
 		const set = new CharacterSet(text);
+		const {fontStyle, fontWeight} = extra;
 		this.globalSet = this.globalSet.union(set);
 
+		
 		if (fontFamily) {
 			const key = fontFamily.toLowerCase();
 			this.displayFontFamilyNames[key] = fontFamily;
 
 			if (key) {
 				this.fontFamilySets[key] = this.getFamilySet(key).union(set);
+				if (fontStyle) {
+					this.displayFontStyles[key] = this.displayFontStyles[key] ? [...this.displayFontStyles[key], fontStyle] : [fontStyle]
+
+				}
+		
+				if(fontWeight) {
+					this.displayFontWeights[key] = this.displayFontWeights[key] ? [...this.displayFontWeights[key], fontWeight] : [fontWeight]
+				}
 			}
 		}
+
+		
 	};
 
 	GH.prototype.getFamilySet = function(fontFamily) {
@@ -237,7 +279,7 @@
 	};
 
 	GH.prototype.getGlyphs = function() {
-		return this.globalSet.toArray();
+		return this.globalSet.toHexRangeString();
 	};
 
 	GH.prototype.toString = function() {
@@ -251,12 +293,15 @@
 	GH.prototype.toJSON = function() {
 		const object = {};
 		for (const family in this.fontFamilySets) {
-			object[this.displayFontFamilyNames[family]] = this.fontFamilySets[
-				family
-			].toArray();
+			object[this.displayFontFamilyNames[family]] = 
+			{
+				glyphs: this.fontFamilySets[family].toHexRangeString(),
+				styles: [...new Set(this.displayFontStyles[family])],
+				weights: [...new Set(this.displayFontWeights[family])]
+		}
 		}
 
-		object['*'] = this.getGlyphs();
+		//object['*'] = this.getGlyphs();
 
 		return object;
 	};

@@ -20,7 +20,7 @@ export default class UsesWebpImageFormatAudit extends Audit {
 
 	/**
 	 *
-	 * @param traces SA.DataLog.TransferTraces
+	 * @applicable if the page has requested images.
 	 * Get image format using the MIME/type (header: content-type)
 	 * WebP should be used against PNG, JPG or GIF images
 	 */
@@ -40,17 +40,16 @@ export default class UsesWebpImageFormatAudit extends Audit {
 			);
 			mediaImages.concat(traces.lazyImages).filter(url => {
 				if (auditUrls.has(url)) return false;
-				if (url?.startsWith('data:')) {
-					auditUrls.add(url.slice(0, 10));
+				if (url.startsWith('data:')) {
+					auditUrls.add(url.slice(0, 15));
 					return false;
 				}
+				if (url.endsWith('.webp')) return false;
+				
+				if(!/$.?:jpg|gif|png/.test(url)) return false
 
-				auditUrls.add(
-					url
-						.split('/')
-						.filter(Boolean)
-						.pop() ?? url
-				);
+				const urlLastSegment = url.split('/').filter(Boolean).pop() || url
+				auditUrls.add(urlLastSegment.split('?')[0])
 				return true;
 			});
 

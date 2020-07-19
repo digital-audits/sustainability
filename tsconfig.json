@@ -20,4 +20,7 @@
     "include": [
         "./src/**/*"
     ],
+    "exclude" : [
+      "./src/index-dev.ts"
+    ]
 }
