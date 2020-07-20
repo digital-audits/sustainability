@@ -28,7 +28,7 @@ export default class CarbonFootprintAudit extends Audit {
 	 *   server greenness per individual resource.
 	 */
 	static async audit(traces: Traces): Promise<Result | undefined> {
-		/* const getGeoLocation = (ip:string) => {
+		/* Const getGeoLocation = (ip:string) => {
             //2 letter ISO-3166-1 country code https://www.iban.com/country-codes
             const country = geoip.lookup(ip)?.country
 
