@@ -1,5 +1,4 @@
 // Adapted from glyphhanger https://github.com/filamentgroup/glyphhanger
-// @ts-nocheck
 (function(root, factory) {
 	if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
 		// CommonJS
