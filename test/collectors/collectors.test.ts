@@ -107,7 +107,7 @@ describe('Assets collector', () => {
 		const path = 'externaljs';
 		const assets = await navigateAndReturnAssets(path, CollectAssets.collect);
 		expect(assets?.js.scripts[0].text).toMatch(
-			`const co2Reduction = ’Coming real soon’`
+			`const co2Reduction = 'Coming real soon'`
 		);
 	});
 	it('collects external (multiple) css assets', async () => {
@@ -120,7 +120,7 @@ describe('Assets collector', () => {
 		const path = 'inlinejs';
 		const assets = await navigateAndReturnAssets(path, CollectAssets.collect);
 		expect(assets?.js.info.scripts[0].text).toMatch(
-			`const hello = ’I am an inline script`
+			`const hello = 'I am an inline script'`
 		);
 	});
 	it('collects inline css assets', async () => {
