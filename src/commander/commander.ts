@@ -49,7 +49,7 @@ class Commander {
 				page.setDefaultNavigationTimeout(0),
 				page.evaluateOnNewDocument(
 					fs.readFileSync(
-						path.resolve(__dirname, '../bin/glyphhanger-script.ts'),
+						path.resolve(__dirname, '../bin/glyphhanger-script.js'),
 						'utf8'
 					)
 				)
