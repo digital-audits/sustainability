@@ -205,7 +205,7 @@ describe('Images collector', () => {
 		]);
 	});
 
-	it('collects non-visible (below the fold) images', () => {
+	it('collects non visible (below the fold) images', () => {
 		expect(assets?.media.images[9]!.isVisible).toBe(false);
 	});
 
