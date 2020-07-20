@@ -2,10 +2,13 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {CollectorsIds} from '../types/audit';
-import {CollectSubfontsTraces, SubfontFormat, FontInformation, GHOutput} from '../types/traces';
+import {
+	CollectSubfontsTraces,
+	SubfontFormat,
+	FontInformation,
+	GHOutput
+} from '../types/traces';
 import {ConnectionSettingsPrivate} from '../types/settings';
-
-const debug = util.debugGenerator('Subfont collect');
 
 export default class CollectSubfont extends Collect {
 	collectId: CollectorsIds = 'subfontcollect';
@@ -18,6 +21,7 @@ export default class CollectSubfont extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectSubfontsTraces | undefined> {
 		try {
+			const debug = util.debugGenerator('Subfont collect');
 			// May be interesting to give a try at Page._client.FontFamilies
 			debug('running');
 			const {page} = pageContext;
@@ -27,11 +31,11 @@ export default class CollectSubfont extends Collect {
 				settings.maxNavigationTime,
 				debug
 			);
-			const result:SubfontFormat[] = await page.evaluate(() => {
+			const result: SubfontFormat[] = await page.evaluate(() => {
 				// @ts-ignore
 				const hanger = new GlyphHanger();
 				hanger.init(document.body);
-				const resultJson:GHOutput = hanger.toJSON();
+				const resultJson: GHOutput = hanger.toJSON();
 
 				const fontNames = Object.keys(resultJson);
 
@@ -41,8 +45,6 @@ export default class CollectSubfont extends Collect {
 						value: resultJson[font]
 					};
 				});
-
-				
 
 				return fontsCharSets;
 			});

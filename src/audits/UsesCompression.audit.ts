@@ -9,7 +9,6 @@ import {Meta, SkipResult, Result} from '../types/audit';
  *  the compression ratio and comapres it to the threshold.
  */
 
-const debug = util.debugGenerator('UsesCompression Audit');
 const RATIO_THRESHOLD = 0.95;
 const APPLICABLE_COMPRESSION_MIME_TYPES = [
 	'text/css',
@@ -38,6 +37,7 @@ export default class UsesCompressionAudit extends Audit {
 	}
 
 	static audit(traces: Traces): Result | SkipResult | undefined {
+		const debug = util.debugGenerator('UsesCompression Audit');
 		debug('running');
 		const auditUrls = new Set();
 		const compressionRatio = (compressed: number, uncompressed: number) =>

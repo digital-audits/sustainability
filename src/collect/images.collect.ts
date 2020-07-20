@@ -5,8 +5,6 @@ import {ImageFormat, CollectImagesTraces} from '../types/traces';
 import {CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
-const debug = util.debugGenerator('Collect images');
-
 export default class CollectImages extends Collect {
 	collectId: CollectorsIds = 'imagescollect';
 	static get id() {
@@ -17,6 +15,7 @@ export default class CollectImages extends Collect {
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectImagesTraces> {
+		const debug = util.debugGenerator('Collect images');
 		debug('running');
 		const {page} = pageContext;
 		const fetchImages = async () => {

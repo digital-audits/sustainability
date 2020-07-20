@@ -14,7 +14,6 @@ import {
 import {CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
-const debug = util.debugGenerator('Collect assets');
 export default class CollectAssets extends Collect {
 	collectId: CollectorsIds = 'assetscollect';
 	static get id() {
@@ -26,6 +25,7 @@ export default class CollectAssets extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectAssetsTraces | undefined> {
 		try {
+			const debug = util.debugGenerator('Collect assets');
 			debug('running');
 			const {page} = pageContext;
 			const sheets: Sheets[] = [];
@@ -69,13 +69,9 @@ export default class CollectAssets extends Collect {
 				const styles: InlineStyles[] = [];
 				const scripts: InlineScripts[] = [];
 
-				const isCssStyleTag = (element: any) =>
-					element.tagName === 'STYLE' &&
-					(!element.type || element.type.toLowerCase() === 'text/css');
+				const isCssStyleTag = (element: any) => element.tagName === 'STYLE';
 
-				const isJsScriptTag = (element: any) =>
-					element.tagName === 'SCRIPT' &&
-					(!element.type || element.type.toLowerCase() === 'text/javascript');
+				const isJsScriptTag = (element: any) => element.tagName === 'SCRIPT';
 
 				const isStylesheetLink = (element: any) =>
 					element.tagName === 'LINK' &&

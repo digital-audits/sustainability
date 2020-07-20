@@ -1,9 +1,8 @@
-import sustainability from '../src/sustainability/sustainability';
+import {Sustainability} from '../src';
 import Connection from '../src/connection/connection';
 import Commander from '../src/commander/commander';
 
 import {AuditSettings} from '../src/types';
-import {Browser} from 'puppeteer';
 import * as fastify from 'fastify';
 import {Server, IncomingMessage, ServerResponse} from 'http';
 import * as path from 'path';
@@ -19,40 +18,41 @@ server.register(require('fastify-static'), {
 	root: path.join(__dirname, 'examples')
 });
 
-let browser: Browser;
-
 const runAudit = (path: string, options = {} as AuditSettings) => {
-	options.browser = browser;
-	const url = `http://localhost:3333/${path}.html`;
+	const url = `http://localhost:3334/${path}.html`;
 
-	return sustainability.audit(url, options);
+	return Sustainability.audit(url, options);
 };
 
 beforeAll(async () => {
-	await server.listen(3333);
-	browser = await puppeteer.launch({
-		args: ['--no-sandbox', '--disable-setuid-sandbox']
-	});
+	await server.listen(3334);
 });
 
 afterAll(async () => {
 	await server.close();
-	await browser.close();
 });
 
 describe('options', () => {
-	test('id', async () => {
-		const options: AuditSettings = {id: '143fer2'};
-		const report = await runAudit('health', options);
-		expect(report.meta.id).toBe(options.id);
-	});
-	test('launchSettings', async () => {
-		const options: AuditSettings = {launchSettings: {headless: false}};
+	const spy = jest.spyOn(Connection, 'setUp');
+	const options: AuditSettings = {launchSettings: {headless: true}};
+
+	test('Connection setUp method is called when browser is not passed', async () => {
 		await runAudit('health', options);
-		expect(Connection.setUp).toHaveBeenCalledWith(options.launchSettings);
+		expect(spy).toHaveBeenCalled();
+		expect(spy).toHaveBeenCalledWith(options.launchSettings);
+		spy.mockRestore();
 	});
-	test('connectionSettings', async () => {
-		const options: AuditSettings = {
+	test('Connection setUp method is not called when browser is passed in', async () => {
+		const browser = await puppeteer.launch();
+		options.browser = browser;
+		await runAudit('health', options);
+		expect(spy).not.toHaveBeenCalled();
+		spy.mockRestore();
+	});
+
+	test('Commander setUp method is called with custom connectionSettings', async () => {
+		const commanderSpy = jest.spyOn(Commander, 'setUp');
+		const conSet: AuditSettings = {
 			connectionSettings: {
 				maxNavigationTime: 20000,
 				maxScrollInterval: 25,
@@ -66,7 +66,10 @@ describe('options', () => {
 				}
 			}
 		};
-		await runAudit('health', options);
-		expect(Commander.setUp).toHaveBeenCalledWith(options.connectionSettings);
+		await runAudit('health', conSet);
+		expect(commanderSpy).toHaveBeenCalledWith(
+			expect.any(Object),
+			conSet.connectionSettings
+		);
 	});
 });

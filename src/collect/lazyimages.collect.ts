@@ -6,7 +6,6 @@ import {PageContext} from '../types';
 import {CollectLazyImagesTraces} from '../types/traces';
 import {Request} from 'puppeteer';
 
-const debug = util.debugGenerator('Lazy images collect');
 export default class CollectLazyImages extends Collect {
 	collectId: CollectorsIds = 'transfercollect';
 	static get id() {
@@ -18,6 +17,7 @@ export default class CollectLazyImages extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectLazyImagesTraces | undefined> {
 		try {
+			const debug = util.debugGenerator('Lazy images collect');
 			const {page} = pageContext;
 			const lazyImages: string[] = [];
 			const requestListener = () => {

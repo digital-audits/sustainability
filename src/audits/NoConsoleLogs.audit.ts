@@ -3,7 +3,6 @@ import * as util from '../utils/utils';
 import {Meta, Result} from '../types/audit';
 import {Traces} from '../types/traces';
 
-const debug = util.debugGenerator('NoConsoleLogs Audit');
 export default class NoConsoleLogsAudit extends Audit {
 	static get meta() {
 		return {
@@ -17,6 +16,7 @@ export default class NoConsoleLogsAudit extends Audit {
 	}
 
 	static audit(traces: Traces): Result {
+		const debug = util.debugGenerator('NoConsoleLogs Audit');
 		debug('running');
 		const dups = new Set();
 		const uniqueResources = traces.console.filter(trace => {

@@ -1,6 +1,5 @@
-import {Sustainability} from './index';
+import {Sustainability} from '.';
 
 (async () => {
-    console.log(JSON.stringify(await Sustainability.audit('https://audits.digital')))
-
-})()
+	await Sustainability.audit('https://audits.digital');
+})();

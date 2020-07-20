@@ -12,7 +12,6 @@ import {
 import {CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
-const debug = util.debugGenerator('Transfer collect');
 export default class CollectTransfer extends Collect {
 	collectId: CollectorsIds = 'transfercollect';
 	static get id() {
@@ -24,6 +23,7 @@ export default class CollectTransfer extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectTransferTraces | undefined> {
 		try {
+			const debug = util.debugGenerator('Transfer collect');
 			debug('running');
 			const {page} = pageContext;
 			const results: Record[] = [];
@@ -55,7 +55,6 @@ export default class CollectTransfer extends Collect {
 				const response = request.response();
 				let responseBody: Buffer;
 				let uncompressedSize: ByteFormat;
-				// Body can only be accessed for non-redirect responses
 				if (response) {
 					try {
 						responseBody = await response.buffer();
@@ -114,8 +113,6 @@ export default class CollectTransfer extends Collect {
 								units: 'bytes'
 							}
 						}
-
-					
 					};
 					results.push(information);
 				}

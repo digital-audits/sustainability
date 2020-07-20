@@ -6,7 +6,7 @@ import {Traces} from '../types/traces';
 /**
  * Test with https://mathiasbynens.be/demo/img-loading-lazy
  */
-const debug = util.debugGenerator('UsesLazyLoading Audit');
+
 export default class UsesLazyLoadingAudit extends Audit {
 	static get meta() {
 		return {
@@ -21,6 +21,7 @@ export default class UsesLazyLoadingAudit extends Audit {
 	}
 
 	static audit(traces: Traces): Result | SkipResult {
+		const debug = util.debugGenerator('UsesLazyLoading Audit');
 		const isAuditApplicable = (): boolean => {
 			if (!traces.media.images.length) return false;
 			if (!traces.media.images.some(image => !image.isVisible)) return false;

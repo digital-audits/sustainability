@@ -3,8 +3,6 @@ import * as util from '../utils/utils';
 import {Meta, SkipResult, Result} from '../types/audit';
 import {Traces} from '../types/traces';
 
-const debug = util.debugGenerator('UsesWebPImageFormat Audit');
-
 export default class UsesWebpImageFormatAudit extends Audit {
 	static get meta() {
 		return {
@@ -26,6 +24,7 @@ export default class UsesWebpImageFormatAudit extends Audit {
 	 */
 
 	static audit(traces: Traces): Result | SkipResult {
+		const debug = util.debugGenerator('UsesWebPImageFormat Audit');
 		const isAuditApplicable = (): boolean => {
 			if (!traces.media.images.length) return false;
 			return true;
@@ -44,12 +43,17 @@ export default class UsesWebpImageFormatAudit extends Audit {
 					auditUrls.add(url.slice(0, 15));
 					return false;
 				}
-				if (url.endsWith('.webp')) return false;
-				
-				if(!/$.?:jpg|gif|png/.test(url)) return false
 
-				const urlLastSegment = url.split('/').filter(Boolean).pop() || url
-				auditUrls.add(urlLastSegment.split('?')[0])
+				if (url.endsWith('.webp')) return false;
+
+				if (!/$.?:jpg|gif|png/.test(url)) return false;
+
+				const urlLastSegment =
+					url
+						.split('/')
+						.filter(Boolean)
+						.pop() ?? url;
+				auditUrls.add(urlLastSegment.split('?')[0]);
 				return true;
 			});
 

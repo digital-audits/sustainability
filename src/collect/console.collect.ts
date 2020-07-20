@@ -6,7 +6,6 @@ import {CollectConsoleTraces, ConsoleMessageFormat} from '../types/traces';
 import {CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
-const debug = util.debugGenerator('Console collect');
 export default class CollectConsole extends Collect {
 	collectId: CollectorsIds = 'consolecollect';
 	static get id() {
@@ -17,6 +16,7 @@ export default class CollectConsole extends Collect {
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectConsoleTraces | undefined> {
+		const debug = util.debugGenerator('Console collect');
 		debug('running');
 		const {page} = pageContext;
 
@@ -34,7 +34,7 @@ export default class CollectConsole extends Collect {
 					debug(`${i}: ${message.args()[i]}`);
 				}
 */
-			
+
 			results.push(information);
 		});
 

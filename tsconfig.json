@@ -2,12 +2,10 @@
     "compilerOptions": {
       "rootDir": "./src",
       "outDir": "./build",
-      "allowJs":true,
-      "checkJs":false,
       "target": "es2016",
       "lib": ["es2017", "dom"],
       "module": "commonjs",
-      "moduleResolution":"Node",
+      "moduleResolution":"node",
       "types": [
         "node",
         "jest"

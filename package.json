@@ -1,6 +1,6 @@
 {
   "name": "sustainability",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "description": "digital sustainability audits for the web",
   "main": "build/index.js",
   "bin": {
@@ -8,7 +8,8 @@
   },
   "types": "build/index.d.ts",
   "scripts": {
-    "test": "jest",
+    "test": "DEBUG='sustainability:*' jest",
+    "coverage": "jest --coverage",
     "dev": "DEBUG='sustainability:*' ts-node-dev --respawn --poll --clear ./src/index-dev.ts",
     "format": "xo --fix",
     "build": "tsc"
@@ -37,12 +38,13 @@
     "@types/puppeteer": "^3.0.1",
     "@types/uuid": "^7.0.2",
     "characterset": "^1.3.0",
+    "coveralls": "^3.1.0",
     "css-tree": "^1.0.0-alpha.39",
     "fastify": "^2.15.0",
     "fastify-static": "^2.7.0",
     "jest": "^26.1.0",
     "puppeteer": "^4.0.1",
-    "ts-jest": "^26.1.1",
+    "ts-jest": "^26.1.3",
     "ts-node": "^8.8.2",
     "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "^3.8.3",
@@ -58,11 +60,32 @@
     "node-fetch": "^2.6.0"
   },
   "xo": {
-    "prettier": "true"
+    "prettier": "true",
+    "ignores": [
+      "!**/examples",
+      "test/**"
+    ]
   },
   "jest": {
     "setupFilesAfterEnv": [
       "<rootDir>/test/config/setup.js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/audits/audit.ts"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/collect/",
+      "/bin/",
+      "/utils/",
+      "cli.ts",
+      "index-dev.ts"
+
+    ],
+    "coverageReporters": [
+      "lcov",
+      "text",
+      "text-summary"
     ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"

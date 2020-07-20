@@ -7,12 +7,9 @@ import * as util from '../utils/utils';
 import {Meta, Result} from '../types/audit';
 import {Traces} from '../types/traces';
 
-
-
 const MB_TO_BYTES = 1024 * 1024;
 const GB_TO_MB = 1024;
 
-const debug = util.debugGenerator('Carbonfootprint Audit');
 export default class CarbonFootprintAudit extends Audit {
 	static get meta() {
 		return {
@@ -24,11 +21,12 @@ export default class CarbonFootprintAudit extends Audit {
 			collectors: ['transfercollect']
 		} as Meta;
 	}
-/**
- * @workflow 
- * 	Compute gCO2eq considering server location,
- *   server greenness per individual resource.
- */
+
+	/**
+	 * @workflow
+	 * 	Compute gCO2eq considering server location,
+	 *   server greenness per individual resource.
+	 */
 	static async audit(traces: Traces): Promise<Result | undefined> {
 		/* Const getGeoLocation = (ip:string) => {
             //2 letter ISO-3166-1 country code https://www.iban.com/country-codes
@@ -44,6 +42,7 @@ export default class CarbonFootprintAudit extends Audit {
 
         const getGeoLocationMem = memoize(getGeoLocation)
         */
+		const debug = util.debugGenerator('Carbonfootprint Audit');
 		debug('running');
 		const getValidRecords = async () => {
 			const getGreenRecord = async () => {
@@ -66,7 +65,7 @@ export default class CarbonFootprintAudit extends Audit {
 			};
 
 			return getGreenRecord();
-//TODO: Bring the carbon data by regions first
+			// TODO: Bring the carbon data by regions first
 			/* Return records.map(record=>{
 
                     

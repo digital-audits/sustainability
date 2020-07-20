@@ -299,14 +299,14 @@ export function successOrFailureOrSkipAudits(
 	return out;
 }
 
-export function removeQuotes(text:string):string{
-	if (text.indexOf(`'`) === 0) {
+export function removeQuotes(text: string): string {
+	if (text.startsWith(`’`)) {
 		return text.replace(/'/g, '');
 	}
 
-	if (text.indexOf('"') === 0) {
+	if (text.startsWith('"')) {
 		return text.replace(/"/g, '');
 	}
 
-	return text
+	return text;
 }

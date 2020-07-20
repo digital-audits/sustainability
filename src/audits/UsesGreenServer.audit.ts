@@ -3,7 +3,6 @@ import * as util from '../utils/utils';
 import {Meta, Result, SkipResult} from '../types/audit';
 import {Traces} from '../types/traces';
 
-const debug = util.debugGenerator('UsesGreenServer Audit');
 export default class UsesGreenServerAudit extends Audit {
 	static get meta() {
 		return {
@@ -17,6 +16,7 @@ export default class UsesGreenServerAudit extends Audit {
 	}
 
 	static async audit(traces: Traces): Promise<Result | SkipResult | undefined> {
+		const debug = util.debugGenerator('UsesGreenServer Audit');
 		debug('running');
 		const {hosts} = traces;
 		const ipAddress = traces.record.find(record => {

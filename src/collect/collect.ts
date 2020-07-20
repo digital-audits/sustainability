@@ -11,6 +11,7 @@ import {
 	CollectFailedTransferTraces
 } from '../types/traces';
 import {CollectorsIds} from '../types/audit';
+import {ConnectionSettingsPrivate} from '../types/settings';
 
 export default class Collect {
 	public static collectId: CollectorsIds;
@@ -18,8 +19,8 @@ export default class Collect {
 		return this.collectId;
 	}
 
-	collect(pageContext: PageContext) {
-		return {} as
+	collect(pageContext: PageContext, settings: ConnectionSettingsPrivate) {
+		return {} as Promise<
 			| CollectHtmlTraces
 			| CollectAssetsTraces
 			| CollectImagesTraces
@@ -28,6 +29,8 @@ export default class Collect {
 			| CollectSubfontsTraces
 			| CollectTransferTraces
 			| CollectPerformanceTraces
-			| CollectFailedTransferTraces;
+			| CollectFailedTransferTraces
+			| undefined
+		>;
 	}
 }

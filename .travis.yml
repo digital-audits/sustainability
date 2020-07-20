@@ -1,0 +1,45 @@
+language: node_js
+
+addons:
+  apt:
+    packages:
+      - chromium-browser
+
+cache:
+  directories:
+    - node_modules
+
+node_js:
+  - '10'
+  - '11'
+  - '12'
+  - '13'
+
+before_script: npm run build
+script:
+  - npm run coverage
+
+jobs:
+  include:
+    - stage: test
+      node_js: '14'
+      env: 'SUBMIT_COVERAGE_REPORT=1'
+      after_success: 'cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js'
+    - stage: deploy
+      node_js: '14'
+      script: skip
+      deploy:
+        provider: npm
+        edge: true
+        skip_cleanup: true
+        email: digital.audits@protonmail.com
+        api_key:
+          secure: prXQ8scLOhTxislXm7i2O1OaBcRw5xXRp5H4LFaPHMiKsLhn5akDe/QnXkwLe0NAJI4lHZIlV1frSXDUPnlK98eLjzVS+FVLy8BInAxmuTQfF9LZSGPB9pn52sJ2r/se4z26DHGgu3xzWHB3XTtcyD6+xuJMeexj/7b5KTKbiAiGO2PC5xPbRNpZPAerS12F17WaYHfvUpW8jzjcxJ9UndDqz4m9D/aFWFoUiO+EJYr7cr2PvAkrJPncNecPQN32bPAsPcCjEcAD/P+HPUXU4J3dXOUuv45+phgmb6YBBJKu75gEbyQocQC/mgEuhU/adnCIiKFsXfXOm0IjG891Y0RP3uH6R2h22PEexRjBonc6TnsXrzXsrC0lbwdNxz4gr0M6rPhZUFv89MUXZQFviP8llwIsvSX0P9lZIrUaAc0HDQEOU3/asMboiKU0XhbR+QDoivXjDlHr2inkTlmdVEr4CpjoKj8przOE0h1Sb3rYyIehjo33MbU5DcjE2ECiixiyiYZvsUQYzza/Byp3D2zN/8+SeDrq5OoO+X9iVlJu+cvUbMeDJKlQOqM5IdK482nNyIt+P+jByN4Q6aRCoFCpcRqVRhC4WLU9MU2jk6rNW4vB79M6awVoF737O/dEkos6844IZfNl3/WRnUGiIv/0UrWmD31eQFYDvpjbZH4=
+        on:
+          tags: true
+          branch: master
+
+stages:
+  - test
+  - name: deploy
+    if: tag IS present AND type = push

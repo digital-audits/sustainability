@@ -1,4 +1,5 @@
-//adapted from glyphhanger https://github.com/filamentgroup/glyphhanger
+// Adapted from glyphhanger https://github.com/filamentgroup/glyphhanger
+// @ts-nocheck
 (function(root, factory) {
 	if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
 		// CommonJS
@@ -12,8 +13,8 @@
 		this.globalSet = new CharacterSet();
 		this.fontFamilySets = {};
 		this.displayFontFamilyNames = {};
-		this.displayFontStyles = {}
-		this.displayFontWeights= {}
+		this.displayFontStyles = {};
+		this.displayFontWeights = {};
 		this.defaultFontFamily = 'serif';
 
 		if (typeof window !== 'undefined') {
@@ -68,7 +69,7 @@
 									null
 								);
 								const text = this.getNodeValue(textNode);
-								const extra = this.getExtraInfo(textNode, null)
+								const extra = this.getExtraInfo(textNode, null);
 								// Console.log( "font-family `" + fontFamily + "` has text: ", text );
 
 								this.saveGlyphs(text, fontFamily, extra);
@@ -81,7 +82,7 @@
 							node,
 							':before'
 						);
-						const extra = this.getExtraInfo(node, ':before')
+						const extra = this.getExtraInfo(node, ':before');
 						// Console.log( "(:before) font-family `" + beforeFamily + "` has text: ", beforeContent );
 						this.saveGlyphs(beforeContent, beforeFamily, extra);
 					}
@@ -89,7 +90,7 @@
 					const afterContent = this.getPseudoContent(node, ':after');
 					if (afterContent) {
 						const afterFamily = this.getFontFamilyNameFromNode(node, ':after');
-						const extra = this.getExtraInfo(node, ':after')
+						const extra = this.getExtraInfo(node, ':after');
 						// Console.log( "(:after) font-family `" + afterFamily + "` has text: ", afterContent );
 						this.saveGlyphs(afterContent, afterFamily, extra);
 					}
@@ -170,20 +171,22 @@
 		if (node.nodeType === 3) {
 			context = node.parentNode;
 		}
-		let fontStyle,
-		fontWeight;
-		if (context) {
-			const style = this.win.getComputedStyle(context, pseudo)
-				.getPropertyValue('font-style');
-			fontStyle = style || 'normal'
-			const weight = this.win.getComputedStyle(context, pseudo)
-				.getPropertyValue('font-weight');
-			fontWeight = weight || '400'
-		}
-		
 
-		return {fontStyle, fontWeight}
-	}
+		let fontStyle;
+		let fontWeight;
+		if (context) {
+			const style = this.win
+				.getComputedStyle(context, pseudo)
+				.getPropertyValue('font-style');
+			fontStyle = style || 'normal';
+			const weight = this.win
+				.getComputedStyle(context, pseudo)
+				.getPropertyValue('font-weight');
+			fontWeight = weight || '400';
+		}
+
+		return {fontStyle, fontWeight};
+	};
 
 	GH.prototype.fakeInnerText = function(node) {
 		const value = node.nodeValue.trim();
@@ -225,9 +228,7 @@
 		return node.textContent || innerText || '';
 	};
 
-	GH.prototype.getFontStyle = function(node) {
-
-	}
+	GH.prototype.getFontStyle = function(node) {};
 
 	GH.prototype.hasValue = function(node) {
 		return (node.textContent || node.nodeValue).trim().length > 0;
@@ -251,7 +252,6 @@
 		const {fontStyle, fontWeight} = extra;
 		this.globalSet = this.globalSet.union(set);
 
-		
 		if (fontFamily) {
 			const key = fontFamily.toLowerCase();
 			this.displayFontFamilyNames[key] = fontFamily;
@@ -259,17 +259,18 @@
 			if (key) {
 				this.fontFamilySets[key] = this.getFamilySet(key).union(set);
 				if (fontStyle) {
-					this.displayFontStyles[key] = this.displayFontStyles[key] ? [...this.displayFontStyles[key], fontStyle] : [fontStyle]
-
+					this.displayFontStyles[key] = this.displayFontStyles[key]
+						? [...this.displayFontStyles[key], fontStyle]
+						: [fontStyle];
 				}
-		
-				if(fontWeight) {
-					this.displayFontWeights[key] = this.displayFontWeights[key] ? [...this.displayFontWeights[key], fontWeight] : [fontWeight]
+
+				if (fontWeight) {
+					this.displayFontWeights[key] = this.displayFontWeights[key]
+						? [...this.displayFontWeights[key], fontWeight]
+						: [fontWeight];
 				}
 			}
 		}
-
-		
 	};
 
 	GH.prototype.getFamilySet = function(fontFamily) {
@@ -293,15 +294,14 @@
 	GH.prototype.toJSON = function() {
 		const object = {};
 		for (const family in this.fontFamilySets) {
-			object[this.displayFontFamilyNames[family]] = 
-			{
+			object[this.displayFontFamilyNames[family]] = {
 				glyphs: this.fontFamilySets[family].toHexRangeString(),
 				styles: [...new Set(this.displayFontStyles[family])],
 				weights: [...new Set(this.displayFontWeights[family])]
-		}
+			};
 		}
 
-		//object['*'] = this.getGlyphs();
+		// Object['*'] = this.getGlyphs();
 
 		return object;
 	};

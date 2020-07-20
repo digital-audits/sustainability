@@ -48,17 +48,17 @@ export interface PerformanceFormat {
 
 export type SubfontFormat = {
 	name: string;
-	value: FontInformation
+	value: FontInformation;
 };
 
-export interface GHOutput{
-	[key:string]:FontInformation
+export interface GHOutput {
+	[key: string]: FontInformation;
 }
 
-export interface FontInformation{
-	glyphs: string[],
-	weights: number[],
-	styles: string[]
+export interface FontInformation {
+	glyphs: string[];
+	weights: number[];
+	styles: string[];
 }
 
 export interface Metrics {

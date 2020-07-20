@@ -6,7 +6,6 @@ import {CollectorsIds} from '../types/audit';
 import {CollectRedirectTraces, RedirectResponse} from '../types/traces';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
-const debug = util.debugGenerator('Redirect collect');
 export default class CollectRedirect extends Collect {
 	collectId: CollectorsIds = 'redirectcollect';
 	static get id() {
@@ -17,17 +16,18 @@ export default class CollectRedirect extends Collect {
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectRedirectTraces | undefined> {
+		const debug = util.debugGenerator('Redirect collect');
 		debug('running');
 		const results: RedirectResponse[] = [];
 		const {page, url} = pageContext;
 		page.on('response', (response: Response) => {
 			const status = response.status();
 			const url = response.url();
-
-			if (status >= 300 && status !== 304) {
+			if (status >= 300 && status !== 304 && status <= 399) {
 				// If the 'Location' header points to a relative URL,
 				// convert it to an absolute URL.
 				// If it already was an absolute URL, it stays like that.
+
 				const redirectsTo = new URL(
 					response.headers().location,
 					url
