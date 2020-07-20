@@ -23,7 +23,6 @@ jobs:
       node_js: '14'
       env: 
         - 'SUBMIT_COVERAGE_REPORT=1'
-        - 'TRAVIS_TAG=push'
       after_success: 'cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js'
     - stage: deploy
       node_js: '14'
