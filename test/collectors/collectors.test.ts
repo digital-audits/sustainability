@@ -54,7 +54,7 @@ const createPageContext = async (file: string, url?: string) => {
 		),
 		page.evaluateOnNewDocument(
 			fs.readFileSync(
-				path.resolve(__dirname, '../../bin/glyphhanger-script.js'),
+				path.resolve(__dirname, '../../src/bin/glyphhanger-script.js'),
 				'utf8'
 			)
 		)
