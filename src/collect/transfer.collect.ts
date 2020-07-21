@@ -43,7 +43,7 @@ export default class CollectTransfer extends Collect {
 			});
 
 			client.on('Network.responseReceived', (data: any) => {
-				if (data?.response) {
+				if (data?.response && data.response.protocol) {
 					protocol.push({
 						protocol: data.response.protocol,
 						requestId: data.requestId

@@ -7,6 +7,7 @@ import * as fastify from 'fastify';
 import {Server, IncomingMessage, ServerResponse} from 'http';
 import * as path from 'path';
 import * as puppeteer from 'puppeteer';
+import { Report } from '../src/types/audit';
 
 const server: fastify.FastifyInstance<
 	Server,
@@ -18,8 +19,8 @@ server.register(require('fastify-static'), {
 	root: path.join(__dirname, 'examples')
 });
 
-const runAudit = (path: string, options = {} as AuditSettings) => {
-	const url = `http://localhost:3334/${path}.html`;
+const runAudit = (path: string, options = {} as AuditSettings, url?:string) => {
+	if(!url) url = `http://localhost:3334/${path}.html`;
 
 	return Sustainability.audit(url, options);
 };
@@ -73,3 +74,47 @@ describe('options', () => {
 		);
 	});
 });
+
+//may be subjected to change in the future
+
+describe('report on https://audits.digital', ()=>{
+	let report:Report;
+	const totalNumOfAuditsPerCategory = 4
+	beforeAll(async()=>{
+		report = await runAudit('das-site', {}, 'https://audits.digital')
+	})
+	
+	it('exists', ()=>{
+		expect(report).toBeTruthy()
+	})
+	it('scores 100', ()=>{
+		expect(report.globalScore).toBe(100)
+	})
+	it('passess all server audits', ()=>{
+		expect(report.audits[0].audits.pass.length).toEqual(totalNumOfAuditsPerCategory)
+	})
+	it('passess two design audits', ()=>{
+		expect(report.audits[1].audits.pass.length).toEqual(2)
+	})
+	it('skips two design audits', ()=>{
+		expect(report.audits[1].audits.skip.length).toEqual(2)
+	})
+
+})
+
+
+describe('report on https://uoc.edu', ()=>{
+	let report:Report;
+	beforeAll(async()=>{
+		report = await runAudit('das-site', {}, 'https://www.uoc.edu')
+	})
+
+	it('passess on lazy loading audit', ()=>{
+		expect(report.audits[1].audits.pass.map(audit=>audit.meta.id)).toEqual(['lazyloading'])
+	})
+
+	it('fails on font subsetting, noconsole logs, webpimages', ()=>{
+		expect(report.audits[1].audits.fail.map(audit=>audit.meta.id)).toEqual(['webpimages', 'noconsolelogs', 'fontsubsetting'])
+	})
+
+})

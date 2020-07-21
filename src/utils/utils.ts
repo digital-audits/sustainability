@@ -151,24 +151,24 @@ interface APIResponse {
 	hostedbywebsite: string;
 	error?: string;
 }
-const isGreenServer = async (ip: string): Promise<APIResponse | undefined> => {
+const isGreenServer = async (hostname: string): Promise<APIResponse | undefined> => {
 	const controller = new AbortController();
 	const timeout = setTimeout(() => {
 		controller.abort();
 	}, DEFAULT.CONNECTION_SETTINGS.maxThrottle);
-
+	const url = `${GREEN_SERVER_API}/${hostname}`;
 	try {
-		const url = `${GREEN_SERVER_API}/${ip}`;
 		const response = await fetch(url, {
 			signal: controller.signal
 		});
+
 
 		const responseToJson = await response.json();
 
 		return responseToJson;
 	} catch (error) {
 		log(
-			`Error: Failed to fetch response from green server API. ${error.message}`
+			`Error: Failed to fetch response from green server API. ${error.message} ${url}`
 		);
 		return await new Promise(resolve => resolve(undefined));
 	} finally {
