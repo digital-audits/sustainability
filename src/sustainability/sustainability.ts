@@ -14,7 +14,6 @@ export default class Sustainability {
 		const sustainability = new Sustainability();
 		let browser: Browser | undefined;
 		let page: Page;
-
 		try {
 			if (!settings?.page) {
 				browser =
