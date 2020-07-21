@@ -4,7 +4,7 @@
 [![npm](https://badgen.now.sh/npm/v/sustainability)](https://www.npmjs.com/package/sustainability)
 [![Build Status](https://travis-ci.org/digital-audits/sustainability.svg?branch=master)](https://travis-ci.org/digital-audits/sustainability)
 [![Coverage Status](https://coveralls.io/repos/github/digital-audits/sustainability/badge.svg?branch=master)](https://coveralls.io/github/digital-audits/sustainability?branch=master)
-[![Website](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://audits.digital)
+![Website](https://img.shields.io/endpoint?url=https%3A%2F%2Fapi.audits.digital%3A6069%2Fhealth)
 > A de facto standard for the green web paradigm. Computes the carbon footprint (CF) index, determines the energy source of servers, the usage of HTTP2.0, WebP image format, lazy loading on images, font subsetting, etc.
 Effectively generates a customized report. May cut down your site's CF up to the 70%.
 
