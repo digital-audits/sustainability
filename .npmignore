@@ -4,3 +4,4 @@ test
 CONTRIBUTION-dev.md 
 src
 tsconfig.json
+.travis.yml
