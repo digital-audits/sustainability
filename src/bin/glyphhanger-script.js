@@ -1,4 +1,3 @@
-// Adapted from glyphhanger https://github.com/filamentgroup/glyphhanger
 (function(root, factory) {
 	if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
 		// CommonJS

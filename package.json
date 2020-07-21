@@ -12,7 +12,7 @@
     "coverage": "jest --coverage",
     "dev": "DEBUG='sustainability:*' ts-node-dev --respawn --poll --clear ./src/index-dev.ts",
     "format": "xo --fix",
-    "build": "tsc"
+    "build": "tsc && cp ./src/bin/glyphhanger-script.js ./build/bin/"
   },
   "author": "David Monras",
   "repository": {
