@@ -10,7 +10,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/digital-audits/sustainability/badge.svg?branch=master)](https://coveralls.io/github/digital-audits/sustainability?branch=master)
 [![Service](https://img.shields.io/badge/service-up-informational)](https://audits.digital)
 
-> A de facto standard for the green web paradigm. Computes the carbon footprint (CF) index, determines the energy source of servers, the usage of HTTP2.0, WebP image format, lazy loading on images, font subsetting, etc.
+> A de facto standard for the Internet carbon footprint. Computes the carbon footprint (CF) index, determines the energy source of servers, the usage of HTTP2.0, WebP image format, lazy loading on images, font subsetting, etc.
 Effectively generates a customized report. May cut down your site's CF up to the 70%.
 
 - [Installation](#Installation)
