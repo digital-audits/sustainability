@@ -1,10 +1,15 @@
-![DAS](https://raw.githubusercontent.com/digital-audits/sustainability/master/logo.png)
+<h2 align="center">
+<img src="https://raw.githubusercontent.com/digital-audits/sustainability/master/logo.png">
+ </h2>
+ 
 # Digital sustainability audits
+
 [![Sustainability](https://img.shields.io/badge/DAS%20verified%20sustainable-https://audits.digital-blue.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHdpZHRoPSIxMDguNjVtbSIgaGVpZ2h0PSI5NS44NjZtbSIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTA4LjY1IDk1Ljg2NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI%2BIDxtZXRhZGF0YT4gIDxyZGY6UkRGPiAgIDxjYzpXb3JrIHJkZjphYm91dD0iIj4gICAgPGRjOmZvcm1hdD5pbWFnZS9zdmcreG1sPC9kYzpmb3JtYXQ%2BICAgIDxkYzp0eXBlIHJkZjpyZXNvdXJjZT0iaHR0cDovL3B1cmwub3JnL2RjL2RjbWl0eXBlL1N0aWxsSW1hZ2UiLz4gICAgPGRjOnRpdGxlLz4gICA8L2NjOldvcms%2BICA8L3JkZjpSREY%2BIDwvbWV0YWRhdGE%2BIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC01MS4xNzkgLTc3LjkyMikiPiAgPHBhdGggZD0ibTEzMy40NCA3Ny45MjItNTcuNDQ5IDUwLjUzIDQyLjcwMiAxNC40MjYgNy4zMDQ1LTIwLjczNmM3LjE5MzYgMy4wMzQyIDEzLjY3NSA3LjYzMDEgMTkuMDA3IDEzLjQ3OHptMTEuNTY1IDU3LjY5OC0wLjQ1MDYyIDE3LjYxMy0yNS44NjEtMTAuMzU1LTIuMTY1MiA2LjE0NzQtMjcuMTQzLTkuNTYxMiAwLjM5Njg4IDExLjcxMS0xNC45OTgtOC45MDg1LTE0LjMwNiAwLjQ4NDcyYy01Ljk4MzIgOS4xNzI1LTkuMjE5MSAxOS45NjktOS4zMDIzIDMxLjAzNmgxMDguNjVjLTAuMTA2NjMtMTQuMjAzLTUuNDAwNy0yNy44MzktMTQuODE5LTM4LjE2OHptLTg0LjQ2OCAyNi44NjloOTEuNjM1YTQ4LjEyMiAzNy41MDggMCAwIDEgMi4zMDI3IDExLjE3OGgtOTYuMjRhNDguMTIyIDM3LjUwOCAwIDAgMSAyLjMwMjctMTEuMTc4eiIgZmlsbD0iIzAwMDA4MCIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2Utd2lkdGg9Ii4yNjQ1OCIvPiAgPHRleHQgZm9udC1mYW1pbHk9IidDZW50dXJ5IFNjaG9vbGJvb2sgTCciIGZvbnQtc2l6ZT0iMTkuNzU2cHgiIGZvbnQtd2VpZ2h0PSJib2xkIiBzdHlsZT0ibGluZS1oZWlnaHQ6MS4yNTtzaGFwZS1pbnNpZGU6dXJsKCNyZWN0MTgpO3doaXRlLXNwYWNlOnByZSIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIvPiA8L2c%2BPC9zdmc%2B&link=https://audits.digital&style=social)](https://audits.digital)
 [![npm](https://badgen.now.sh/npm/v/sustainability)](https://www.npmjs.com/package/sustainability)
 [![Build Status](https://travis-ci.org/digital-audits/sustainability.svg?branch=master)](https://travis-ci.org/digital-audits/sustainability)
 [![Coverage Status](https://coveralls.io/repos/github/digital-audits/sustainability/badge.svg?branch=master)](https://coveralls.io/github/digital-audits/sustainability?branch=master)
-![Website](https://img.shields.io/endpoint?url=https%3A%2F%2Fapi.audits.digital%3A6069%2Fhealth)
+[![Service](https://img.shields.io/badge/service-up-informational)](https://audits.digital)
+
 > A de facto standard for the green web paradigm. Computes the carbon footprint (CF) index, determines the energy source of servers, the usage of HTTP2.0, WebP image format, lazy loading on images, font subsetting, etc.
 Effectively generates a customized report. May cut down your site's CF up to the 70%.
 
