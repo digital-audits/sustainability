@@ -46,8 +46,9 @@ export default class UsesWebpImageFormatAudit extends Audit {
 
 				if (url.endsWith('.webp')) return false;
 
-				if (!/$.?:jpg|gif|png/.test(url)) return false;
-
+				if (!/\.(?:jpg|gif|png)$/.test(url)) {
+					return false
+				}
 				const urlLastSegment =
 					url
 						.split('/')
