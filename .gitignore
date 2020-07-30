@@ -4,3 +4,4 @@ traces
 notes.txt
 build
 coverage
+src/bin/escomplex

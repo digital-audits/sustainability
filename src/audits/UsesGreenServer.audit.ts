@@ -17,6 +17,7 @@ export default class UsesGreenServerAudit extends Audit {
 
 	static async audit(traces: Traces): Promise<Result | SkipResult | undefined> {
 		const debug = util.debugGenerator('UsesGreenServer Audit');
+		const GREEN_SERVER_API = 'http://api.thegreenwebfoundation.org/greencheck';
 		debug('running');
 		const {hosts} = traces;
 		const hostname = traces.record.find(record => {
@@ -25,7 +26,8 @@ export default class UsesGreenServerAudit extends Audit {
 		})?.response.url.hostname;
 
 		debug('evaluating energy source');
-		const response = await util.isGreenServerMem(hostname!);
+		const url = `${GREEN_SERVER_API}/${hostname!}`
+		const response = await util.isGreenServerMem(url);
 
 		if (response && !response.error) {
 			const {green, hostedby} = response;

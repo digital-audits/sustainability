@@ -20,6 +20,9 @@ import {
 	Result
 } from '../types/audit';
 
+const escomplex = require('../bin/escomplex/src/index.js');
+import * as sourceMap from 'source-map'
+
 export function debugGenerator(namespace: string): Debug.IDebugger {
 	const debug = Debug(`sustainability: ${namespace}`);
 	return debug;
@@ -142,7 +145,7 @@ export function createTracker(page: Page): Tracker {
 	};
 }
 
-const GREEN_SERVER_API = 'http://api.thegreenwebfoundation.org/greencheck';
+
 
 interface APIResponse {
 	green: boolean;
@@ -151,12 +154,12 @@ interface APIResponse {
 	hostedbywebsite: string;
 	error?: string;
 }
-const isGreenServer = async (hostname: string): Promise<APIResponse | undefined> => {
+export const fetchRequest = async (url:string): Promise<APIResponse | undefined> => {
 	const controller = new AbortController();
 	const timeout = setTimeout(() => {
 		controller.abort();
 	}, DEFAULT.CONNECTION_SETTINGS.maxThrottle);
-	const url = `${GREEN_SERVER_API}/${hostname}`;
+	;
 	try {
 		const response = await fetch(url, {
 			signal: controller.signal
@@ -176,7 +179,7 @@ const isGreenServer = async (hostname: string): Promise<APIResponse | undefined>
 	}
 };
 
-export const isGreenServerMem = memoizee(isGreenServer, {async: true});
+export const isGreenServerMem = memoizee(fetchRequest, {async: true});
 
 export async function safeNavigateTimeout(
 	page: Page,
@@ -310,3 +313,59 @@ export function removeQuotes(text: string): string {
 
 	return text;
 }
+
+export function obtainCodeIndexes(input:string){
+	try{
+	//analyse can take a array of sources with {path:,code:}
+	const report = escomplex.analyse(input, {newmi:true, ignoreErrors:true})
+	/*const foos = report.functions.map((f:any)=>{
+		return {
+		cyclomatic:f.cyclomatic,
+		name:f.name,
+		line:f.sloc.logical}
+	})
+	
+	const fooComplexIndex = foos.indexOf(Math.max(...foos.cyclomatic))
+*/
+	return {
+		main:report.maintainability,
+		complex:report.aggregate.cyclomatic,
+		deps:report.dependencies,
+		difficulty:report.aggregate.halstead.difficulty,
+		lines:report.aggregate.sloc.logical,
+		bugs:report.aggregate.halstead.bugs,
+
+	}
+}catch(e){
+	console.log(e, input)
+}
+
+	
+
+}
+
+export const readSources = async (input:sourceMap.RawSourceMap, sourceMapUrl:string, debug?:CallableFunction) => {
+
+	const consumer = await new sourceMap.SourceMapConsumer(input, sourceMapUrl);
+  
+	const map:any = []
+  
+	if (consumer.hasContentsOfAllSources()) {
+		if(debug){
+			debug(`All sources were included in the sourcemap`)
+		}
+  
+	  consumer.sources.forEach((source) => {
+		const contents = consumer.sourceContentFor(source);
+  
+		map.push(contents)
+	  });
+	}
+	else if (debug) {
+	  debug('Not all sources were included in the sourcemap');
+	}
+  
+	consumer.destroy();
+  
+	return map;
+  };

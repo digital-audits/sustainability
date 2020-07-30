@@ -1,5 +1,5 @@
 import {Sustainability} from '.';
 
 (async () => {
-	await Sustainability.audit('https://audits.digital');
+	await Sustainability.audit('https://www.toptal.com');
 })();

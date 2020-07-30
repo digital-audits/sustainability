@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="csi.min.js"></script>
+ 
+    <title>Blocks bot</title>
+</head>
+<body>
+     <!--Solution 1-->
+    <script>
+        const isHeadless = (function (){
+        let body = document.getElementsByTagName("body")[0];
+                    const ua = window.navigator.userAgent
+                    const isMozilla = /Firefox/.test(ua)
+                    const isChrome = /Chrome/.test(ua)
+                    const isReallyMozilla = eval.toString().length === 37
+                    const isReallyChrome = eval.toString().length === 33
+                    if(isMozilla && isReallyMozilla){
+                        return false
+                    }
+                    if(isChrome && isReallyChrome){
+                        return false
+                    }
+
+                    return true
+                    
+                })();
+        const body = document.getElementsByTagName("body")[0];
+        let divEl = document.createElement('div')
+        if(!isHeadless){
+            
+            divEl.setAttribute('data-include', 'included.html')
+            
+        }else{
+            divEl.innerHTML = 'Sorry, you cannot see this page'
+        }
+        body.appendChild(divEl)
+    </script>
+
+    <!--Solution 2-- From https://stackoverflow.com/questions/8988855/include-another-html-file-in-a-html-file barro32> -->
+    <div class="js-component" data-name="header" data-ext="html"></div>
+    <div class="js-component" data-name="footer" data-ext="html"></div>
+    
+    <script>
+        const components = document.querySelectorAll('.js-component')
+    
+        const loadComponent = async c => {
+            const { name, ext } = c.dataset
+            const response = await fetch(`${name}.${ext}`)
+            const html = await response.text()
+            c.innerHTML = html
+        }
+    
+        [...components].forEach(loadComponent)
+    </script>
+
+    
+    
+</body>
+</html>

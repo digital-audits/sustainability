@@ -15,6 +15,7 @@ import UsesFontSubsettingAudit from '../audits/UsesFontSubsetting.audit';
 import UsesLazyLoadingAudit from '../audits/UsesLazyLoading.audit';
 import {DefaultSettings} from '../types/settings';
 import CollectLazyImages from '../collect/lazyimages.collect';
+import { MaintainabilityAudit } from '../audits/Maintainability.audit';
 
 export const DEFAULT: DefaultSettings = {
 	LAUNCH_SETTINGS: {
@@ -69,7 +70,8 @@ export const DEFAULT: DefaultSettings = {
 			UsesWebpImageFormatAudit,
 			NoConsoleLogsAudit,
 			UsesFontSubsettingAudit,
-			UsesLazyLoadingAudit
+			UsesLazyLoadingAudit,
+			MaintainabilityAudit
 		]
 	},
 	REPORT: {

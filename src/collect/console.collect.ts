@@ -27,10 +27,10 @@ export default class CollectConsole extends Collect {
 				type: message.type(),
 				text: message.text()
 			};
-			/**
-			console log client messages. Useful for debugging page evaluate
 			
-				for (let i = 0; i < message.args().length; ++i) {
+			//console log client messages. Useful for debugging page evaluate
+			
+			/*	for (let i = 0; i < message.args().length; ++i) {
 					debug(`${i}: ${message.args()[i]}`);
 				}
 */

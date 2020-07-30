@@ -43,12 +43,13 @@ export default class CarbonFootprintAudit extends Audit {
         const getGeoLocationMem = memoize(getGeoLocation)
         */
 		const debug = util.debugGenerator('Carbonfootprint Audit');
+		const GREEN_SERVER_API = 'http://api.thegreenwebfoundation.org/greencheck';
 		debug('running');
 		const getValidRecords = async () => {
 			const getGreenRecord = async () => {
 				const pArray = traces.record.map(async record => {
 					const isGreen = await isGreenServerMem(
-						record.response.url.hostname
+						`${GREEN_SERVER_API}/${record.response.url.hostname}`
 					);
 					return isGreen?.green ?? false;
 				});

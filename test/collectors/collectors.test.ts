@@ -18,6 +18,7 @@ import {
 	CollectSubfontsTraces
 } from '../../src/types/traces';
 import CollectRedirect from '../../src/collect/redirect.collect';
+import CollectHTML from '../../src/collect/html.collect'
 import CollectImages from '../../src/collect/images.collect';
 import CollectLazyImages from '../../src/collect/lazyimages.collect';
 import CollectTransfer from '../../src/collect/transfer.collect';
@@ -285,3 +286,15 @@ describe('Subfont collector', () => {
 		expect(assets?.fonts[0].value.styles).toEqual(['italic']);
 	});
 });
+
+/*
+describe.only('Blocks bots', ()=>{
+	it('works', async()=>{
+		const path = 'bot-blocks';
+		const assets = await navigateAndReturnAssets(path, CollectHTML.collect);
+		console.log(assets!.html)
+	})
+})
+*/
+
+

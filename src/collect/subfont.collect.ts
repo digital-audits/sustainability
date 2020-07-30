@@ -36,6 +36,7 @@ export default class CollectSubfont extends Collect {
 				const hanger = new GlyphHanger();
 				hanger.init(document.body);
 				const resultJson: GHOutput = hanger.toJSON();
+				
 
 				const fontNames = Object.keys(resultJson);
 
