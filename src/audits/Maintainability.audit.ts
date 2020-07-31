@@ -4,7 +4,7 @@ import {Traces, Scripts, CodeMap, MapReadSources} from '../types/traces';
 import * as util from '../utils/utils';
 import {RawSourceMap} from 'source-map';
 
-export const LOW_MAINTAINABILITY_THRESHOLD = 50;
+export const LOW_MAINTAINABILITY_THRESHOLD = 70;
 
 export class MaintainabilityAudit extends Audit {
 	static get meta() {
@@ -19,99 +19,91 @@ export class MaintainabilityAudit extends Audit {
 	}
 
 	static async audit(traces: Traces): Promise<Result | SkipResult> {
-        const FIND_NODE_MODULES_PATH = /node_modules/;
-        const debug = util.debugGenerator('Maintainability Audit');
-        const {hosts} = traces;
-        //@ts-ignore @flatMap
-        const jsScripts: Array<CodeMap>= traces.js.scripts.flatMap(script=>{
+		const FIND_NODE_MODULES_PATH = /node_modules/i;
+		const FIND_VENDOR_PATH = /vendor/i;
+		const debug = util.debugGenerator('Maintainability Audit');
+		let errorMessage:string|undefined;
+		// @ts-ignore @flatMap
+		const jsScripts= traces.js.scripts
+		const isAuditApplicable = (): boolean => {
+			if (!(jsScripts.length > 0)) return false;
+			return true;
+		};
 
-            //TODO: move this to utils 
-            const scriptUrl = new URL(script.url)
-            const urlName = new RegExp(hosts[0].replace(/^www\./,'').split('.').slice(0,-1).join('.'))
-            
-            const ipAddress = traces.record.find(res=>res.response.url.toString() === scriptUrl.toString())?.response.remoteAddress.ip
-            const ipOrigin = traces.record.find(res=>res.request.url.hostname === hosts[0])?.response.remoteAddress.ip
-            
-       
-            if(hosts.includes(new URL(script.url).hostname) || (ipAddress === ipOrigin) || urlName.test(script.url)){
-                const mapFile = util.findMap(script, debug)
-                if(mapFile){
-                    return [mapFile]                    
-                }
-            }
-            return []
-         
-        })
+		if (isAuditApplicable()) {
+			debug('running');
 
-        const isAuditApplicable = ():boolean => {
-            if(!(jsScripts.length >0)) return false                             
-            return true
-        }
+			try {
+				// Fetch relative maps
+				const responsesPArray = jsScripts.map(async script => {
+					if (script.map.type === 'relative') {
+						return util.fetchRequest(script.map.value as string);
+					}
 
-        if(isAuditApplicable()){
-            debug('running')
+					return script.map.value;
+				});
 
-            try{
-            
-            //fetch relative maps
-            const responsesPArray = jsScripts.map(async script=>{
+				const responses: RawSourceMap[] = await Promise.all(responsesPArray);
+				const nonUndefinedResponses = responses.filter(r => r);
+				if (nonUndefinedResponses.length > 0) {
+					const sourcesPArray = nonUndefinedResponses.map(async r =>
+						util.readSources(r, debug)
+					);
+					const sources = await Promise.all(sourcesPArray);
+					console.log(sources)
 
-                if(script.type === 'relative'){
-                    return await util.fetchRequest(script.value as string)
-                } 
+					// @ts-ignore @flatMap
+					
+					
+					const results = sources.flatMap((source: MapReadSources) => {
+						const nonNodeModulesCodes = source.code.filter(
+							s => {
+								if(FIND_NODE_MODULES_PATH.test(s.path)) return false
+								if(FIND_VENDOR_PATH.test(s.path)) return false
 
-                return script.value
-                
-            })
-            
-            const responses: Array<RawSourceMap>= await Promise.all(responsesPArray)
-          
-            const nonUndefinedResponses = responses.filter(r=>r)
-            if(nonUndefinedResponses.length > 0){
+								return true
+							}
+						);
+						const lowMaintainabilityModuleReport = util.getLowMaintainabilityModuleReports(
+							nonNodeModulesCodes, 
+						);
 
-           
-            const sourcesPArray = nonUndefinedResponses.map(async r=>await util.readSources(r, debug))
-            const sources = await Promise.all(sourcesPArray)
-            //@ts-ignore @flatMap
-            const results = sources.flatMap((source:MapReadSources)=>{
-               const nonNodeModulesCodes = source.code.filter(s=>!FIND_NODE_MODULES_PATH.exec(s.path))
-               const lowMaintainabilityModuleReport = util.getLowMaintainabilityModuleReports(nonNodeModulesCodes, debug)
+						return lowMaintainabilityModuleReport.length > 0
+							? lowMaintainabilityModuleReport
+							: [];
+					});
 
-               return lowMaintainabilityModuleReport.length > 0 ? lowMaintainabilityModuleReport : []
+					const score = Number(results.length === 0);
+					const meta = util.successOrFailureMeta(
+						MaintainabilityAudit.meta,
+						score
+					);
 
-            })
+					debug('done');
 
-            const score = Number(results.length=== 0)
-            const meta = util.successOrFailureMeta(
-				MaintainabilityAudit.meta,
-				score
-            );
+					return {
+						meta,
+						score,
+						scoreDisplayMode: 'binary',
+						extendedInfo: {
+							value: results
+						}
+					};
+				}
 
-            debug('done')
-            
-            return {
-                meta,
-                score,
-                scoreDisplayMode: 'binary',
-                extendedInfo: {
-                    value: results
-                }
-            }
-        }
-            throw new Error('Failed to fetch source map files')
-        
-        }catch(e){
-            debug(e)
-        }
-        }
-        debug('skipping non applicable audit')
+				throw new Error('Failed to fetch source map files');
+			} catch (error) {
+				debug(error);
+				errorMessage = error.message
+			}
+		}
 
-        return {
+		debug('skipping non applicable audit');
+		
+		return {
 			meta: util.skipMeta(MaintainabilityAudit.meta),
-            scoreDisplayMode: 'skip',
-            errorMessage:'Unable to find source map files'
-        };
-        
-
-    }
+			scoreDisplayMode: 'skip',
+			...(errorMessage ? {errorMessage} : {})
+		};
+	}
 }

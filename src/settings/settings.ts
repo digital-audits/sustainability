@@ -1,5 +1,4 @@
 import CollectTransfer from '../collect/transfer.collect';
-import CollectFailedTransfers from '../collect/failed-transfer.collect';
 import CollectRedirect from '../collect/redirect.collect';
 import CollectConsole from '../collect/console.collect';
 import CollectSubfont from '../collect/subfont.collect';
@@ -25,7 +24,7 @@ export const DEFAULT: DefaultSettings = {
 	CONNECTION_SETTINGS: {
 		maxNavigationTime: 60 * 1000,
 		maxScrollInterval: 30,
-		maxThrottle: 5000,
+		maxThrottle: 25000,
 		emulatedDevice: {
 			name: 'Desktop 1920x1080',
 			userAgent:

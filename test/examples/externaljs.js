@@ -1,1 +1,3 @@
-const co2Reduction = 'Coming real soon';
+(window.webpackJsonp=window.webpackJsonp||[])
+
+//# sourceMappingURL=externaljs.js.map

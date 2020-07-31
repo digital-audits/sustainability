@@ -1,24 +1,20 @@
-import {PageContext} from '../../src/types';
 import {Browser} from 'puppeteer';
 import * as fastify from 'fastify';
 import {Server, IncomingMessage, ServerResponse} from 'http';
 import * as path from 'path';
 import * as puppeteer from 'puppeteer';
 import * as util from '../../src/utils/utils';
-import * as fs from 'fs';
+import * as testUtil from '../utils/test.utils'
 
 import CollectAssets from '../../src/collect/assets.collect';
-import {DEFAULT} from '../../src/settings/settings';
 import CollectConsole from '../../src/collect/console.collect';
 import CollectFailedTransfers from '../../src/collect/failed-transfer.collect';
-import {ConnectionSettingsPrivate} from '../../src/types/settings';
 import {
 	CollectImagesTraces,
 	CollectTransferTraces,
 	CollectSubfontsTraces
 } from '../../src/types/traces';
 import CollectRedirect from '../../src/collect/redirect.collect';
-import CollectHTML from '../../src/collect/html.collect'
 import CollectImages from '../../src/collect/images.collect';
 import CollectLazyImages from '../../src/collect/lazyimages.collect';
 import CollectTransfer from '../../src/collect/transfer.collect';
@@ -46,51 +42,6 @@ server.get('/redirect-host-js', (_, reply) => {
 });
 
 let browser: Browser;
-const defaultConnectionSettings = DEFAULT.CONNECTION_SETTINGS;
-const createPageContext = async (file: string, url?: string) => {
-	const page = await browser.newPage();
-	await Promise.all([
-		page.evaluateOnNewDocument(
-			fs.readFileSync(require.resolve('characterset'), 'utf8')
-		),
-		page.evaluateOnNewDocument(
-			fs.readFileSync(
-				path.resolve(__dirname, '../../src/bin/glyphhanger-script.js'),
-				'utf8'
-			)
-		)
-	]);
-
-	if (!url) url = `http://localhost:3333/${file}.html`;
-
-	return {page, url};
-};
-
-const navigate = (pageContext: PageContext) => {
-	const {page, url} = pageContext;
-	return page.goto(url, {waitUntil: 'networkidle0'});
-};
-
-const navigateAndReturnAssets = async <
-	T extends (context: PageContext, settings: ConnectionSettingsPrivate) => any
->(
-	path: string,
-	collector: T,
-	url?: string
-): Promise<ReturnType<T> | undefined> => {
-	try {
-		const pageContext = await createPageContext(path, url);
-		const promises = await Promise.all([
-			navigate(pageContext),
-			collector(pageContext, defaultConnectionSettings)
-		]);
-
-		return promises[1];
-	} catch (error) {
-		console.log(error);
-		return undefined;
-	}
-};
 
 beforeAll(async () => {
 	await server.listen(3333);
@@ -104,29 +55,40 @@ afterAll(async () => {
 	await browser.close();
 });
 describe('Assets collector', () => {
-	it('collects external js assets', async () => {
-		const path = 'externaljs';
-		const assets = await navigateAndReturnAssets(path, CollectAssets.collect);
-		expect(assets?.js.scripts[0].text).toMatch(
-			`const co2Reduction = 'Coming real soon'`
+	it('collects js relative source maps', async () => {
+		const path = 'sourcemap';
+		const assets = await testUtil.navigateAndReturnAssets(path, CollectAssets.collect, browser);
+		expect(assets?.js.scripts[0].map.type).toMatch(`relative`)
+		expect(assets?.js.scripts[0].map.value).toMatch(
+			`http://localhost:3333/externaljs.js.map`
 		);
 	});
+
+	it('collects js base64 source maps', async () => {
+		const path = 'sourcemap';
+		const assets = await testUtil.navigateAndReturnAssets(path, CollectAssets.collect, browser);
+		expect(assets?.js.scripts[1].map.type).toMatch(`base64`)
+		expect(assets?.js.scripts[1].map.value).toMatch(
+			`{\"version\":3,\"file\":\"\",\"sources\":[\"foo.js\",\"bar.js\"],\"names\":[],\"mappings\":\";;;;;;;;;UACG;;;;;;;;;;;;;;sBCDH;sBACA\"}`
+		);
+	});
+
 	it('collects external (multiple) css assets', async () => {
 		const path = 'externalcss';
-		const assets = await navigateAndReturnAssets(path, CollectAssets.collect);
+		const assets = await testUtil.navigateAndReturnAssets(path, CollectAssets.collect, browser);
 		expect(assets?.css.sheets.length).toBeGreaterThan(1);
 		expect(assets?.css.sheets[0].text).toMatch(`body{background-color: green}`);
 	});
 	it('collects inline js assets', async () => {
 		const path = 'inlinejs';
-		const assets = await navigateAndReturnAssets(path, CollectAssets.collect);
+		const assets = await testUtil.navigateAndReturnAssets(path, CollectAssets.collect, browser);
 		expect(assets?.js.info.scripts[0].text).toMatch(
 			`const hello = 'I am an inline script'`
 		);
 	});
 	it('collects inline css assets', async () => {
 		const path = 'inlinecss';
-		const assets = await navigateAndReturnAssets(path, CollectAssets.collect);
+		const assets = await testUtil.navigateAndReturnAssets(path, CollectAssets.collect, browser);
 		expect(assets?.css.info.styles[0].text).toMatch(
 			`body{background-color: green}`
 		);
@@ -136,7 +98,7 @@ describe('Assets collector', () => {
 describe('Console collector', () => {
 	it('collects log console messages (multiple)', async () => {
 		const path = 'externaljs';
-		const assets = await navigateAndReturnAssets(path, CollectConsole.collect);
+		const assets = await testUtil.navigateAndReturnAssets(path, CollectConsole.collect, browser);
 		expect(assets?.console.length).toBeGreaterThan(2);
 		expect(assets?.console[0].text).toMatch(
 			'One day this shall be a digital sustainability standard'
@@ -145,12 +107,12 @@ describe('Console collector', () => {
 	});
 	it('collects warning console messages', async () => {
 		const path = 'externaljs';
-		const assets = await navigateAndReturnAssets(path, CollectConsole.collect);
+		const assets = await testUtil.navigateAndReturnAssets(path, CollectConsole.collect, browser);
 		expect(assets?.console[1].type).toBe('warning');
 	});
 	it('collects error console messages', async () => {
 		const path = 'externaljs';
-		const assets = await navigateAndReturnAssets(path, CollectConsole.collect);
+		const assets = await testUtil.navigateAndReturnAssets(path, CollectConsole.collect, browser);
 		expect(assets?.console[2].type).toBe('error');
 	});
 });
@@ -158,9 +120,10 @@ describe('Console collector', () => {
 describe('Failed transfer collector', () => {
 	it('collects failed requests', async () => {
 		const path = '404';
-		const assets = await navigateAndReturnAssets(
+		const assets = await testUtil.navigateAndReturnAssets(
 			path,
-			CollectFailedTransfers.collect
+			CollectFailedTransfers.collect,
+			browser
 		);
 		expect(assets?.failed.length).toBeGreaterThan(0);
 	});
@@ -169,7 +132,7 @@ describe('Failed transfer collector', () => {
 describe('Redirect collector', () => {
 	it('collects redirect requests', async () => {
 		const path = '305';
-		const assets = await navigateAndReturnAssets(path, CollectRedirect.collect);
+		const assets = await testUtil.navigateAndReturnAssets(path, CollectRedirect.collect, browser);
 		expect(assets?.redirect.length).toBeGreaterThan(0);
 		expect(assets?.redirect[0].redirectsTo).toMatch(
 			'http://localhost:3333/redirected.js'
@@ -178,7 +141,7 @@ describe('Redirect collector', () => {
 
 	it('collects page hosts', async () => {
 		const path = 'redirect-host';
-		const assets = await navigateAndReturnAssets(path, CollectRedirect.collect);
+		const assets = await testUtil.navigateAndReturnAssets(path, CollectRedirect.collect, browser);
 		expect(assets?.hosts.length).toEqual(2);
 		expect(assets?.hosts[0]).toMatch('localhost');
 		expect(assets?.hosts[1]).toMatch('mylocalhost');
@@ -189,7 +152,7 @@ describe('Images collector', () => {
 	let assets: CollectImagesTraces | undefined;
 	beforeAll(async () => {
 		const path = 'images';
-		assets = await navigateAndReturnAssets(path, CollectImages.collect);
+		assets = await testUtil.navigateAndReturnAssets(path, CollectImages.collect, browser);
 	});
 	it('collects images', () => {
 		expect(assets?.media.images.length).toEqual(15);
@@ -218,9 +181,10 @@ describe('Images collector', () => {
 describe('Lazy images collector', () => {
 	it('collects lazy loaded images', async () => {
 		const path = 'images';
-		const assets = await navigateAndReturnAssets(
+		const assets = await testUtil.navigateAndReturnAssets(
 			path,
-			CollectLazyImages.collect
+			CollectLazyImages.collect,
+			browser
 		);
 		expect(assets?.lazyImages.length).toBe(6);
 	});
@@ -232,7 +196,7 @@ describe('Transfer collector', () => {
 
 	beforeAll(async () => {
 		const path = 'transfer';
-		assets = await navigateAndReturnAssets(path, CollectTransfer.collect);
+		assets = await testUtil.navigateAndReturnAssets(path, CollectTransfer.collect, browser);
 	});
 	afterAll(() => {
 		spy.mockRestore();
@@ -272,7 +236,7 @@ describe('Subfont collector', () => {
 	let assets: CollectSubfontsTraces | undefined;
 	beforeAll(async () => {
 		const path = 'fonts';
-		assets = await navigateAndReturnAssets(path, CollectSubfont.collect);
+		assets = await testUtil.navigateAndReturnAssets(path, CollectSubfont.collect, browser);
 	});
 	it('collects page fonts', () => {
 		expect(assets?.fonts.length).toEqual(2);
@@ -291,7 +255,7 @@ describe('Subfont collector', () => {
 describe.only('Blocks bots', ()=>{
 	it('works', async()=>{
 		const path = 'bot-blocks';
-		const assets = await navigateAndReturnAssets(path, CollectHTML.collect);
+		const assets = await testUtil.navigateAndReturnAssets(path, CollectHTML.collect, browser);
 		console.log(assets!.html)
 	})
 })

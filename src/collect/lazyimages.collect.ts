@@ -7,7 +7,7 @@ import {CollectLazyImagesTraces} from '../types/traces';
 import {Request} from 'puppeteer';
 
 export default class CollectLazyImages extends Collect {
-	collectId: CollectorsIds = 'transfercollect';
+	collectId: CollectorsIds = 'lazyimagescollect';
 	static get id() {
 		return this.collectId;
 	}

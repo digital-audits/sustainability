@@ -6,9 +6,10 @@ import {CollectorsIds} from '../types/audit';
 import {CollectFailedTransferTraces, FailedRequest} from '../types/traces';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
-const debug = util.debugGenerator('Failed transfer collect');
+
 
 export default class CollectFailedTransfers extends Collect {
+
 	collectId: CollectorsIds = 'failedtransfercollect';
 	static get id() {
 		return this.collectId;
@@ -18,6 +19,7 @@ export default class CollectFailedTransfers extends Collect {
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectFailedTransferTraces | undefined> {
+		const debug = util.debugGenerator('Failed transfer collect');
 		debug('running');
 		const {page} = pageContext;
 		const result: FailedRequest[] = [];

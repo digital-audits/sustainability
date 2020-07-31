@@ -9,13 +9,15 @@ import {
 	Stylesheets,
 	InlineStyles,
 	InlineScripts,
-	Scripts,
 	Scriptfiles,
 	Sheets,
-	CollectAssetsTraces
+	CollectAssetsTraces,
+	ScriptsSourceMap,
+	CodeMap
 } from '../types/traces';
 import {CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
+
 
 export default class CollectAssets extends Collect {
 	collectId: CollectorsIds = 'assetscollect';
@@ -30,20 +32,30 @@ export default class CollectAssets extends Collect {
 		try {
 			const debug = util.debugGenerator('Collect assets');
 			debug('running');
-			const {page} = pageContext;
+			const {page, url} = pageContext;
 			const sheets: Sheets[] = [];
-			const scripts: Scripts[] = [];
+			const scripts: ScriptsSourceMap[] = [];
+
+			
 			page.on('requestfinished', async (request: Request) => {
 				const response = request.response()!;
 
-				const url = response.url();
+				const responseUrl = new URL(response.url());
+				const stringResponseUrl = response.url()
+				const originalHost = new URL(url).hostname
+				const isSameHost = originalHost === responseUrl.hostname
 				const resourceType = response.request().resourceType();
+				let originalHostIpAddress:string|undefined=undefined
 				if (request.redirectChain().length === 0 && response.ok()) {
+
+					if(resourceType === 'document' && isSameHost){
+						originalHostIpAddress = response.remoteAddress().ip
+					}
 					if (resourceType === 'stylesheet') {
 						const text = await response.text();
 
 						const stylesheet = {
-							url,
+							url:responseUrl.toString(),
 							text
 						};
 
@@ -51,12 +63,37 @@ export default class CollectAssets extends Collect {
 					}
 
 					if (resourceType === 'script') {
-						const text = await response.text();
-						const script = {
-							url,
-							text
-						};
-						scripts.push(script);
+						const responseIpAddress = response.remoteAddress().ip
+						
+						const urlName = new RegExp(
+							originalHost
+								.replace(/^www\./, '')
+								.split('.')
+								.slice(0, -1)
+								.join('.')
+						);
+						
+						
+						const isSameIp = originalHostIpAddress ? originalHostIpAddress === responseIpAddress:false
+
+						if(isSameHost || isSameIp || urlName.test(stringResponseUrl)){
+								const text = await response.text(); 
+								const script = {
+								url:stringResponseUrl,
+								text
+								};
+								const codeMap = util.findMap(script, debug)
+
+								if(codeMap){
+									scripts.push({
+										url:stringResponseUrl,
+										map:codeMap as CodeMap
+									})
+								}
+						}
+
+						
+						
 					}
 				}
 			});

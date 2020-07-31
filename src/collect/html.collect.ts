@@ -4,7 +4,7 @@ import * as util from '../utils/utils';
 import {CollectorsIds} from '../types/audit';
 import {CollectHtmlTraces} from '../types/traces';
 
-const debug = util.debugGenerator('Console Collect');
+
 export default class CollectHTML extends Collect {
 	collectId: CollectorsIds = 'htmlcollect';
 	static get id() {
@@ -15,6 +15,7 @@ export default class CollectHTML extends Collect {
 		pageContext: PageContext
 	): Promise<CollectHtmlTraces | undefined> {
 		try {
+			const debug = util.debugGenerator('Console Collect');
 			debug('running');
 			const {page} = pageContext;
 			const result: string[] = [];

@@ -24,7 +24,9 @@ export type CollectorsIds =
 	| 'performancecollect'
 	| 'imagescollect'
 	| 'consolecollect'
-	| 'assetscollect';
+	| 'assetscollect'
+	| 'lazyimagescollect'
+	| 'sourcemapcollect'
 
 export interface Result {
 	score: number;

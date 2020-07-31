@@ -102,9 +102,14 @@ export interface Sheets {
 	text: string;
 }
 
-export interface Scripts {
+export interface ScriptsSourceMap {
 	url: string;
-	text: string;
+	map:CodeMap;
+}
+
+export interface Scripts{
+	url:string,
+	text:string
 }
 
 export interface StyleInfo {
@@ -123,7 +128,7 @@ export interface InlineStyles {
 }
 
 export interface JsTrace {
-	scripts: Scripts[];
+	scripts: ScriptsSourceMap[];
 	info: ScriptInfo;
 }
 
@@ -319,7 +324,7 @@ export interface MaintainabilityFileReport {
 export interface MaintainabilityFunctionInfo {
 	name: string;
 	line: number;
-	complexity: number;
+	effort: number;
 }
 
 export interface EscomplexReportFormat {

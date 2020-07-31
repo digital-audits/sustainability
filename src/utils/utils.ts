@@ -318,8 +318,7 @@ export function removeQuotes(text: string): string {
 }
 
 export function getLowMaintainabilityModuleReports(
-	input: CodeMapObject[],
-	debug: CallableFunction
+	input: CodeMapObject[]
 ): MaintainabilityFileReport[] {
 	// Analyse can take a array of sources with {path:,code:}
 	const reports: EscomplexReportFormat[] = escomplex.analyse(input, {
@@ -331,19 +330,19 @@ export function getLowMaintainabilityModuleReports(
 	// @ts-ignore
 	const lowMaintainabilityModuleReports: MaintainabilityFileReport[] = reports.flatMap(
 		(v: EscomplexReportFormat) => {
+			
+			const hasFunctions = v.functions.length > 0
+			
 			const isLowMaintainability =
 				v.maintainability <= LOW_MAINTAINABILITY_THRESHOLD;
-			return isLowMaintainability
+			return hasFunctions && isLowMaintainability
 				? [
-						{
-							path: v.path,
-							maintainability: v.maintainability,
-							...(v.functions.length > 0
-								? {
-										function: obtainComplexFunction(v)
-								  }
-								: {})
-						}
+					{
+						path: v.path,
+						maintainability: v.maintainability,
+						function: obtainComplexFunction(v)
+						
+					}
 				  ]
 				: [];
 		}
@@ -354,14 +353,16 @@ export function getLowMaintainabilityModuleReports(
 	function obtainComplexFunction(
 		report: EscomplexReportFormat
 	): MaintainabilityFunctionInfo {
-		const foosComplexity = report.functions.map(f => f.cyclomatic);
+		const foosComplexity = report.functions.map(f => f.halstead.effort);
 		const fooComplexIndex = foosComplexity.indexOf(Math.max(...foosComplexity));
 
 		const functionObject = {
 			name: report.functions[fooComplexIndex].name,
 			line: report.functions[fooComplexIndex].sloc.logical,
-			complexity: report.functions[fooComplexIndex].cyclomatic
+			effort: report.functions[fooComplexIndex].cyclomatic
 		};
+
+		console.log(functionObject)
 
 		return functionObject;
 	}
@@ -369,32 +370,36 @@ export function getLowMaintainabilityModuleReports(
 
 export const readSources = async (
 	input: sourceMap.RawSourceMap,
-	debug?: CallableFunction
+	debug: CallableFunction
 ): Promise<MapReadSources> => {
+	
 	const consumer = await new sourceMap.SourceMapConsumer(input);
-
+	const STYLESHEET_TEST = /\.scss$|\.css$/
 	const map: any = {};
 	const code: any = [];
 	let output: any = {};
 
 	if (consumer.hasContentsOfAllSources()) {
-		if (debug) {
 			debug(`All sources were included in the sourcemap`);
-		}
+		
 
 		consumer.sources.forEach(source => {
+			if(!(STYLESHEET_TEST).test(source)){
 			const contents = consumer.sourceContentFor(source, false);
 			if (contents) {
 				output = {
 					path: source,
 					code: contents
 				};
+			
 
 				code.push(output);
 			}
+		}
 		});
-	} else if (debug) {
+	}else{
 		debug('Not all sources were included in the sourcemap');
+		throw new Error('Not all sources were included in the sourcemap')
 	}
 
 	consumer.destroy();
@@ -407,6 +412,7 @@ export const findMap = (
 	debug: CallableFunction
 ): CodeMap | boolean => {
 	const FIND_SOURCE_FILE = /\/\/#\s*sourceMappingURL=([.\w]+map)/iu;
+	const FIND_RELATIVE_SOURCE_FILE = /\/\/#\s*sourceMappingURL=((\/?[^\/]+)+?[.\w]+map)/iu
 	const FIND_SOURCE_BASE64 = /\/\*?\/?#\s*sourceMappingURL=([.\w\-/=;:]*)base64,([\w]+=)/iu;
 	const FIND_SOURCE_UENC = /\/\*?\/?#\s*sourceMappingURL=([.\w\-/=;:]+),([;:,.\-\w%]+)/iu;
 	const input = script.text;
@@ -428,24 +434,35 @@ export const findMap = (
 			);
 			return {type: 'uenc', value: buf.toString('utf8')};
 		}
-	} else if (input.match(FIND_SOURCE_FILE)) {
+	} else if (input.match(FIND_SOURCE_FILE) || input.match(FIND_RELATIVE_SOURCE_FILE)) {
+		let relativeUrl:string|undefined;
 		const sourceMappingMatch = FIND_SOURCE_FILE.exec(input);
-		if (sourceMappingMatch && sourceMappingMatch.length > 1) {
-			debug(`Input ${script.url} points to "${sourceMappingMatch[1]}"`);
-			const urlLastSegment =
+		const sourceMappingRelativeMatch = FIND_RELATIVE_SOURCE_FILE.exec(input)
+		const urlLastSegment =
 				script.url
 					.split('/')
 					.filter(Boolean)
 					.pop() ?? undefined;
-			return urlLastSegment
-				? {
-						type: 'relative',
-						value: `${script.url.substring(
-							script.url.search(new RegExp(urlLastSegment)),
-							-1
-						)}${sourceMappingMatch[1]}`
-				  }
-				: false;
+		if (sourceMappingMatch && sourceMappingMatch.length > 1) {
+			debug(`Input ${script.url} points to "${sourceMappingMatch[1]}"`);
+			relativeUrl = sourceMappingMatch[1]
+			
+			
+		}else if( sourceMappingRelativeMatch && sourceMappingRelativeMatch.length > 1){
+			debug(`Input ${script.url} points to relative "${sourceMappingRelativeMatch[1]}"`)
+			relativeUrl = sourceMappingRelativeMatch[1]
+		}
+
+		if(urlLastSegment){
+
+			const resultUrl = `${script.url.substring(script.url.search(new RegExp(urlLastSegment)),-1)}${relativeUrl?.startsWith('/')?relativeUrl.replace(/^\//,''):relativeUrl}`
+
+
+			return {
+				type: 'relative',
+				value: resultUrl
+			}
+			
 		}
 	}
 

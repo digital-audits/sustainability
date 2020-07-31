@@ -2,6 +2,6 @@ import {Sustainability} from '.';
 
 (async () => {
 	console.log(
-		JSON.stringify(await Sustainability.audit('https://www.uoc.edu'))
+		JSON.stringify(await Sustainability.audit('https://www.toptal.com'))
 	);
 })();
