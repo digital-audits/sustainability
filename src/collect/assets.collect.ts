@@ -2,8 +2,8 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {Request} from 'puppeteer';
-import * as sourceMap from 'source-map'
-import * as fs from 'fs'
+import * as sourceMap from 'source-map';
+import * as fs from 'fs';
 
 import {
 	Stylesheets,
@@ -41,7 +41,7 @@ export default class CollectAssets extends Collect {
 				if (request.redirectChain().length === 0 && response.ok()) {
 					if (resourceType === 'stylesheet') {
 						const text = await response.text();
-						
+
 						const stylesheet = {
 							url,
 							text

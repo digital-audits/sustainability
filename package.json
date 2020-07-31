@@ -65,7 +65,8 @@
     "prettier": "true",
     "ignores": [
       "!**/examples",
-      "test/**"
+      "test/**",
+      "bin"
     ]
   },
   "jest": {

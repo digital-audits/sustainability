@@ -1,3 +1,5 @@
+import {RawSourceMap} from 'source-map';
+
 export interface Format {
 	uid: string;
 	url: string;
@@ -282,4 +284,80 @@ export interface CollectTransferTraces {
 
 export interface CollectLazyImagesTraces {
 	lazyImages: string[];
+}
+
+/* Types for Maintainability audit && related */
+export interface GreenAPIResponse {
+	green: boolean;
+	url: string;
+	hostedby: string;
+	hostedbywebsite: string;
+	error?: string;
+}
+export interface CodeMap {
+	type: MapType;
+	value: RawSourceMap | string;
+}
+
+export type MapType = 'relative' | 'uenc' | 'base64';
+
+export interface MapReadSources {
+	code: CodeMapObject[];
+}
+
+export interface CodeMapObject {
+	path: string;
+	contents: string;
+}
+
+export interface MaintainabilityFileReport {
+	path: string;
+	maintainability: number;
+	function?: MaintainabilityFunctionInfo;
+}
+
+export interface MaintainabilityFunctionInfo {
+	name: string;
+	line: number;
+	complexity: number;
+}
+
+export interface EscomplexReportFormat {
+	maintainability: number;
+	dependencies: any[];
+	aggregate: EscomplexAggregate;
+	functions: EscomplexFunction[];
+	path: string;
+}
+
+export interface EscomplexAggregate {
+	sloc: EscomplexEsloc;
+	params: number;
+	cyclomatic: number;
+	cyclomaticDensity: number;
+	halstead: EscomplexHalstead;
+}
+
+export interface EscomplexFunction {
+	name: string;
+	line: number;
+	sloc: EscomplexEsloc;
+	params: number;
+	cyclomatic: number;
+	cyclomaticDensity: number;
+	halstead: EscomplexHalstead;
+}
+
+export interface EscomplexHalstead {
+	vocabulary: number;
+	difficulty: number;
+	volume: number;
+	effort: number;
+	bugs: number;
+	time: number;
+}
+
+export interface EscomplexEsloc {
+	logical: number;
+	physical: number;
 }

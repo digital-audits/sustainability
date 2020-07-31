@@ -1,69 +1,31 @@
-import Audit from "./audit";
-import { Meta, Result, SkipResult } from "../types/audit";
-import { Traces,  Scripts } from "../types/traces";
-import * as util from '../utils/utils'
-import { request } from "http";
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
-import { strict } from "assert";
+import Audit from './audit';
+import {Meta, Result, SkipResult} from '../types/audit';
+import {Traces, Scripts, CodeMap, MapReadSources} from '../types/traces';
+import * as util from '../utils/utils';
+import {RawSourceMap} from 'source-map';
 
-export class MaintainabilityAudit extends Audit{
-    static get meta() {
+export const LOW_MAINTAINABILITY_THRESHOLD = 50;
+
+export class MaintainabilityAudit extends Audit {
+	static get meta() {
 		return {
 			id: 'maintainability',
-			title: `javascript code is maintainable`,
-			failureTitle: 'Mainatainability problems on javascript files',
-			description: `A maintainable code considerable reduces the energy and the cost required to build the code.`,
+			title: `project is maintainable`,
+			failureTitle: 'Mainatainability issues on source code',
+			description: `A maintainable code considerable reduces the energy and the related costs.`,
 			category: 'design',
 			collectors: ['assetscollect']
 		} as Meta;
 	}
 
 	static async audit(traces: Traces): Promise<Result | SkipResult> {
-
-        const FIND_SOURCE_FILE = /\/\/#\s*sourceMappingURL=([.\w]+map)/iu;
-        const FIND_SOURCE_BASE64 = /\/\*?\/?#\s*sourceMappingURL=([.\w\-/=;:]*)base64,([\w]+=)/iu;
-        const FIND_SOURCE_UENC = /\/\*?\/?#\s*sourceMappingURL=([.\w\-/=;:]+),([;:,.\-\w%]+)/iu;
-
+        const FIND_NODE_MODULES_PATH = /node_modules/;
         const debug = util.debugGenerator('Maintainability Audit');
-        const findMap = (script:Scripts):string|boolean =>{
-        
-            const input = script.text
-            if(input.match(FIND_SOURCE_BASE64)){
-                const sourceMappingMatch = FIND_SOURCE_BASE64.exec(input);
-                if (sourceMappingMatch && sourceMappingMatch.length > 2) {
-                    const buf = Buffer.from(sourceMappingMatch[2], 'base64');
-                    debug(`Input ${script.url} contains Base64 of ${sourceMappingMatch[2].length} length`)
-                    return buf.toString('utf8');
-                }
-            }
-            else if (input.match(FIND_SOURCE_UENC)) {
-                const sourceMappingMatch = FIND_SOURCE_UENC.exec(input);
-                if (sourceMappingMatch && sourceMappingMatch.length > 2) {
-                    const buf = Buffer.from(sourceMappingMatch[2], 'ascii');
-                    debug(`Input ${script.url} contains URL encoded of ${sourceMappingMatch[2].length} length`)
-                    return buf.toString('utf8');
-                }
-        }
-            else if (input.match(FIND_SOURCE_FILE)) {
-                const sourceMappingMatch = FIND_SOURCE_FILE.exec(input);
-                if (sourceMappingMatch && sourceMappingMatch.length > 1) {
-                    debug(`Input ${script.url} points to "${sourceMappingMatch[1]}"`)
-                    const urlLastSegment =
-					script.url
-						.split('/')
-						.filter(Boolean)
-                        .pop() ?? undefined;
-                    return urlLastSegment?`${script.url.substring(script.url.search(new RegExp(urlLastSegment)),-1)}${sourceMappingMatch[1]}`:false
-                }
-            }
-
-            debug(`Input ${script.url} was not a map nor a code file`)
-
-            return false
-        }
         const {hosts} = traces;
-        //@ts-ignore
-        const jsScripts: Array<string>= traces.js.scripts.flatMap(script=>{
+        //@ts-ignore @flatMap
+        const jsScripts: Array<CodeMap>= traces.js.scripts.flatMap(script=>{
+
+            //TODO: move this to utils 
             const scriptUrl = new URL(script.url)
             const urlName = new RegExp(hosts[0].replace(/^www\./,'').split('.').slice(0,-1).join('.'))
             
@@ -72,7 +34,7 @@ export class MaintainabilityAudit extends Audit{
             
        
             if(hosts.includes(new URL(script.url).hostname) || (ipAddress === ipOrigin) || urlName.test(script.url)){
-                const mapFile = findMap(script)
+                const mapFile = util.findMap(script, debug)
                 if(mapFile){
                     return [mapFile]                    
                 }
@@ -90,45 +52,66 @@ export class MaintainabilityAudit extends Audit{
             debug('running')
 
             try{
-            const score:number= 1;
+            
+            //fetch relative maps
+            const responsesPArray = jsScripts.map(async script=>{
+
+                if(script.type === 'relative'){
+                    return await util.fetchRequest(script.value as string)
+                } 
+
+                return script.value
+                
+            })
+            
+            const responses: Array<RawSourceMap>= await Promise.all(responsesPArray)
+          
+            const nonUndefinedResponses = responses.filter(r=>r)
+            if(nonUndefinedResponses.length > 0){
+
+           
+            const sourcesPArray = nonUndefinedResponses.map(async r=>await util.readSources(r, debug))
+            const sources = await Promise.all(sourcesPArray)
+            //@ts-ignore @flatMap
+            const results = sources.flatMap((source:MapReadSources)=>{
+               const nonNodeModulesCodes = source.code.filter(s=>!FIND_NODE_MODULES_PATH.exec(s.path))
+               const lowMaintainabilityModuleReport = util.getLowMaintainabilityModuleReports(nonNodeModulesCodes, debug)
+
+               return lowMaintainabilityModuleReport.length > 0 ? lowMaintainabilityModuleReport : []
+
+            })
+
+            const score = Number(results.length=== 0)
             const meta = util.successOrFailureMeta(
 				MaintainabilityAudit.meta,
 				score
             );
-            const responsesPArray = jsScripts.map(async script=>await util.fetchRequest(script))
-            
-            const responses = await Promise.all(responsesPArray)
-            //@ts-ignore
-            const sourcesPArray = responses.map(async (r,i)=>await util.readSources(r, jsScripts[i], debug))
-            const sources:any = await Promise.all(sourcesPArray)
-            const results = sources.map((script:Array<string>)=>{
-               const reports = []
-               reports.push(script.map(s=>util.obtainCodeIndexes(s)))
-                return {
-                    reports
-                }
-            })
 
-            console.log(JSON.stringify(results))
+            debug('done')
             
             return {
                 meta,
                 score,
-                scoreDisplayMode: 'binary'
+                scoreDisplayMode: 'binary',
+                extendedInfo: {
+                    value: results
+                }
             }
+        }
+            throw new Error('Failed to fetch source map files')
+        
         }catch(e){
             debug(e)
         }
         }
-
         debug('skipping non applicable audit')
 
         return {
 			meta: util.skipMeta(MaintainabilityAudit.meta),
-			scoreDisplayMode: 'skip'
+            scoreDisplayMode: 'skip',
+            errorMessage:'Unable to find source map files'
         };
         
 
     }
-
 }

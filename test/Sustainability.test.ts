@@ -96,8 +96,8 @@ describe('report on https://audits.digital', ()=>{
 	it('passess two design audits', ()=>{
 		expect(report.audits[1].audits.pass.length).toEqual(2)
 	})
-	it('skips two design audits', ()=>{
-		expect(report.audits[1].audits.skip.length).toEqual(2)
+	it('skips three design audits', ()=>{
+		expect(report.audits[1].audits.skip.length).toEqual(3)
 	})
 
 })

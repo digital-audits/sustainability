@@ -26,7 +26,7 @@ export default class UsesGreenServerAudit extends Audit {
 		})?.response.url.hostname;
 
 		debug('evaluating energy source');
-		const url = `${GREEN_SERVER_API}/${hostname!}`
+		const url = `${GREEN_SERVER_API}/${hostname!}`;
 		const response = await util.isGreenServerMem(url);
 
 		if (response && !response.error) {
@@ -50,7 +50,9 @@ export default class UsesGreenServerAudit extends Audit {
 			};
 		}
 
-		debug(`failed to fetch response with error: ${response?.error} ${hostname}`);
+		debug(
+			`failed to fetch response with error: ${response?.error} ${hostname}`
+		);
 		return {
 			meta: util.skipMeta(UsesGreenServerAudit.meta),
 			scoreDisplayMode: 'skip',

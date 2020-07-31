@@ -149,8 +149,8 @@ export default class CarbonFootprintAudit extends Audit {
 					extra: {
 						totalTransfersize: [totalTransfersize, 'bytes'],
 						totalWattage: [sum(totalWattage).toFixed(10), 'kWh'],
-						carbonfootprint: [metric.toFixed(5), 'gCO2eq / 100 views'],
-					},					
+						carbonfootprint: [metric.toFixed(5), 'gCO2eq / 100 views']
+					},
 					share: recordsByFileSizePercentage
 				}
 			}
