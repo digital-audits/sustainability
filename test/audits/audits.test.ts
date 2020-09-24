@@ -2,7 +2,6 @@ import * as fastify from 'fastify';
 import {Server, IncomingMessage, ServerResponse} from 'http';
 import * as path from 'path';
 import { Browser } from 'puppeteer';
-import * as testUtil from '../utils/test.utils'
 import * as puppeteer from 'puppeteer';
 import { MaintainabilityAudit } from '../../src/audits/Maintainability.audit';
 import { Traces } from '../../src/types/traces';

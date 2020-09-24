@@ -20,7 +20,7 @@ import {
 	Result
 } from '../types/audit';
 
-const escomplex = require('../bin/escomplex/src'); // From https://github.com/digital-audits/escomplex/tree/master
+const escomplex = require('escomplex'); // From https://github.com/digital-audits/escomplex/tree/master
 
 import * as sourceMap from 'source-map';
 import {LOW_MAINTAINABILITY_THRESHOLD} from '../audits/Maintainability.audit';
@@ -470,3 +470,28 @@ export const findMap = (
 
 	return false;
 };
+
+//From https://github.com/yujiosaka/headless-chrome-crawler/blob/master/lib/helper.js
+//warning some sitemap are sitemaps of sitemaps. Ex: https://www.google.com/sitemap.xml
+export function getSitemapUrls(sitemapXml:string){
+	const urls:Array<String> = [];
+	// @ts-ignore
+    sitemapXml.replace(/<loc>([^<]+)<\/loc>/g, (_, url) => {
+      const unescapedUrl = unescapeUrl(url);
+      urls.push(unescapedUrl);
+      return null;
+    });
+    return urls;
+  }
+
+export function unescapeUrl(src:string){
+	return src
+      .replace(/&amp;/g, '&')
+      .replace(/&apos;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>');
+}
+
+
+
