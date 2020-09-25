@@ -31,22 +31,25 @@ export default class UsesFontSubsettingAudit extends Audit {
 	 */
 	static audit(traces: Traces): Result | SkipResult {
 		const debug = util.debugGenerator('UsesFontSubsetting Audit');
+		const allCssSheets = [...traces.css.sheets, ...traces.css.info.styles];
 		const isAuditApplicable = (): boolean => {
+			if (allCssSheets.length === 0) return false;
+			if (!(traces.fonts.length > 0)) return false;
 			if (
 				!traces.record.some(
 					resource => resource.request.resourceType === 'font'
 				)
 			)
 				return false;
-			if (!(traces.fonts.length > 0)) return false;
+
 			return true;
 		};
 
 		if (isAuditApplicable()) {
 			debug('running');
-			const allPageFontNames = traces.fonts.map(font => font.name);
 			const fonts: Array<{fontName: string; hasSubset: boolean}> = [];
-			traces.css.sheets.map(sheet => {
+
+			allCssSheets.map(sheet => {
 				const ast = csstree.parse(sheet.text);
 				csstree.walk(ast, {
 					enter(node: any) {
@@ -80,6 +83,7 @@ export default class UsesFontSubsettingAudit extends Audit {
 					}
 				});
 			});
+
 			const nonSubsetFonts = fonts.filter(font => {
 				if (font.hasSubset) {
 					return false;

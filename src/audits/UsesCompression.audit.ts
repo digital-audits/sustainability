@@ -9,7 +9,7 @@ import {Meta, SkipResult, Result} from '../types/audit';
  *  the compression ratio and comapres it to the threshold.
  */
 
-// const IGNORE_THRESHOLD_BYTES = 1400; gzipSavings (gzip - original: TODO)
+const IGNORE_THRESHOLD_BYTES = 256;
 const IGNORE_THRESHOLD_PERCENT = 0.1;
 
 const APPLICABLE_COMPRESSION_MIME_TYPES = [
@@ -53,10 +53,8 @@ export default class UsesCompressionAudit extends Audit {
 		const debug = util.debugGenerator('UsesCompression Audit');
 		debug('running');
 		const auditUrls = new Set();
-		/* Const compressionSavings = (compressed: number, uncompressed: number) =>
-			uncompressed - compressed
-*/
-		// js files considered secure (with identifiable content on HTTPS, e.g personal cookies )
+
+		// NOTE: js files considered secure (with identifiable content on HTTPS, e.g personal cookies )
 		// should not be compressed (to avoid CRIME & BREACH attacks)
 		let errorMessage: string | undefined;
 		const {hosts} = traces;
@@ -68,9 +66,8 @@ export default class UsesCompressionAudit extends Audit {
 
 				if (!compressedSize || compressedSize < 0) return false;
 				if (
-					1 - compressedSize / originalSize >
-					IGNORE_THRESHOLD_PERCENT
-					// || compressionSavings(compressedSize, originalSize) > IGNORE_THRESHOLD_BYTES
+					1 - compressedSize / originalSize > IGNORE_THRESHOLD_PERCENT ||
+					compressedSize < IGNORE_THRESHOLD_BYTES
 				)
 					return false;
 
@@ -82,12 +79,6 @@ export default class UsesCompressionAudit extends Audit {
 					)
 				)
 					return false;
-				console.log(
-					compressedSize,
-					originalSize,
-					record.request.url,
-					record.response.headers['content-type']
-				);
 
 				return true;
 			})
