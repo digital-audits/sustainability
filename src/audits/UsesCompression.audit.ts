@@ -9,20 +9,33 @@ import {Meta, SkipResult, Result} from '../types/audit';
  *  the compression ratio and comapres it to the threshold.
  */
 
-const RATIO_THRESHOLD = 0.95;
+// const IGNORE_THRESHOLD_BYTES = 1400; gzipSavings (gzip - original: TODO)
+const IGNORE_THRESHOLD_PERCENT = 0.1;
+
 const APPLICABLE_COMPRESSION_MIME_TYPES = [
 	'text/css',
-	'application/javascript',
-	'application/x-font-woff',
 	'text/javascript',
 	'text/html',
-	'font/woff',
-	'font/ttf',
-	'application/json',
 	'text/xml',
 	'text/plain',
+	'application/javascript',
+	'application/x-font-woff',
+	'application/x-javascript',
+	'application/vnd.ms-fontobject',
+	'application/x-font-opentype',
+	'application/x-font-truetype',
+	'application/x-font-ttf',
+	'application/xml',
+	'application/json',
+	'application/font-sfnt',
+	'font/eot',
+	'font/opentype',
+	'font/otf',
+	'font/woff',
+	'font/ttf',
 	'image/svg+xml',
-	'image/x-icon'
+	'image/x-icon',
+	'image/vnd.microsoft.icon'
 ];
 export default class UsesCompressionAudit extends Audit {
 	static get meta() {
@@ -40,29 +53,41 @@ export default class UsesCompressionAudit extends Audit {
 		const debug = util.debugGenerator('UsesCompression Audit');
 		debug('running');
 		const auditUrls = new Set();
-		const compressionRatio = (compressed: number, uncompressed: number) =>
-			Number.isFinite(compressed) && compressed > 0
-				? compressed / uncompressed
-				: 1;
-
-		// Filter images and woff font formats.
-		// js files considered secure (with identifiable content on HTTPS, e.g personal cookies ) should not be compressed (to avoid CRIME & BREACH attacks)
+		/* Const compressionSavings = (compressed: number, uncompressed: number) =>
+			uncompressed - compressed
+*/
+		// js files considered secure (with identifiable content on HTTPS, e.g personal cookies )
+		// should not be compressed (to avoid CRIME & BREACH attacks)
 		let errorMessage: string | undefined;
 		const {hosts} = traces;
 		let justOneTime = true;
 		const resources = traces.record
 			.filter(record => {
+				const compressedSize = record.CDP.compressedSize.value;
+				const originalSize = record.response.uncompressedSize.value;
+
+				if (!compressedSize || compressedSize < 0) return false;
+				if (
+					1 - compressedSize / originalSize >
+					IGNORE_THRESHOLD_PERCENT
+					// || compressionSavings(compressedSize, originalSize) > IGNORE_THRESHOLD_BYTES
+				)
+					return false;
+
+				const recordUrl = record.request.url;
+				if (!hosts.includes(recordUrl.hostname)) return false;
 				if (
 					!APPLICABLE_COMPRESSION_MIME_TYPES.includes(
 						record.response.headers['content-type']
 					)
 				)
 					return false;
-
-				const size = record.CDP.compressedSize.value;
-				const unSize = record.response.uncompressedSize.value;
-				const ratio = compressionRatio(size, unSize);
-				if (ratio < RATIO_THRESHOLD) return false;
+				console.log(
+					compressedSize,
+					originalSize,
+					record.request.url,
+					record.response.headers['content-type']
+				);
 
 				return true;
 			})
@@ -78,9 +103,7 @@ export default class UsesCompressionAudit extends Audit {
 
 				const recordUrl = record.request.url;
 
-				const isSameHost = hosts.includes(recordUrl.hostname);
-
-				if (justOneTime && isSameHost && isNginx()) {
+				if (justOneTime && isNginx()) {
 					errorMessage = `Possible low gzip compression level detected on NGINX server. Please, consider changing it to at least 5. <a href="https://nginx.org/en/docs/http/ngx_http_gzip_module.html">More info`;
 					justOneTime = false;
 				}

@@ -47,9 +47,7 @@ export default class CarbonFootprintAudit extends Audit {
 		const getValidRecords = async () => {
 			const getGreenRecord = async () => {
 				const pArray = traces.record.map(async record => {
-					const isGreen = await isGreenServerMem(
-						record.response.url.hostname
-					);
+					const isGreen = await isGreenServerMem(record.response.url.hostname);
 					return isGreen?.green ?? false;
 				});
 				const isGreen = await Promise.all(pArray);
@@ -148,8 +146,8 @@ export default class CarbonFootprintAudit extends Audit {
 					extra: {
 						totalTransfersize: [totalTransfersize, 'bytes'],
 						totalWattage: [sum(totalWattage).toFixed(10), 'kWh'],
-						carbonfootprint: [metric.toFixed(5), 'gCO2eq / 100 views'],
-					},					
+						carbonfootprint: [metric.toFixed(5), 'gCO2eq / 100 views']
+					},
 					share: recordsByFileSizePercentage
 				}
 			}

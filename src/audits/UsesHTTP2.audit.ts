@@ -19,6 +19,7 @@ export default class UsesHTTP2Audit extends Audit {
 			collectors: ['transfercollect', 'redirectcollect']
 		} as Meta;
 	}
+
 	static audit(traces: Traces): Result | SkipResult | undefined {
 		const debug = util.debugGenerator('UsesHTTP2 Audit');
 		debug('running');
@@ -27,7 +28,7 @@ export default class UsesHTTP2Audit extends Audit {
 		traces.record
 			.filter(record => {
 				const recordUrl = record.request.url;
-				if (!record.request.protocol) return false
+				if (!record.request.protocol) return false;
 				if (record.response.fromServiceWorker) return false;
 				if (record.request.protocol === 'h2') return false;
 				if (record.request.protocol === 'data') return false;
@@ -35,13 +36,13 @@ export default class UsesHTTP2Audit extends Audit {
 
 				return true;
 			})
-			.map((record) => {
+			.map(record => {
 				return {
 					protocol: record.request.protocol,
 					url: record.request.url.toString()
 				};
 			})
-			.filter((record) => {
+			.filter(record => {
 				if (auditUrls.has(record.url)) return false;
 				auditUrls.add(record.url);
 				return true;

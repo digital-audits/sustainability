@@ -48,7 +48,9 @@ export default class UsesGreenServerAudit extends Audit {
 			};
 		}
 
-		debug(`failed to fetch response with error: ${response?.error} ${hostname}`);
+		debug(
+			`failed to fetch response with error: ${response?.error} ${hostname}`
+		);
 		return {
 			meta: util.skipMeta(UsesGreenServerAudit.meta),
 			scoreDisplayMode: 'skip',

@@ -151,7 +151,9 @@ interface APIResponse {
 	hostedbywebsite: string;
 	error?: string;
 }
-const isGreenServer = async (hostname: string): Promise<APIResponse | undefined> => {
+const isGreenServer = async (
+	hostname: string
+): Promise<APIResponse | undefined> => {
 	const controller = new AbortController();
 	const timeout = setTimeout(() => {
 		controller.abort();
@@ -161,7 +163,6 @@ const isGreenServer = async (hostname: string): Promise<APIResponse | undefined>
 		const response = await fetch(url, {
 			signal: controller.signal
 		});
-
 
 		const responseToJson = await response.json();
 
