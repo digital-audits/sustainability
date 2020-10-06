@@ -27,7 +27,7 @@ class Commander {
 			this.tracker = util.createTracker(page);
 
 			// Page.setJavaScriptEnabled(false); Speeds up process drastically
-			let pageFeaturesArray = [
+			const pageFeaturesArray = [
 				page.setViewport({
 					width: this.settings.emulatedDevice.viewport.width,
 					height: this.settings.emulatedDevice.viewport.height
@@ -52,7 +52,7 @@ class Commander {
 						'utf8'
 					)
 				)
-			]
+			];
 			await Promise.all(pageFeaturesArray);
 
 			return page;

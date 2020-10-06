@@ -3,8 +3,6 @@ import CollectRedirect from '../collect/redirect.collect';
 import CollectConsole from '../collect/console.collect';
 import CollectSubfont from '../collect/subfont.collect';
 import CollectAssets from '../collect/assets.collect';
-import CollectImages from '../collect/images.collect';
-import CollectAnimations from '../collect/animations.collect'
 import UsesCompressionAudit from '../audits/UsesCompression.audit';
 import CarbonFootprintAudit from '../audits/CarbonFootprint.audit';
 import UsesHTTP2Audit from '../audits/UsesHTTP2.audit';
@@ -14,13 +12,17 @@ import NoConsoleLogsAudit from '../audits/NoConsoleLogs.audit';
 import UsesFontSubsettingAudit from '../audits/UsesFontSubsetting.audit';
 import UsesLazyLoadingAudit from '../audits/UsesLazyLoading.audit';
 import {DefaultSettings} from '../types/settings';
-import CollectLazyImages from '../collect/lazyimages.collect';
 import CollectScreenshot from '../collect/screenshot.collect';
 import PixelEnergyEfficiencyAudit from '../audits/PixelEnergyEfficiency.audit';
 import UsesDarkModeAudit from '../audits/UsesDarkMode.audit';
 import CollectCookies from '../collect/cookies.collect';
 import CookieOptimisation from '../audits/CookieOptimisation.audit';
 import AvoidInlineAssetsAudit from '../audits/AvoidInlineAssets.audit';
+import CollectLazyMedia from '../collect/lazymedia.collect';
+import CollectMedia from '../collect/media.collect';
+import LeverageBrowserCachingAudit from '../audits/LeverageBrowserCaching.audit';
+import UsesWebmVideoFormatAudit from '../audits/UsesWebmVideoFormat.audit';
+import AvoidURLRedirectsAudit from '../audits/AvoidURLRedirects.audits';
 
 export const DEFAULT: DefaultSettings = {
 	LAUNCH_SETTINGS: {
@@ -65,11 +67,11 @@ export const DEFAULT: DefaultSettings = {
 			CollectConsole,
 			CollectSubfont,
 			CollectAssets,
-			CollectImages,
-			CollectLazyImages,
+			CollectMedia,
+			CollectLazyMedia,
 			CollectScreenshot,
 			CollectCookies
-			//CollectAnimations,
+			// CollectAnimations,
 		],
 		audits: [
 			UsesCompressionAudit,
@@ -83,7 +85,10 @@ export const DEFAULT: DefaultSettings = {
 			PixelEnergyEfficiencyAudit,
 			UsesDarkModeAudit,
 			CookieOptimisation,
-			AvoidInlineAssetsAudit
+			AvoidInlineAssetsAudit,
+			LeverageBrowserCachingAudit,
+			UsesWebmVideoFormatAudit,
+			AvoidURLRedirectsAudit
 		]
 	},
 	REPORT: {
@@ -97,7 +102,8 @@ export const DEFAULT: DefaultSettings = {
 			transfer: 0.23076923076923078
 		},
 		scoring: {
-			CF: {median: 4, p10: 1.2, name: 'Carbon Footprint'}
+			CF: {median: 4, p10: 1.2, name: 'Carbon Footprint'},
+			cache: {median: 128 * 1024, p10: 28 * 1024, name: 'Cache'}
 		}
 	}
 };

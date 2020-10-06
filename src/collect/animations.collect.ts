@@ -3,14 +3,14 @@ import {ConnectionSettingsPrivate} from '../types/settings';
 import * as util from '../utils/utils';
 import {CollectorsIds} from '../types/audit';
 import {PageContext} from '../types';
-import { AnimationsFormat, CollectAnimationsTraces } from '../types/traces';
-const TraceToTimelineModel = require('devtools-timeline-model')
+import {AnimationsFormat, CollectAnimationsTraces} from '../types/traces';
+const TraceToTimelineModel = require('devtools-timeline-model');
 
 /**
  * @overview: Get CSSTransitions/CSSAnimations, stuff that requires CPU process and see if they are stoped when tab is switched
- */ 
+ */
 
- //fails on : https://codebeautify.org/jsonminifier
+// fails on : https://codebeautify.org/jsonminifier
 export default class CollectAnimations extends Collect {
 	collectId: CollectorsIds = 'transfercollect';
 	static get id() {
@@ -21,14 +21,13 @@ export default class CollectAnimations extends Collect {
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectAnimationsTraces | undefined> {
-	try {
-
-//https://chromedevtools.github.io/devtools-protocol/tot/DOM/#type-Node
-const debug = util.debugGenerator('Animations collect')
-debug('running')
-const {page} = pageContext
-/*
-const client = await page.target().createCDPSession();
+		try {
+			// https://chromedevtools.github.io/devtools-protocol/tot/DOM/#type-Node
+			const debug = util.debugGenerator('Animations collect');
+			debug('running');
+			const {page} = pageContext;
+			/*
+Const client = await page.target().createCDPSession();
 await client.send('Animation.enable');
 await client.send('DOM.enable')
 const animations: Array<any>= []
@@ -46,80 +45,78 @@ client.on('Animation.animationStarted',async (data) =>{
 })
 */
 
-//get initial trace
-const categories: string[] = [
-	'-*',
-	'v8.execute',
-	'blink.user_timing',
-	'latencyInfo',
-	'devtools.timeline',
-	'disabled-by-default-devtools.timeline',
-	'disabled-by-default-devtools.timeline.frame',
-	'toplevel',
-	'blink.console',
-	'disabled-by-default-devtools.timeline.stack',
-	'disabled-by-default-devtools.screenshot',
-	'disabled-by-default-v8.cpu_profile',
-	'disabled-by-default-v8.cpu_profiler',
-	'disabled-by-default-v8.cpu_profiler.hires'
-  ]
-  
-const processTracingAndGetSummary = async()=>{
-	await page.tracing.start({path:'', categories:categories, screenshots:false})
-	await new Promise((resolve)=>setTimeout(()=>resolve(),1000)) //wait 1sec
-	const rawData = await page.tracing.stop()
-	const data = JSON.parse(rawData.toString())
-	const model = new TraceToTimelineModel(data.traceEvents);
-	const timelineModel = model.timelineModel();
-	const start = timelineModel._minimumRecordTime;
-	const end = timelineModel._maximumRecordTime;
-	
-	return util.getSummary(timelineModel, start, end)
-	
-}
+			// get initial trace
+			const categories: string[] = [
+				'-*',
+				'v8.execute',
+				'blink.user_timing',
+				'latencyInfo',
+				'devtools.timeline',
+				'disabled-by-default-devtools.timeline',
+				'disabled-by-default-devtools.timeline.frame',
+				'toplevel',
+				'blink.console',
+				'disabled-by-default-devtools.timeline.stack',
+				'disabled-by-default-devtools.screenshot',
+				'disabled-by-default-v8.cpu_profile',
+				'disabled-by-default-v8.cpu_profiler',
+				'disabled-by-default-v8.cpu_profiler.hires'
+			];
 
-/**
- * find ROIs
- * initial summary 
- * move viewport (scroll by y) outside ROI
- * second summary
- * compare diff
- */
-const getSummary = async () =>{
-	const summaryArray:AnimationsFormat[]= []
-	debug('getting init page tracing')
-	const initSummary= await processTracingAndGetSummary()
-	await new Promise((resolve)=>{
-		//@ts-ignore custom event
-	page.on('scrollFinished', async ()=>{
-		debug('getting after-scroll page tracing')
-		const endSummary= await processTracingAndGetSummary()
-		
-		summaryArray.push({initSummary, endSummary})
-		resolve()
-})
-	})
+			const processTracingAndGetSummary = async () => {
+				await page.tracing.start({
+					path: '',
+					categories,
+					screenshots: false
+				});
+				await new Promise(resolve => setTimeout(() => resolve(), 1000)); // Wait 1sec
+				const rawData = await page.tracing.stop();
+				const data = JSON.parse(rawData.toString());
+				const model = new TraceToTimelineModel(data.traceEvents);
+				const timelineModel = model.timelineModel();
+				const start = timelineModel._minimumRecordTime;
+				const end = timelineModel._maximumRecordTime;
+				// @ts-ignore
+				return util.getSummary(timelineModel, start, end);
+			};
 
-	return summaryArray		
-}
+			/**
+			 * Find ROIs
+			 * initial summary
+			 * move viewport (scroll by y) outside ROI
+			 * second summary
+			 * compare diff
+			 */
+			const getSummary = async () => {
+				const summaryArray: AnimationsFormat[] = [];
+				debug('getting init page tracing');
+				const initSummary = await processTracingAndGetSummary();
+				await new Promise(resolve => {
+					// @ts-ignore custom event
+					page.on('scrollFinished', async () => {
+						debug('getting after-scroll page tracing');
+						const endSummary = await processTracingAndGetSummary();
 
-const summary = await getSummary()
+						summaryArray.push({initSummary, endSummary});
+						resolve();
+					});
+				});
 
+				return summaryArray;
+			};
 
+			const summary = await getSummary();
 
-page.removeListener('scrollFinished', ()=>{
-	debug('removed scrollFinished event listener')
-})
+			page.removeListener('scrollFinished', () => {
+				debug('removed scrollFinished event listener');
+			});
 
-
-
-debug('done')
-console.log(summary)
-return {animations:summary}
-}catch(error){
-	util.log(`Error: Animations collect failed with message: ${error}`)
-	return undefined
+			debug('done');
+			console.log(summary);
+			return {animations: summary};
+		} catch (error) {
+			util.log(`Error: Animations collect failed with message: ${error}`);
+			return undefined;
+		}
 	}
-	}
 }
-		

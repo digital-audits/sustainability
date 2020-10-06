@@ -1,11 +1,11 @@
 import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
-import {ImageFormat, CollectImagesTraces} from '../types/traces';
+import {CollectMediaTraces, MediaFormat} from '../types/traces';
 import {CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
-export default class CollectImages extends Collect {
+export default class CollectMedia extends Collect {
 	collectId: CollectorsIds = 'imagescollect';
 	static get id() {
 		return this.collectId;
@@ -14,13 +14,13 @@ export default class CollectImages extends Collect {
 	static async collect(
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
-	): Promise<CollectImagesTraces> {
-		const debug = util.debugGenerator('Collect images');
+	): Promise<CollectMediaTraces> {
+		const debug = util.debugGenerator('Collect media');
 		debug('running');
 		const {page} = pageContext;
-		const fetchImages = async () => {
+		const fetchMedia = async () => {
 			return page.evaluate(() => {
-				const isElementVisible = (element: HTMLElement): boolean => {
+				const isElementVisible = (element: Element): boolean => {
 					const bounding = element.getBoundingClientRect();
 					const isVisible =
 						(bounding.top > 0 &&
@@ -33,16 +33,25 @@ export default class CollectImages extends Collect {
 					return isVisible;
 				};
 
-				return Array.from(document.body.querySelectorAll('img')).map(
-					(img: HTMLImageElement) => {
-						const attrObject = {} as ImageFormat;
+				const processMedia = (elements: Element[]) => {
+					return elements?.map(img => {
+						const attrObject = {} as MediaFormat;
 						attrObject.isVisible = isElementVisible(img);
 						img.getAttributeNames().forEach(name => {
 							attrObject[name] = img.getAttribute(name)!;
 						});
 						return attrObject;
-					}
-				);
+					});
+				};
+
+				return {
+					images: processMedia(
+						Array.from(document.body.querySelectorAll('img'))
+					),
+					videos: processMedia(
+						Array.from(document.body.querySelectorAll('video'))
+					)
+				};
 			});
 		};
 
@@ -52,12 +61,12 @@ export default class CollectImages extends Collect {
 			settings.maxNavigationTime,
 			debug
 		);
-		debug('Fetching document images');
-		const images = await fetchImages();
+		debug('Fetching document media');
+		const media = await fetchMedia();
 		debug('done');
 
 		return {
-			media: {images}
+			media
 		};
 	}
 }

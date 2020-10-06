@@ -1,4 +1,4 @@
-import { Cookie } from "puppeteer";
+import {Cookie} from 'puppeteer';
 
 export interface Format {
 	uid: string;
@@ -27,22 +27,23 @@ export interface Traces {
 	media: MediaTrace;
 	failed: FailedRequest[];
 	redirect: RedirectResponse[];
-	lazyImages: string[];
-	screenshot:ScreenShotFormat;
-	animations:AnimationsFormat[]
-	cookies:Cookie[]
+	lazyMedia: LazyMediaFormat;
+	screenshot: ScreenShotFormat;
+	animations: AnimationsFormat[];
+	cookies: Cookie[];
 }
 
-export interface AnimationsFormat{
-	initSummary:any
-	endSummary:any
+export interface AnimationsFormat {
+	initSummary: any;
+	endSummary: any;
 }
 
 export interface MediaTrace {
-	images: ImageFormat[];
+	images: MediaFormat[];
+	videos: MediaFormat[];
 }
 
-export interface ImageFormat {
+export interface MediaFormat {
 	[key: string]: string | boolean;
 }
 
@@ -65,16 +66,20 @@ export interface GHOutput {
 	[key: string]: FontInformation;
 }
 
-export interface ScreenShotFormat{
-	power:number
-	hasDarkMode:Boolean
+export interface ScreenShotFormat {
+	power: number;
+	hasDarkMode: boolean;
 }
 
+export interface LazyMediaFormat {
+	lazyImages: string[];
+	lazyVideos: string[];
+}
 
-export interface RGBPowerFormat{
-	r:number
-	g:number
-	b:number
+export interface RGBPowerFormat {
+	r: number;
+	g: number;
+	b: number;
 }
 export interface FontInformation {
 	glyphs: string[];
@@ -159,7 +164,7 @@ export interface Scriptfiles {
 export interface InlineScripts {
 	src: string;
 	text: string;
-	size:number;
+	size: number;
 }
 
 export interface Record {
@@ -286,7 +291,7 @@ export interface CollectFailedTransferTraces {
 export interface CollectHtmlTraces {
 	html: string[];
 }
-export interface CollectImagesTraces {
+export interface CollectMediaTraces {
 	media: MediaTrace;
 }
 
@@ -307,14 +312,14 @@ export interface CollectTransferTraces {
 	record: Record[];
 }
 
-export interface CollectLazyImagesTraces {
-	lazyImages: string[];
+export interface CollectLazyMediaTraces {
+	lazyMedia: LazyMediaFormat;
 }
 
-export interface CollectAnimationsTraces{
-	animations:AnimationsFormat[]
+export interface CollectAnimationsTraces {
+	animations: AnimationsFormat[];
 }
 
-export interface CollectCookiesTraces{
-	cookies:Cookie[]
+export interface CollectCookiesTraces {
+	cookies: Cookie[];
 }

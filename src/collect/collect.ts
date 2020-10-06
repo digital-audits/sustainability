@@ -2,7 +2,7 @@ import {PageContext} from '../types';
 import {
 	CollectHtmlTraces,
 	CollectAssetsTraces,
-	CollectImagesTraces,
+	CollectMediaTraces,
 	CollectConsoleTraces,
 	CollectRedirectTraces,
 	CollectSubfontsTraces,
@@ -23,7 +23,7 @@ export default class Collect {
 		return {} as Promise<
 			| CollectHtmlTraces
 			| CollectAssetsTraces
-			| CollectImagesTraces
+			| CollectMediaTraces
 			| CollectConsoleTraces
 			| CollectRedirectTraces
 			| CollectSubfontsTraces

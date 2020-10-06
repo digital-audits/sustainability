@@ -22,17 +22,22 @@ export default class UsesLazyLoadingAudit extends Audit {
 
 	static audit(traces: Traces): Result | SkipResult {
 		const debug = util.debugGenerator('UsesLazyLoading Audit');
+		const lazyMedia = [
+			...traces?.lazyMedia.lazyImages,
+			...traces?.lazyMedia.lazyVideos
+		];
+		const nonLazyMedia = [...traces?.media.images, ...traces?.media.videos];
 		const isAuditApplicable = (): boolean => {
-			if (!traces.lazyImages) return false;
-			if (!traces.media.images.length) return false;
-			if (!traces.media.images.some(image => !image.isVisible)) return false;
+			if (!traces.lazyMedia) return false;
+			if (!nonLazyMedia.length) return false;
+			if (!nonLazyMedia.some(media => !media.isVisible)) return false;
 
 			return true;
 		};
 
 		if (isAuditApplicable()) {
 			debug('running');
-			const score = Number(traces.lazyImages.length > 0);
+			const score = Number(lazyMedia.length > 0);
 			const meta = util.successOrFailureMeta(UsesLazyLoadingAudit.meta, score);
 			debug('done');
 

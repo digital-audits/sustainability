@@ -32,10 +32,9 @@ export default class CollectConsole extends Collect {
 			/*
 			Console log client messages. Useful for debugging page evaluate
 			*/
-				for (let i = 0; i < message.args().length; ++i) {
-					debug(`${i}: ${message.args()[i]}`);
-				}
-
+			for (let i = 0; i < message.args().length; ++i) {
+				debug(`${i}: ${message.args()[i]}`);
+			}
 
 			results.push(information);
 		});
@@ -47,10 +46,8 @@ export default class CollectConsole extends Collect {
 				settings.maxNavigationTime,
 				debug
 			);
-			//https://stackoverflow.com/questions/51491928/uploading-a-file-on-non-input-type-file
-			
+			// https://stackoverflow.com/questions/51491928/uploading-a-file-on-non-input-type-file
 
-			
 			return {
 				console: results
 			};

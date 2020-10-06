@@ -20,27 +20,32 @@ export default class UsesWebpImageFormatAudit extends Audit {
 	 *
 	 * @applicable if the page has requested images.
 	 * Get image format using the MIME/type (header: content-type)
-	 * WebP should be used against PNG, JPG or GIF images
+	 * WebP should be used against PNG, JPG or GIF images and ofc base64 data images
 	 */
 
 	static audit(traces: Traces): Result | SkipResult {
 		const debug = util.debugGenerator('UsesWebPImageFormat Audit');
+		// @ts-ignore flatMap
+		let mediaImages: string[] = traces.media.images.flatMap(img =>
+			img.src ? [img.src] : []
+		);
+
+		if (traces?.lazyMedia?.lazyImages) {
+			mediaImages = [...mediaImages, ...traces.lazyMedia.lazyImages];
+		}
+
 		const isAuditApplicable = (): boolean => {
 			if (!traces.media.images.length) return false;
+			if (!mediaImages.some(url => /\.(?:jpg|gif|png)$/.test(url)))
+				return false;
+
 			return true;
 		};
 
 		if (isAuditApplicable()) {
 			debug('running');
 			const auditUrls = new Set<string>();
-			// @ts-ignore flatMap
-			let mediaImages: string[] = traces.media.images.flatMap(img =>
-				img.src ? [img.src] : []
-			);
 
-			if(traces.lazyImages){
-				mediaImages= [...mediaImages, ...traces.lazyImages]
-			}
 			mediaImages.filter(url => {
 				if (auditUrls.has(url)) return false;
 				if (url.startsWith('data:')) {
@@ -50,9 +55,7 @@ export default class UsesWebpImageFormatAudit extends Audit {
 
 				if (url.endsWith('.webp')) return false;
 
-				if (!/\.(?:jpg|gif|png)$/.test(url)) {
-					return false;
-				}
+				if (!/\.(?:jpg|gif|png)$/.test(url)) return false;
 
 				const urlLastSegment =
 					url

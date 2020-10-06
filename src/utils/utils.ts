@@ -9,7 +9,12 @@ import memoizee = require('memoizee');
 import fetch from 'node-fetch';
 import AbortController from 'abort-controller';
 import {DEFAULT} from '../settings/settings';
-import {getLogNormalScore, sum, groupBy} from '../bin/statistics';
+import {
+	getLogNormalScore,
+	sum,
+	groupBy,
+	linearInterpolation
+} from '../bin/statistics';
 import {
 	AuditByFailOrPassOrSkip,
 	Meta,
@@ -19,6 +24,7 @@ import {
 	AuditsByCategory,
 	Result
 } from '../types/audit';
+import {Record, Headers} from '../types/traces';
 
 export function debugGenerator(namespace: string): Debug.IDebugger {
 	const debug = Debug(`sustainability: ${namespace}`);
@@ -44,7 +50,6 @@ export async function scrollFunction(
 	maxScrollInterval: number,
 	debug: CallableFunction
 ): Promise<any> {
-	
 	debug('running scroll function');
 	return page.evaluate(
 		maxScrollInterval =>
@@ -52,28 +57,28 @@ export async function scrollFunction(
 				let scrollTop = -1;
 				const interval = setInterval(() => {
 					window.scrollBy(0, 100);
-					const getScrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
+					const getScrollTop =
+						window.pageYOffset ||
+						document.documentElement.scrollTop ||
+						document.body.scrollTop;
 					if (getScrollTop !== scrollTop) {
-						scrollTop = getScrollTop
+						scrollTop = getScrollTop;
 						return;
 					}
 
 					clearInterval(interval);
 					resolve();
-					
 				}, maxScrollInterval);
-			}) as Promise<boolean>,
+			}),
 		maxScrollInterval
 	);
-	
 }
 
-export async function isPageAbleToScroll(page:Page){
-	return await page.evaluate(()=>document.body.scrollHeight > document.body.clientHeight)
-
+export async function isPageAbleToScroll(page: Page) {
+	return page.evaluate(
+		() => document.body.scrollHeight > document.body.clientHeight
+	);
 }
-
-
 
 export function parseAllSettled(
 	data: Array<PromiseAllSettledRejected | PromiseAllSettledFulfilled>,
@@ -320,6 +325,115 @@ export function removeQuotes(text: string): string {
 	return text;
 }
 
+/**
+ * Utils for LeverageBrowserCaching Audit
+ */
+
+export function getCacheHitProbability(maxAgeInSecs: number) {
+	const RESOURCE_AGE_IN_HOURS_DECILES = [
+		0,
+		0.2,
+		1,
+		3,
+		8,
+		12,
+		24,
+		48,
+		72,
+		168,
+		8760,
+		Infinity
+	];
+	const maxAgeInHours = maxAgeInSecs / 3600;
+	const upperDecileIndex = RESOURCE_AGE_IN_HOURS_DECILES.findIndex(
+		decile => decile >= maxAgeInHours
+	);
+
+	// Clip the likelihood between 0 and 1
+	if (upperDecileIndex === RESOURCE_AGE_IN_HOURS_DECILES.length - 1) return 1;
+	if (upperDecileIndex === 0) return 0;
+
+	// Use the two closest decile points as control points
+	const upperDecileValue = RESOURCE_AGE_IN_HOURS_DECILES[upperDecileIndex];
+	const lowerDecileValue = RESOURCE_AGE_IN_HOURS_DECILES[upperDecileIndex - 1];
+	const upperDecile = upperDecileIndex / 10;
+	const lowerDecile = (upperDecileIndex - 1) / 10;
+
+	// Approximate the real likelihood with linear interpolation
+	return linearInterpolation(
+		lowerDecileValue,
+		lowerDecile,
+		upperDecileValue,
+		upperDecile,
+		maxAgeInHours
+	);
+}
+
+export function computeCacheLifetimeInSeconds(
+	headers: Headers,
+	cacheControl: any
+) {
+	if (cacheControl?.['max-age'] !== undefined) {
+		return cacheControl['max-age'];
+	}
+
+	const expiresHeaders = headers.expires;
+	if (expiresHeaders) {
+		const expires = new Date(expiresHeaders).getTime();
+		// Invalid expires values MUST be treated as already expired
+		if (!expires) return 0;
+		return Math.ceil((expires - Date.now()) / 1000);
+	}
+
+	return null;
+}
+
+export function isCacheableAsset(record: Record) {
+	const CACHEABLE_STATUS_CODES = new Set([200, 203, 206]);
+	const NON_NETWORK_PROTOCOLS = ['blob', 'data', 'intent'];
+
+	/** @type {Set<LH.Crdp.Network.ResourceType>} */
+	const STATIC_RESOURCE_TYPES = new Set([
+		'font',
+		'image',
+		'media',
+		'script',
+		'stylesheet'
+	]);
+
+	// It's not a request loaded over the network, caching makes no sense
+	if (NON_NETWORK_PROTOCOLS.includes(record.request.protocol!)) return false;
+
+	return (
+		CACHEABLE_STATUS_CODES.has(record.response.status) &&
+		STATIC_RESOURCE_TYPES.has(record.request.resourceType)
+	);
+}
+
+export function shouldSkipRecord(headers: Headers, cacheControl: any) {
+	// The HTTP/1.0 Pragma header can disable caching if cache-control is not set, see https://tools.ietf.org/html/rfc7234#section-5.4
+	if (!cacheControl && (headers.pragma || '').includes('no-cache')) {
+		return true;
+	}
+
+	// Ignore assets where policy implies they should not be cached long periods
+	if (
+		cacheControl &&
+		(cacheControl['must-revalidate'] ||
+			cacheControl['no-cache'] ||
+			cacheControl['no-store'] ||
+			cacheControl.private)
+	) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * 
+ * All this is to obtain summary from traces, commented out at the moment
+ 
 export function sleep(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -516,7 +630,7 @@ export function getSummary(model, startTime, endTime) {
 		  var displayName = 'foo';
 		  // FIXME: fix inputEventDisplayName below
 		  //var displayName = Timeline.TimelineUIUtils.inputEventDisplayName(
-		  //    /** @type {!TimelineModel.TimelineIRModel.InputEvents} */ (inputEventType));
+		  //    /** @type {!TimelineModel.TimelineIRModel.InputEvents}  (inputEventType));
 		  return { title: displayName || inputEventType, category: CATEGORIES['scripting'] };
 		}
 		//@ts-ignore
@@ -533,40 +647,4 @@ export function getSummary(model, startTime, endTime) {
 
   return buildRangeStats(model, startTime, endTime);
 }
-
-//blynk diff repo https://github.com/yahoo/blink-diff - considering using power of rgb channels
-//AUDIT: ANIMATION, MEDIA ... STOPS WHEN TAB IS SWITCHED ported from https://dev.to/tetra2000/take-a-better-picture-with-puppeteer-2gkg
-/*export async function waitTillPageStoped(
-	page: Page,
-	interval: number = 200,
-	timeout: number = 3000,
-	fullPage: boolean = true,
-  ): Promise<boolean> {
-	const t0 = new Date().getTime();
-	let previousBuffer: Buffer;
-	while (new Date().getTime() - t0 < timeout) {
-	  await sleep(interval);
-  
-	  const currentBuffer: Buffer = Buffer.from(await page.screenshot({
-		encoding: "base64",
-		fullPage,
-	  }), "base64");
-	  if (previousBuffer == null) {
-		previousBuffer = currentBuffer;
-		continue;
-	  }
-  
-	  const diff = new BlinkDiff({ imageA: previousBuffer, imageB: currentBuffer });
-	  const result = await diff.runWithPromise();
-	  if (result.differences === 0) {
-		return true;
-	  }
-  
-	  previousBuffer = currentBuffer;
-	}
-  
-	throw new Error("Timeouted!!");
-  }
 */
-
-

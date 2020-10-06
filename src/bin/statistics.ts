@@ -84,3 +84,14 @@ export function groupBy(list: Result[], keyGetter: CallableFunction) {
 	});
 	return map;
 }
+
+export function linearInterpolation(
+	x0: number,
+	y0: number,
+	x1: number,
+	y1: number,
+	x: number
+) {
+	const slope = (y1 - y0) / (x1 - x0);
+	return y0 + (x - x0) * slope;
+}

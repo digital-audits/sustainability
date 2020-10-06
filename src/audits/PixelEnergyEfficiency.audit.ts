@@ -1,10 +1,9 @@
-import { Meta, Result } from "../types/audit";
-import { RGBPowerFormat, Traces } from "../types/traces";
-import Audit from "./audit";
-import * as util from '../utils/utils'
+import {Meta, Result} from '../types/audit';
+import {RGBPowerFormat, Traces} from '../types/traces';
+import Audit from './audit';
+import * as util from '../utils/utils';
 
-const PIXEL_POWER_THRESHOLD = 20
-
+const PIXEL_POWER_THRESHOLD = 20;
 
 export default class PixelEnergyEfficiencyAudit extends Audit {
 	static get meta() {
@@ -21,25 +20,28 @@ export default class PixelEnergyEfficiencyAudit extends Audit {
 	/**
 	 * @workflow
 	 * 	Get screenshot data and calculate the average RGB pixel ratio.
-	 *   
+	 *
 	 */
 	static async audit(traces: Traces): Promise<Result | undefined> {
 		const debug = util.debugGenerator('PixelEnergyEfficiency Audit');
 		debug('running');
-		const pixelPower = traces.screenshot.power
+		const pixelPower = traces.screenshot.power;
 		const score = Number(pixelPower <= PIXEL_POWER_THRESHOLD);
-		const meta = util.successOrFailureMeta(PixelEnergyEfficiencyAudit.meta, score);
+		const meta = util.successOrFailureMeta(
+			PixelEnergyEfficiencyAudit.meta,
+			score
+		);
 		debug('done');
 
-			return {
-				meta,
-				score,
-				scoreDisplayMode: 'binary',
-				extendedInfo:{
-					value:{
-						power:[pixelPower.toFixed(2), 'W']
-					}
+		return {
+			meta,
+			score,
+			scoreDisplayMode: 'binary',
+			extendedInfo: {
+				value: {
+					power: [pixelPower.toFixed(2), 'W']
 				}
-			};
+			}
+		};
 	}
 }

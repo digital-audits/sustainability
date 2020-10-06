@@ -116,7 +116,7 @@ export default class CollectAssets extends Collect {
 						} else if (isCssStyleTag(element)) {
 							const src = styleTagUri();
 							const text = element.innerHTML;
-							const size = encodeURIComponent(text).replace(/%../g, 'x').length
+							const size = encodeURIComponent(text).replace(/%../g, 'x').length;
 							styles.push({src, text, size});
 						} else if (isJsScriptTag(element)) {
 							// Script loaded-type
@@ -129,7 +129,8 @@ export default class CollectAssets extends Collect {
 							else if (element.innerHTML) {
 								const text = element.innerHTML;
 								const src = scriptTagUri();
-								const size = encodeURIComponent(text).replace(/%../g, 'x').length
+								const size = encodeURIComponent(text).replace(/%../g, 'x')
+									.length;
 								scripts.push({src, text, size});
 							}
 						}

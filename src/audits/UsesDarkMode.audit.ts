@@ -1,7 +1,7 @@
-import { Meta, Result } from "../types/audit";
-import { Traces } from "../types/traces";
-import Audit from "./audit";
-import * as util from '../utils/utils'
+import {Meta, Result} from '../types/audit';
+import {Traces} from '../types/traces';
+import Audit from './audit';
+import * as util from '../utils/utils';
 
 export default class UsesDarkModeAudit extends Audit {
 	static get meta() {
@@ -18,8 +18,8 @@ export default class UsesDarkModeAudit extends Audit {
 	/**
 	 * @workflow
 	 * 	Two screenshots are taken: one with default light mode and a second with system-level dark mode preference.
-     *  If they match (string comparaisson) dark mode is unavailable and so the audit fails.
-	 *   
+	 *  If they match (string comparaisson) dark mode is unavailable and so the audit fails.
+	 *
 	 */
 	static async audit(traces: Traces): Promise<Result | undefined> {
 		const debug = util.debugGenerator('UsesDarkMode Audit');
@@ -28,10 +28,10 @@ export default class UsesDarkModeAudit extends Audit {
 		const meta = util.successOrFailureMeta(UsesDarkModeAudit.meta, score);
 		debug('done');
 
-			return {
-				meta,
-				score,
-				scoreDisplayMode: 'binary'
-			};
+		return {
+			meta,
+			score,
+			scoreDisplayMode: 'binary'
+		};
 	}
 }

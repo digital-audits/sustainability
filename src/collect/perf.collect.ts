@@ -24,7 +24,7 @@ export default class CollectPerformance extends Collect {
 			perf,
 			metrics
 		};
-		console.log(JSON.stringify(info))
+		console.log(JSON.stringify(info));
 		return {
 			performance: info
 		};
