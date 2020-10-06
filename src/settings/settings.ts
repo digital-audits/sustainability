@@ -1,10 +1,10 @@
 import CollectTransfer from '../collect/transfer.collect';
-import CollectFailedTransfers from '../collect/failed-transfer.collect';
 import CollectRedirect from '../collect/redirect.collect';
 import CollectConsole from '../collect/console.collect';
 import CollectSubfont from '../collect/subfont.collect';
 import CollectAssets from '../collect/assets.collect';
 import CollectImages from '../collect/images.collect';
+import CollectAnimations from '../collect/animations.collect'
 import UsesCompressionAudit from '../audits/UsesCompression.audit';
 import CarbonFootprintAudit from '../audits/CarbonFootprint.audit';
 import UsesHTTP2Audit from '../audits/UsesHTTP2.audit';
@@ -15,6 +15,12 @@ import UsesFontSubsettingAudit from '../audits/UsesFontSubsetting.audit';
 import UsesLazyLoadingAudit from '../audits/UsesLazyLoading.audit';
 import {DefaultSettings} from '../types/settings';
 import CollectLazyImages from '../collect/lazyimages.collect';
+import CollectScreenshot from '../collect/screenshot.collect';
+import PixelEnergyEfficiencyAudit from '../audits/PixelEnergyEfficiency.audit';
+import UsesDarkModeAudit from '../audits/UsesDarkMode.audit';
+import CollectCookies from '../collect/cookies.collect';
+import CookieOptimisation from '../audits/CookieOptimisation.audit';
+import AvoidInlineAssetsAudit from '../audits/AvoidInlineAssets.audit';
 
 export const DEFAULT: DefaultSettings = {
 	LAUNCH_SETTINGS: {
@@ -24,6 +30,7 @@ export const DEFAULT: DefaultSettings = {
 	CONNECTION_SETTINGS: {
 		maxNavigationTime: 60 * 1000,
 		maxScrollInterval: 30,
+		maxScrollWaitingTime: 30 * 1000,
 		maxThrottle: 5000,
 		emulatedDevice: {
 			name: 'Desktop 1920x1080',
@@ -59,7 +66,10 @@ export const DEFAULT: DefaultSettings = {
 			CollectSubfont,
 			CollectAssets,
 			CollectImages,
-			CollectLazyImages
+			CollectLazyImages,
+			CollectScreenshot,
+			CollectCookies
+			//CollectAnimations,
 		],
 		audits: [
 			UsesCompressionAudit,
@@ -69,7 +79,11 @@ export const DEFAULT: DefaultSettings = {
 			UsesWebpImageFormatAudit,
 			NoConsoleLogsAudit,
 			UsesFontSubsettingAudit,
-			UsesLazyLoadingAudit
+			UsesLazyLoadingAudit,
+			PixelEnergyEfficiencyAudit,
+			UsesDarkModeAudit,
+			CookieOptimisation,
+			AvoidInlineAssetsAudit
 		]
 	},
 	REPORT: {

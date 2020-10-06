@@ -24,7 +24,8 @@ export type CollectorsIds =
 	| 'performancecollect'
 	| 'imagescollect'
 	| 'consolecollect'
-	| 'assetscollect';
+	| 'assetscollect'
+	| 'screenshotcollect';
 
 export interface Result {
 	score: number;

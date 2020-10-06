@@ -38,34 +38,42 @@ export function toHexString(codePointArray: number[]): string[] {
 	);
 }
 
-// Scroll function credits to nagy.zsolt.hun https://stackoverflow.com/questions/51529332/puppeteer-scroll-down-until-you-cant-anymore
+// Scroll function adapted from nagy.zsolt.hun https://stackoverflow.com/questions/51529332/puppeteer-scroll-down-until-you-cant-anymore
 export async function scrollFunction(
 	page: Page,
 	maxScrollInterval: number,
-	debug?: CallableFunction
+	debug: CallableFunction
 ): Promise<any> {
-	if (debug) {
-		debug('running scroll function');
-	}
-
+	
+	debug('running scroll function');
 	return page.evaluate(
 		maxScrollInterval =>
 			new Promise(resolve => {
 				let scrollTop = -1;
 				const interval = setInterval(() => {
 					window.scrollBy(0, 100);
-					if (document.documentElement.scrollTop !== scrollTop) {
-						scrollTop = document.documentElement.scrollTop;
+					const getScrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
+					if (getScrollTop !== scrollTop) {
+						scrollTop = getScrollTop
 						return;
 					}
 
 					clearInterval(interval);
 					resolve();
+					
 				}, maxScrollInterval);
-			}),
+			}) as Promise<boolean>,
 		maxScrollInterval
 	);
+	
 }
+
+export async function isPageAbleToScroll(page:Page){
+	return await page.evaluate(()=>document.body.scrollHeight > document.body.clientHeight)
+
+}
+
+
 
 export function parseAllSettled(
 	data: Array<PromiseAllSettledRejected | PromiseAllSettledFulfilled>,
@@ -311,3 +319,254 @@ export function removeQuotes(text: string): string {
 
 	return text;
 }
+
+export function sleep(ms: number) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  		//@ts-ignore
+
+export function getSummary(model, startTime, endTime) {
+
+	let _aggregatedStatsKey = Symbol('aggregatedStats');
+  
+			//@ts-ignore
+
+	function buildRangeStats(model, startTime, endTime) {
+	  var aggregatedStats = {};
+  
+	  		//@ts-ignore
+
+	  function compareEndTime(value, task) {
+		return value < task.endTime() ? -1 : 1;
+	  }
+	  var mainThreadTasks = model.mainThreadTasks();
+	  var taskIndex = mainThreadTasks.lowerBound(startTime, compareEndTime);
+	  for (; taskIndex < mainThreadTasks.length; ++taskIndex) {
+		var task = mainThreadTasks[taskIndex];
+		if (task.startTime() > endTime)
+		  break;
+		if (task.startTime() > startTime && task.endTime() < endTime) {
+		  // cache stats for top-level entries that fit the range entirely.
+		  var taskStats = task[_aggregatedStatsKey];
+		  if (!taskStats) {
+			taskStats = {};
+			_collectAggregatedStatsForRecord(task, startTime, endTime, taskStats);
+			task[_aggregatedStatsKey] = taskStats;
+		  }
+		  for (var key in taskStats)
+		  		//@ts-ignore
+
+			aggregatedStats[key] = (aggregatedStats[key] || 0) + taskStats[key];
+		  continue;
+		}
+		_collectAggregatedStatsForRecord(task, startTime, endTime, aggregatedStats);
+	  }
+	  var aggregatedTotal = 0;
+	  for (var categoryName in aggregatedStats)
+	  		//@ts-ignore
+
+		aggregatedTotal += aggregatedStats[categoryName];
+				//@ts-ignore
+
+	  aggregatedStats['idle'] = Math.max(0, endTime - startTime - aggregatedTotal);
+  
+	  return aggregatedStats;
+	}
+
+			//@ts-ignore
+
+	function _collectAggregatedStatsForRecord(record, startTime, endTime, aggregatedStats) {
+		if (!record.endTime() || record.endTime() < startTime || record.startTime() > endTime)
+		  return;
+		var childrenTime = 0;
+		var children = record.children() || [];
+		for (var i = 0; i < children.length; ++i) {
+		  var child = children[i];
+		  if (!child.endTime() || child.endTime() < startTime || child.startTime() > endTime)
+			continue;
+		  childrenTime += Math.min(endTime, child.endTime()) - Math.max(startTime, child.startTime());
+		  _collectAggregatedStatsForRecord(child, startTime, endTime, aggregatedStats);
+		}
+		var categoryName = eventStyle(record.traceEvent()).category.name;
+		var ownTime = Math.min(endTime, record.endTime()) - Math.max(startTime, record.startTime()) - childrenTime;
+		aggregatedStats[categoryName] = (aggregatedStats[categoryName] || 0) + ownTime;
+	  }
+	
+	  class TimelineCategory {
+		name:string
+		title:string
+		visible:boolean
+		childColor:string
+		color:string
+		hidden:boolean
+		constructor(name:string, title:string, visible:boolean, childColor:string, color:string) {
+		  this.name = name;
+		  this.title = title;
+		  this.visible = visible;
+		  this.childColor = childColor;
+		  this.color = color;
+		  this.hidden = false;
+		}
+	  }
+	
+	  class TimelineRecordStyle  {
+		  title:string
+		  category:any
+		  hidden:boolean
+		constructor(title:string, category:any, hidden=false) {
+		  this.title = title;
+		  this.category = category;
+		  this.hidden = !!hidden;
+		}
+	  };
+	
+	  const Category = {
+		Console: 'blink.console',
+		UserTiming: 'blink.user_timing',
+		LatencyInfo: 'latencyInfo'
+	  };
+	
+	  const CATEGORIES = {
+		loading: new TimelineCategory('loading', 'Loading', true, 'hsl(214, 67%, 74%)', 'hsl(214, 67%, 66%)'),
+		scripting: new TimelineCategory('scripting', 'Scripting', true, 'hsl(43, 83%, 72%)', 'hsl(43, 83%, 64%) '),
+		rendering: new TimelineCategory('rendering', 'Rendering', true, 'hsl(256, 67%, 76%)', 'hsl(256, 67%, 70%)'),
+		painting: new TimelineCategory('painting', 'Painting', true, 'hsl(109, 33%, 64%)', 'hsl(109, 33%, 55%)'),
+		gpu: new TimelineCategory('gpu', 'GPU', false, 'hsl(109, 33%, 64%)', 'hsl(109, 33%, 55%)'),
+		other: new TimelineCategory('other', 'Other', false, 'hsl(0, 0%, 87%)', 'hsl(0, 0%, 79%)'),
+		idle: new TimelineCategory('idle', 'Idle', false, 'hsl(0, 100%, 100%)', 'hsl(0, 100%, 100%)')
+	  };
+	
+	  let EVENT_STYLES = {
+		Task: new TimelineRecordStyle('Task', CATEGORIES['other']),
+		Program: new TimelineRecordStyle('Other', CATEGORIES['other']),
+		Animation: new TimelineRecordStyle('Animation', CATEGORIES['rendering']),
+		EventDispatch: new TimelineRecordStyle('Event', CATEGORIES['scripting']),
+		RequestMainThreadFrame: new TimelineRecordStyle('Request Main Thread Frame', CATEGORIES['rendering'], true),
+		BeginFrame: new TimelineRecordStyle('Frame Start', CATEGORIES['rendering'], true),
+		BeginMainThreadFrame: new TimelineRecordStyle('Frame Start (main thread)', CATEGORIES['rendering'], true),
+		DrawFrame: new TimelineRecordStyle('Draw Frame', CATEGORIES['rendering'], true),
+		HitTest: new TimelineRecordStyle('Hit Test', CATEGORIES['rendering']),
+		ScheduleStyleRecalculation: new TimelineRecordStyle('Schedule Style Recalculation', CATEGORIES['rendering'], true),
+		RecalculateStyles: new TimelineRecordStyle('Recalculate Style', CATEGORIES['rendering']),
+		UpdateLayoutTree: new TimelineRecordStyle('Recalculate Style', CATEGORIES['rendering']),
+		InvalidateLayout: new TimelineRecordStyle('Invalidate Layout', CATEGORIES['rendering'], true),
+		Layout: new TimelineRecordStyle('Layout', CATEGORIES['rendering']),
+		PaintSetup: new TimelineRecordStyle('Paint Setup', CATEGORIES['painting']),
+		PaintImage: new TimelineRecordStyle('Paint Image', CATEGORIES['painting'], true),
+		UpdateLayer: new TimelineRecordStyle('Update Layer', CATEGORIES['painting'], true),
+		UpdateLayerTree: new TimelineRecordStyle('Update Layer Tree', CATEGORIES['rendering']),
+		Paint: new TimelineRecordStyle('Paint', CATEGORIES['painting']),
+		RasterTask: new TimelineRecordStyle('Rasterize Paint', CATEGORIES['painting']),
+		ScrollLayer: new TimelineRecordStyle('Scroll', CATEGORIES['rendering']),
+		CompositeLayers: new TimelineRecordStyle('Composite Layers', CATEGORIES['painting']),
+		ParseHTML: new TimelineRecordStyle('Parse HTML', CATEGORIES['loading']),
+		ParseAuthorStyleSheet: new TimelineRecordStyle('Parse Stylesheet', CATEGORIES['loading']),
+		TimerInstall: new TimelineRecordStyle('Install Timer', CATEGORIES['scripting']),
+		TimerRemove: new TimelineRecordStyle('Remove Timer', CATEGORIES['scripting']),
+		TimerFire: new TimelineRecordStyle('Timer Fired', CATEGORIES['scripting']),
+		XHRReadyStateChange: new TimelineRecordStyle('XHR Ready State Change', CATEGORIES['scripting']),
+		XHRLoad: new TimelineRecordStyle('XHR Load', CATEGORIES['scripting']),
+		['v8.compile']: new TimelineRecordStyle('Compile Script', CATEGORIES['scripting']),
+		EvaluateScript: new TimelineRecordStyle('Evaluate Script', CATEGORIES['scripting']),
+		['v8.parseOnBackground']: new TimelineRecordStyle('Parse Script', CATEGORIES['scripting']),
+		MarkLoad: new TimelineRecordStyle('Load event', CATEGORIES['scripting'], true),
+		MarkDOMContent: new TimelineRecordStyle('DOMContentLoaded event', CATEGORIES['scripting'], true),
+		MarkFirstPaint: new TimelineRecordStyle('First paint', CATEGORIES['painting'], true),
+		TimeStamp: new TimelineRecordStyle('Timestamp', CATEGORIES['scripting']),
+		ConsoleTime: new TimelineRecordStyle('Console Time', CATEGORIES['scripting']),
+		UserTiming: new TimelineRecordStyle('User Timing', CATEGORIES['scripting']),
+		ResourceSendRequest: new TimelineRecordStyle('Send Request', CATEGORIES['loading']),
+		ResourceReceiveResponse: new TimelineRecordStyle('Receive Response', CATEGORIES['loading']),
+		ResourceFinish: new TimelineRecordStyle('Finish Loading', CATEGORIES['loading']),
+		ResourceReceivedData: new TimelineRecordStyle('Receive Data', CATEGORIES['loading']),
+		RunMicrotasks: new TimelineRecordStyle('Run Microtasks', CATEGORIES['scripting']),
+		FunctionCall: new TimelineRecordStyle('Function Call', CATEGORIES['scripting']),
+		GCEvent: new TimelineRecordStyle('GC Event', CATEGORIES['scripting']),
+		MajorGC: new TimelineRecordStyle('Major GC', CATEGORIES['scripting']),
+		MinorGC: new TimelineRecordStyle('Minor GC', CATEGORIES['scripting']),
+		JSFrame: new TimelineRecordStyle('JS Frame', CATEGORIES['scripting']),
+		RequestAnimationFrame: new TimelineRecordStyle('Request Animation Frame', CATEGORIES['scripting']),
+		CancelAnimationFrame: new TimelineRecordStyle('Cancel Animation Frame', CATEGORIES['scripting']),
+		FireAnimationFrame: new TimelineRecordStyle('Animation Frame Fired', CATEGORIES['scripting']),
+		RequestIdleCallback: new TimelineRecordStyle('Request Idle Callback', CATEGORIES['scripting']),
+		CancelIdleCallback: new TimelineRecordStyle('Cancel Idle Callback', CATEGORIES['scripting']),
+		FireIdleCallback: new TimelineRecordStyle('Fire Idle Callback', CATEGORIES['scripting']),
+		WebSocketCreate: new TimelineRecordStyle('Create WebSocket', CATEGORIES['scripting']),
+		WebSocketSendHandshakeRequest: new TimelineRecordStyle('Send WebSocket Handshake', CATEGORIES['scripting']),
+		WebSocketReceiveHandshakeResponse: new TimelineRecordStyle('Receive WebSocket Handshake', CATEGORIES['scripting']),
+		WebSocketDestroy: new TimelineRecordStyle('Destroy WebSocket', CATEGORIES['scripting']),
+		EmbedderCallback: new TimelineRecordStyle('Embedder Callback', CATEGORIES['scripting']),
+		['Decode Image']: new TimelineRecordStyle('Image Decode', CATEGORIES['painting']),
+		['Resize Image']: new TimelineRecordStyle('Image Resize', CATEGORIES['painting']),
+		GPUTask: new TimelineRecordStyle('GPU', CATEGORIES['gpu']),
+		LatencyInfo: new TimelineRecordStyle('Input Latency', CATEGORIES['scripting']),
+		['ThreadState::performIdleLazySweep']: new TimelineRecordStyle('DOM GC', CATEGORIES['scripting']),
+		['ThreadState::completeSweep']: new TimelineRecordStyle('DOM GC', CATEGORIES['scripting']),
+		['BlinkGCMarking']: new TimelineRecordStyle('DOM GC', CATEGORIES['scripting']),
+	  };
+	
+	  function eventStyle(event:any) {
+		if (event.hasCategory(Category.Console) || event.hasCategory(Category.UserTiming)) {
+		  return { title: event.name, category: CATEGORIES['scripting'] };
+		}
+		if (event.hasCategory(Category.LatencyInfo)) {
+		  var prefix = 'InputLatency::';
+		  var inputEventType = event.name.startsWith(prefix) ? event.name.substr(prefix.length) : event.name;
+		  var displayName = 'foo';
+		  // FIXME: fix inputEventDisplayName below
+		  //var displayName = Timeline.TimelineUIUtils.inputEventDisplayName(
+		  //    /** @type {!TimelineModel.TimelineIRModel.InputEvents} */ (inputEventType));
+		  return { title: displayName || inputEventType, category: CATEGORIES['scripting'] };
+		}
+		//@ts-ignore
+		var result:any = EVENT_STYLES[event.name];
+		if (!result) {
+		  result = new TimelineRecordStyle(event.name, CATEGORIES['other'], true);
+		  		//@ts-ignore
+
+		  EVENT_STYLES[event.name] = result;
+		}
+		return result;
+	  }
+
+
+  return buildRangeStats(model, startTime, endTime);
+}
+
+//blynk diff repo https://github.com/yahoo/blink-diff - considering using power of rgb channels
+//AUDIT: ANIMATION, MEDIA ... STOPS WHEN TAB IS SWITCHED ported from https://dev.to/tetra2000/take-a-better-picture-with-puppeteer-2gkg
+/*export async function waitTillPageStoped(
+	page: Page,
+	interval: number = 200,
+	timeout: number = 3000,
+	fullPage: boolean = true,
+  ): Promise<boolean> {
+	const t0 = new Date().getTime();
+	let previousBuffer: Buffer;
+	while (new Date().getTime() - t0 < timeout) {
+	  await sleep(interval);
+  
+	  const currentBuffer: Buffer = Buffer.from(await page.screenshot({
+		encoding: "base64",
+		fullPage,
+	  }), "base64");
+	  if (previousBuffer == null) {
+		previousBuffer = currentBuffer;
+		continue;
+	  }
+  
+	  const diff = new BlinkDiff({ imageA: previousBuffer, imageB: currentBuffer });
+	  const result = await diff.runWithPromise();
+	  if (result.differences === 0) {
+		return true;
+	  }
+  
+	  previousBuffer = currentBuffer;
+	}
+  
+	throw new Error("Timeouted!!");
+  }
+*/
+
+

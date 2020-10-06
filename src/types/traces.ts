@@ -1,3 +1,5 @@
+import { Cookie } from "puppeteer";
+
 export interface Format {
 	uid: string;
 	url: string;
@@ -26,6 +28,14 @@ export interface Traces {
 	failed: FailedRequest[];
 	redirect: RedirectResponse[];
 	lazyImages: string[];
+	screenshot:ScreenShotFormat;
+	animations:AnimationsFormat[]
+	cookies:Cookie[]
+}
+
+export interface AnimationsFormat{
+	initSummary:any
+	endSummary:any
 }
 
 export interface MediaTrace {
@@ -55,6 +65,17 @@ export interface GHOutput {
 	[key: string]: FontInformation;
 }
 
+export interface ScreenShotFormat{
+	power:number
+	hasDarkMode:Boolean
+}
+
+
+export interface RGBPowerFormat{
+	r:number
+	g:number
+	b:number
+}
 export interface FontInformation {
 	glyphs: string[];
 	weights: number[];
@@ -111,13 +132,14 @@ export interface StyleInfo {
 }
 
 export interface Stylesheets {
-	href: string;
+	src: string;
 	attr: string[];
 }
 
 export interface InlineStyles {
-	href: string;
+	src: string;
 	text: string;
+	size: number;
 }
 
 export interface JsTrace {
@@ -137,6 +159,7 @@ export interface Scriptfiles {
 export interface InlineScripts {
 	src: string;
 	text: string;
+	size:number;
 }
 
 export interface Record {
@@ -252,6 +275,10 @@ export interface CollectConsoleTraces {
 	console: ConsoleMessageFormat[];
 }
 
+export interface CollectScreenShotTraces {
+	screenshot: ScreenShotFormat;
+}
+
 export interface CollectFailedTransferTraces {
 	failed: FailedRequest[];
 }
@@ -282,4 +309,12 @@ export interface CollectTransferTraces {
 
 export interface CollectLazyImagesTraces {
 	lazyImages: string[];
+}
+
+export interface CollectAnimationsTraces{
+	animations:AnimationsFormat[]
+}
+
+export interface CollectCookiesTraces{
+	cookies:Cookie[]
 }

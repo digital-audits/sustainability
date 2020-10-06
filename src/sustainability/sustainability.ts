@@ -58,15 +58,12 @@ export default class Sustainability {
 			pageContextRaw,
 			settings?.connectionSettings
 		);
-
 		const pageContext = {...pageContextRaw, page};
-
 		// @ts-ignore allSettled lacks typescript support
 		const results = await Promise.allSettled([
 			Commander.navigate(pageContext),
 			Commander.asyncEvaluate(pageContext)
 		]);
-
 		const resultsParsed = util.parseAllSettled(results, true);
 		const audits = util.groupAudits(resultsParsed);
 		const globalScore = util.computeScore(audits);

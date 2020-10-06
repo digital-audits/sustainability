@@ -110,13 +110,14 @@ export default class CollectAssets extends Collect {
 				Array.from(document.querySelectorAll('link, style, script')).forEach(
 					(element: any) => {
 						if (isStylesheetLink(element)) {
-							const href = defragment(element.href);
+							const src = defragment(element.href);
 							const attr = getElementAttributes(element);
-							styleHrefs.push({href, attr});
+							styleHrefs.push({src, attr});
 						} else if (isCssStyleTag(element)) {
-							const href = styleTagUri();
+							const src = styleTagUri();
 							const text = element.innerHTML;
-							styles.push({href, text});
+							const size = encodeURIComponent(text).replace(/%../g, 'x').length
+							styles.push({src, text, size});
 						} else if (isJsScriptTag(element)) {
 							// Script loaded-type
 							if (element.src) {
@@ -128,7 +129,8 @@ export default class CollectAssets extends Collect {
 							else if (element.innerHTML) {
 								const text = element.innerHTML;
 								const src = scriptTagUri();
-								scripts.push({src, text});
+								const size = encodeURIComponent(text).replace(/%../g, 'x').length
+								scripts.push({src, text, size});
 							}
 						}
 					}

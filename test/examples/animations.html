@@ -1,0 +1,96 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animations Collector</title>
+    <style>
+        #particles-js{ position:absolute; width: 100%; height: 100%; background-color: #b61924; background-image: url(""); background-repeat: no-repeat; background-size: cover; background-position: 50% 50%; } 
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+
+    <script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS.load("particles-js","particles.json", ()=>{
+            console.log('particles loaded')
+        })
+
+        let hidden, visibilityChange; 
+        if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
+        hidden = "hidden";
+        visibilityChange = "visibilitychange";
+        } else if (typeof document.msHidden !== "undefined") {
+        hidden = "msHidden";
+        visibilityChange = "msvisibilitychange";
+        } else if (typeof document.webkitHidden !== "undefined") {
+        hidden = "webkitHidden";
+        visibilityChange = "webkitvisibilitychange";
+}
+
+        const el = document.getElementById('particles-js')
+        function handleVisibilityChange() {
+            if (document[hidden]) {
+                console.log('removing particles...')
+               // el.style.display = 'none'
+                /*cancelRequestAnimFrame(pJSDom[0].pJS.fn.checkAnimFrame);
+                cancelRequestAnimFrame(pJSDom[0].pJS.fn.drawAnimFrame);
+                pJSDom[0].pJS.fn.particlesEmpty();
+                pJSDom[0].pJS.fn.canvasClear();
+                */
+            } else {
+                console.log('showing back particles ...')
+                //el.style.display = 'block'
+                //pJSDom[0].pJS.fn.vendors.start();
+            }
+        }
+        if (typeof document.addEventListener === "undefined" || hidden === undefined) {
+        console.log("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.");
+    } else {
+    // Handle page visibility change   
+    document.addEventListener(visibilityChange, handleVisibilityChange, false); 
+    }
+
+
+    </script>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Battery Status API Example</title>
+  <script>
+    window.onload = function () {
+      function updateBatteryStatus(battery) {
+        document.querySelector('#charging').textContent = battery.charging ? 'charging' : 'not charging';
+        document.querySelector('#level').textContent = battery.level;
+        document.querySelector('#dischargingTime').textContent = battery.dischargingTime / 60;
+      }
+
+      navigator.getBattery().then(function(battery) {
+        // Update the battery status initially when the promise resolves ...
+        updateBatteryStatus(battery);
+
+        // .. and for any subsequent updates.
+        battery.onchargingchange = function () {
+          updateBatteryStatus(battery);
+        };
+
+        battery.onlevelchange = function () {
+          updateBatteryStatus(battery);
+        };
+
+        battery.ondischargingtimechange = function () {
+          updateBatteryStatus(battery);
+        };
+      });
+    };
+  </script>
+</head>
+<body>
+  <div id="charging">(charging state unknown)</div>
+  <div id="level">(battery level unknown)</div>
+  <div id="dischargingTime">(discharging time unknown)</div>
+</body>
+</html>
+</body>
+</html>

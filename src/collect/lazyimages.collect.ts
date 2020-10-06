@@ -5,6 +5,7 @@ import {CollectorsIds} from '../types/audit';
 import {PageContext} from '../types';
 import {CollectLazyImagesTraces} from '../types/traces';
 import {Request} from 'puppeteer';
+import { DEFAULT } from '../settings/settings';
 
 export default class CollectLazyImages extends Collect {
 	collectId: CollectorsIds = 'transfercollect';
@@ -18,7 +19,16 @@ export default class CollectLazyImages extends Collect {
 	): Promise<CollectLazyImagesTraces | undefined> {
 		try {
 			const debug = util.debugGenerator('Lazy images collect');
-			const {page} = pageContext;
+			const {page} = pageContext
+			await util.safeNavigateTimeout(
+				page,
+				'networkidle0',
+				settings.maxNavigationTime,
+				debug
+			);
+			if(!await util.isPageAbleToScroll(page)){
+				throw new Error('Page is unable to scroll')
+			}
 			const lazyImages: string[] = [];
 			const requestListener = () => {
 				page.on('requestfinished', (request: Request) => {
@@ -28,15 +38,15 @@ export default class CollectLazyImages extends Collect {
 				});
 			};
 
-			await util.safeNavigateTimeout(
-				page,
-				'networkidle0',
-				settings.maxNavigationTime,
-				debug
-			);
 
 			requestListener();
-			await util.scrollFunction(page, settings.maxScrollInterval, debug);
+			await Promise.race([
+				util.scrollFunction(page, settings.maxScrollInterval, debug),
+				new Promise((resolve)=>setTimeout(()=>resolve(), DEFAULT.CONNECTION_SETTINGS.maxScrollWaitingTime))
+
+			])
+
+			page.emit('scrollFinished')
 			debug('done scrolling');
 			page.removeAllListeners('requestfinished');
 			debug('done');

@@ -34,10 +34,14 @@ export default class UsesWebpImageFormatAudit extends Audit {
 			debug('running');
 			const auditUrls = new Set<string>();
 			// @ts-ignore flatMap
-			const mediaImages: string[] = traces.media.images.flatMap(img =>
+			let mediaImages: string[] = traces.media.images.flatMap(img =>
 				img.src ? [img.src] : []
 			);
-			mediaImages.concat(traces.lazyImages).filter(url => {
+
+			if(traces.lazyImages){
+				mediaImages= [...mediaImages, ...traces.lazyImages]
+			}
+			mediaImages.filter(url => {
 				if (auditUrls.has(url)) return false;
 				if (url.startsWith('data:')) {
 					auditUrls.add(url.slice(0, 15));

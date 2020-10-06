@@ -15,13 +15,16 @@ import {ConnectionSettingsPrivate} from '../../src/types/settings';
 import {
 	CollectImagesTraces,
 	CollectTransferTraces,
-	CollectSubfontsTraces
+	CollectSubfontsTraces,
+	CollectCookiesTraces
 } from '../../src/types/traces';
 import CollectRedirect from '../../src/collect/redirect.collect';
 import CollectImages from '../../src/collect/images.collect';
 import CollectLazyImages from '../../src/collect/lazyimages.collect';
 import CollectTransfer from '../../src/collect/transfer.collect';
 import CollectSubfont from '../../src/collect/subfont.collect';
+import CollectAnimations from '../../src/collect/animations.collect';
+import CollectCookies from '../../src/collect/cookies.collect';
 
 const server: fastify.FastifyInstance<
 	Server,
@@ -77,23 +80,28 @@ const navigateAndReturnAssets = async <
 	collector: T,
 	url?: string
 ): Promise<ReturnType<T> | undefined> => {
+	const pageContext = await createPageContext(path, url);
+	const {page} = pageContext
 	try {
-		const pageContext = await createPageContext(path, url);
 		const promises = await Promise.all([
 			navigate(pageContext),
 			collector(pageContext, defaultConnectionSettings)
-		]);
+			]);
 
 		return promises[1];
 	} catch (error) {
 		console.log(error);
 		return undefined;
 	}
+	finally{
+		await page.close()
+	}
 };
 
 beforeAll(async () => {
 	await server.listen(3333);
 	browser = await puppeteer.launch({
+		headless:false,
 		args: ['--no-sandbox', '--disable-setuid-sandbox']
 	});
 });
@@ -285,3 +293,27 @@ describe('Subfont collector', () => {
 		expect(assets?.fonts[0].value.styles).toEqual(['italic']);
 	});
 });
+
+describe.only('Cookies collector', ()=>{
+	let assets:CollectCookiesTraces | undefined;
+	beforeAll(async () => {
+		const path = 'cookies';
+		assets = await navigateAndReturnAssets(path, CollectCookies.collect);
+	});
+
+	it('works',()=>{
+		expect(assets?.cookies).toEqual([{
+			name:'fav', 
+			value:'true', 
+			domain:'localhost',
+			expires:-1,
+			httpOnly:false,
+			path:'/',
+			secure:false,
+			session:true,
+			size:7
+		}])
+	})
+	
+
+})

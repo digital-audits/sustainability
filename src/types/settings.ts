@@ -31,6 +31,7 @@ export interface ConnectionSettings {
 export interface ConnectionSettingsPrivate {
 	maxNavigationTime: number;
 	maxScrollInterval: number;
+	maxScrollWaitingTime: number;
 	emulatedDevice: EmulatedDevice;
 	location: EmulatedLocation;
 	maxThrottle: number;
