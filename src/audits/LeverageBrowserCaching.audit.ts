@@ -27,7 +27,7 @@ export default class LeverageBrowserCachingAudit extends Audit {
 
 	// @ts-ignore
 	static audit(traces: Traces): Result {
-		const debug = util.debugGenerator('UsesWebPImageFormat Audit');
+		const debug = util.debugGenerator('LeverageBrowserCaching Audit');
 		debug('running');
 		const results: any = [];
 		let totalWastedBytes = 0;
@@ -35,6 +35,7 @@ export default class LeverageBrowserCachingAudit extends Audit {
 		// @ts-ignore
 		traces.record.filter(r => {
 			const recordUrl = r.request.url;
+			const resourceType = r.request.resourceType;
 			if (!hosts.includes(recordUrl.hostname)) return false;
 			if (!util.isCacheableAsset(r)) return false;
 			const responseHeaders = r.response.headers;
@@ -64,7 +65,8 @@ export default class LeverageBrowserCachingAudit extends Audit {
 			totalWastedBytes += wastedBytes;
 
 			results.push({
-				recordUrl,
+				name: util.getUrlLastSegment(recordUrl.toString()).split('?')[0],
+				resourceType,
 				cache: cacheControl,
 				cacheHitProbability: cacheHitProb,
 				totalBytes,
@@ -80,7 +82,7 @@ export default class LeverageBrowserCachingAudit extends Audit {
 			LeverageBrowserCachingAudit.meta,
 			score
 		);
-
+		debug('done');
 		return {
 			meta,
 			score,

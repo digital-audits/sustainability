@@ -23,6 +23,7 @@ export interface Traces {
 	record: Record[];
 	console: ConsoleMessageFormat[];
 	performance: PerformanceFormat;
+	robots: RobotsFormat;
 	fonts: SubfontFormat[];
 	media: MediaTrace;
 	failed: FailedRequest[];
@@ -31,6 +32,7 @@ export interface Traces {
 	screenshot: ScreenShotFormat;
 	animations: AnimationsFormat[];
 	cookies: Cookie[];
+	metatag: MetaTagFormat[];
 }
 
 export interface AnimationsFormat {
@@ -45,6 +47,19 @@ export interface MediaTrace {
 
 export interface MediaFormat {
 	[key: string]: string | boolean;
+}
+
+export interface RobotsFormat {
+	agents: {
+		[key: string]: {
+			allow: string[];
+			disallow: string[];
+		};
+	};
+	allow: string[];
+	disallow: string[];
+	sitemaps: string[];
+	host: string;
 }
 
 export interface ConsoleMessageFormat {
@@ -85,6 +100,14 @@ export interface FontInformation {
 	glyphs: string[];
 	weights: number[];
 	styles: string[];
+}
+
+export interface MetaTag {
+	[key: string]: string;
+}
+
+export interface MetaTagFormat {
+	attr: MetaTag[];
 }
 
 export interface Metrics {
@@ -322,4 +345,12 @@ export interface CollectAnimationsTraces {
 
 export interface CollectCookiesTraces {
 	cookies: Cookie[];
+}
+
+export interface CollectRobotsTraces {
+	robots: RobotsFormat;
+}
+
+export interface CollectMetaTagsTraces {
+	metatag: MetaTagFormat[];
 }

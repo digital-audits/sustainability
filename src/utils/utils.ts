@@ -192,6 +192,36 @@ const isGreenServer = async (
 
 export const isGreenServerMem = memoizee(isGreenServer, {async: true});
 
+export async function fetchRobots(
+	hostname: string,
+	secure = false
+): Promise<string> {
+	const controller = new AbortController();
+	const timeout = setTimeout(() => {
+		controller.abort();
+	}, DEFAULT.CONNECTION_SETTINGS.maxThrottle + 15000);
+	const url = `http${secure ? 's' : ''}://${hostname}/robots.txt`;
+	try {
+		const response = await fetch(url, {
+			signal: controller.signal,
+			redirect: 'follow'
+		});
+
+		if (!response.ok) {
+			throw new Error(`${response.statusText}`);
+		}
+
+		const responseText = await response.text();
+
+		return responseText;
+	} catch (error) {
+		log(`Error: Failed to fetch robots.txt ${error.message} ${url}`);
+		return await new Promise(resolve => resolve(undefined));
+	} finally {
+		clearTimeout(timeout);
+	}
+}
+
 export async function safeNavigateTimeout(
 	page: Page,
 	waitUntil: LoadEvent,
@@ -428,6 +458,15 @@ export function shouldSkipRecord(headers: Headers, cacheControl: any) {
 	}
 
 	return false;
+}
+
+export function getUrlLastSegment(url: string) {
+	return (
+		url
+			.split('/')
+			.filter(Boolean)
+			.pop() ?? url
+	);
 }
 
 /**

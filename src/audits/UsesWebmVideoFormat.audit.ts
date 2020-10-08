@@ -17,7 +17,7 @@ export default class UsesWebmVideoFormatAudit extends Audit {
 	}
 
 	static audit(traces: Traces): Result | SkipResult {
-		const debug = util.debugGenerator('UsesWebMImageFormat Audit');
+		const debug = util.debugGenerator('UsesWebMVideoFormat Audit');
 		const isAuditApplicable = (): boolean => {
 			if (!traces.media.videos.length) return false;
 			return true;

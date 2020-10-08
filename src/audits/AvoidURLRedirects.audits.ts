@@ -34,6 +34,7 @@ export default class AvoidURLRedirectsAudit extends Audit {
 
 		const score = Number(redirects.length === 0);
 		const meta = util.successOrFailureMeta(AvoidURLRedirectsAudit.meta, score);
+		debug('done');
 		return {
 			meta,
 			score,

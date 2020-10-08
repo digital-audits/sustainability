@@ -22,14 +22,11 @@ export default class UsesLazyLoadingAudit extends Audit {
 
 	static audit(traces: Traces): Result | SkipResult {
 		const debug = util.debugGenerator('UsesLazyLoading Audit');
-		const lazyMedia = [
-			...traces?.lazyMedia.lazyImages,
-			...traces?.lazyMedia.lazyVideos
-		];
-		const nonLazyMedia = [...traces?.media.images, ...traces?.media.videos];
+
 		const isAuditApplicable = (): boolean => {
 			if (!traces.lazyMedia) return false;
-			if (!nonLazyMedia.length) return false;
+			if (!traces.media) return false;
+			const nonLazyMedia = [...traces.media.images, ...traces.media.videos];
 			if (!nonLazyMedia.some(media => !media.isVisible)) return false;
 
 			return true;
@@ -37,6 +34,10 @@ export default class UsesLazyLoadingAudit extends Audit {
 
 		if (isAuditApplicable()) {
 			debug('running');
+			const lazyMedia = [
+				...traces.lazyMedia.lazyImages,
+				...traces.lazyMedia.lazyVideos
+			];
 			const score = Number(lazyMedia.length > 0);
 			const meta = util.successOrFailureMeta(UsesLazyLoadingAudit.meta, score);
 			debug('done');

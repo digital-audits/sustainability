@@ -93,7 +93,7 @@ export default class CollectAssets extends Collect {
 				const styleTagUri = () => `${pageUrl}#style[${styles.length}]`;
 				const scriptTagUri = () => `${pageUrl}#script[${scripts.length}]`;
 
-				const getElementAttributes = (element: any) =>
+				const getElementAttributes = (element: HTMLElement) =>
 					element.getAttributeNames().map((attr: string) => {
 						const attrObject: any = {};
 						// We don't need href attr as we have already collected them
