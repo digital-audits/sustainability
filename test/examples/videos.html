@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            overflow: scroll;
+            margin:0;
+            padding:0;
+            height:150%;
+        }
+
+        .container{
+            position: absolute;
+            top:150%
+        }
+    </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', ()=>{
+    const lazyVideoEl = document.querySelector('.lazy')
+
+    if('IntersectionObserver' in window) {
+
+    const intersectHandler = (entries)=>{
+        entries.forEach((video)=> {
+        if (video.isIntersecting) {
+           
+        for (let source in video.target.children) {
+                const videoSource = video.target.children[source];
+            if (typeof videoSource.tagName === "string" && videoSource.tagName === "SOURCE") {
+            videoSource.src = videoSource.dataset.src;
+            }
+        }
+        video.target.load();
+        video.target.classList.remove("lazy");
+        lazyVideoObserver.unobserve(video.target);
+        }
+    })
+    }
+    const lazyVideoObserver = new IntersectionObserver(intersectHandler);
+    lazyVideoObserver.observe(lazyVideoEl);
+    }
+    })
+
+</script>
+    
+    
+</head>
+<body>
+    <div class="container">
+    <video class="lazy" controls>
+        <source data-src="small.webm" type="video/webm">
+        <source data-src="small.mp4" type="video/mp4">
+    </video>
+    </div>
+
+    
+
+    
+</body>
+</html>

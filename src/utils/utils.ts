@@ -76,7 +76,23 @@ export async function scrollFunction(
 
 export async function isPageAbleToScroll(page: Page) {
 	return page.evaluate(
-		() => document.body.scrollHeight > document.body.clientHeight
+		() => {
+			const initialTopValue = window.pageYOffset ||
+			document.documentElement.scrollTop ||
+			document.body.scrollTop;
+
+			window.scrollBy(0,100)
+			const finalTopValue = window.pageYOffset ||
+			document.documentElement.scrollTop ||
+			document.body.scrollTop;
+
+			if(finalTopValue !== initialTopValue){
+				window.scrollBy(0, -100)
+				return true
+			}
+
+			return false
+		}
 	);
 }
 

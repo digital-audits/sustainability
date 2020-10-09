@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            display: flex; height: 100%; flex-direction: column; position: fixed;
+        }
+
+        header{
+            display:block; background-color: blue
+        }
+
+        main{
+            flex: 1; overflow-y:scroll
+        }
+    </style>
+    
+</head>
+<body>
+    <header>HEADER<br/>------------
+    </header>
+    <main>
+        CONTENT - START<br/>
+        <script>
+        for (var i=0 ; i<1000 ; ++i) {
+          document.write(" Very long content!");
+        }
+        </script>
+        <br/>CONTENT - END
+    </main>
+  </body>
+</html>

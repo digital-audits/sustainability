@@ -13,14 +13,15 @@ import CollectConsole from '../../src/collect/console.collect';
 import CollectFailedTransfers from '../../src/collect/failed-transfer.collect';
 import {ConnectionSettingsPrivate} from '../../src/types/settings';
 import {
-	CollectImagesTraces,
+	CollectMediaTraces,
 	CollectTransferTraces,
 	CollectSubfontsTraces,
-	CollectCookiesTraces
+	CollectCookiesTraces,
+	CollectLazyMediaTraces
 } from '../../src/types/traces';
 import CollectRedirect from '../../src/collect/redirect.collect';
-import CollectImages from '../../src/collect/images.collect';
-import CollectLazyImages from '../../src/collect/lazyimages.collect';
+import CollectMedia from '../../src/collect/media.collect';
+import CollectLazyMedia from '../../src/collect/lazymedia.collect';
 import CollectTransfer from '../../src/collect/transfer.collect';
 import CollectSubfont from '../../src/collect/subfont.collect';
 import CollectAnimations from '../../src/collect/animations.collect';
@@ -101,7 +102,7 @@ const navigateAndReturnAssets = async <
 beforeAll(async () => {
 	await server.listen(3333);
 	browser = await puppeteer.launch({
-		headless:false,
+		headless:true,
 		args: ['--no-sandbox', '--disable-setuid-sandbox']
 	});
 });
@@ -138,29 +139,19 @@ describe('Assets collector', () => {
 			`body{background-color: green}`
 		);
 	});
+	it('collects inline assets file size', async()=>{
+		const path = 'inlinecss'
+		const assets = await navigateAndReturnAssets(path, CollectAssets.collect);
+		const cssInlineStyle = assets?.css.info.styles[0]
+		if(cssInlineStyle){
+			const assetSize = encodeURIComponent(cssInlineStyle.text).replace(/%../g, 'x').length
+			expect(cssInlineStyle?.size).toEqual(assetSize)
+		}
+		
+	})
 });
 
-describe('Console collector', () => {
-	it('collects log console messages (multiple)', async () => {
-		const path = 'externaljs';
-		const assets = await navigateAndReturnAssets(path, CollectConsole.collect);
-		expect(assets?.console.length).toBeGreaterThan(2);
-		expect(assets?.console[0].text).toMatch(
-			'One day this shall be a digital sustainability standard'
-		);
-		expect(assets?.console[0].type).toBe('log');
-	});
-	it('collects warning console messages', async () => {
-		const path = 'externaljs';
-		const assets = await navigateAndReturnAssets(path, CollectConsole.collect);
-		expect(assets?.console[1].type).toBe('warning');
-	});
-	it('collects error console messages', async () => {
-		const path = 'externaljs';
-		const assets = await navigateAndReturnAssets(path, CollectConsole.collect);
-		expect(assets?.console[2].type).toBe('error');
-	});
-});
+
 
 describe('Failed transfer collector', () => {
 	it('collects failed requests', async () => {
@@ -192,13 +183,13 @@ describe('Redirect collector', () => {
 	});
 });
 
-describe('Images collector', () => {
-	let assets: CollectImagesTraces | undefined;
+describe('Media collector', () => {
+	let assets: CollectMediaTraces | undefined;
 	beforeAll(async () => {
 		const path = 'images';
-		assets = await navigateAndReturnAssets(path, CollectImages.collect);
+		assets = await navigateAndReturnAssets(path, CollectMedia.collect);
 	});
-	it('collects images', () => {
+	it('collects media', () => {
 		expect(assets?.media.images.length).toEqual(15);
 	});
 
@@ -222,29 +213,42 @@ describe('Images collector', () => {
 	});
 });
 
-describe('Lazy images collector', () => {
-	it('collects lazy loaded images', async () => {
+describe('Lazy media collector', () => {
+	it('collects lazy loaded images with page being able to scroll', async () => {
 		const path = 'images';
-		const assets = await navigateAndReturnAssets(
+		const assets:CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(
 			path,
-			CollectLazyImages.collect
+			CollectLazyMedia.collect
 		);
-		expect(assets?.lazyImages.length).toBe(6);
+		expect(assets?.lazyMedia.lazyImages.length).toBe(6);
 	});
+	it('collects lazy loaded videos with page being able to scroll', async ()=>{
+		const path='videos'
+		const assets:CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(
+			path,
+			CollectLazyMedia.collect
+		);
+
+		expect(assets?.lazyMedia.lazyVideos.length).toBeGreaterThanOrEqual(1)
+	})
+	it('returns undefined with pages unable to scroll', async ()=>{
+		const path='unable-to-scroll'
+		const assets:CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(
+			path,
+			CollectLazyMedia.collect
+		);
+
+		expect(assets?.lazyMedia).toBe(undefined)
+	})
 });
 
 describe('Transfer collector', () => {
 	let assets: CollectTransferTraces | undefined;
-	const spy = jest.spyOn(util, 'log');
 
 	beforeAll(async () => {
 		const path = 'transfer';
 		assets = await navigateAndReturnAssets(path, CollectTransfer.collect);
 	});
-	afterAll(() => {
-		spy.mockRestore();
-	});
-
 	it('collects request object', async () => {
 		expect(Object.keys(assets?.record[0].request!)).toEqual([
 			'requestId',
@@ -270,9 +274,6 @@ describe('Transfer collector', () => {
 	it('collects cdp object', () => {
 		expect(Object.keys(assets?.record[0].CDP!)).toEqual(['compressedSize']);
 	});
-	it('logs error at redirect response', () => {
-		expect(spy).toHaveBeenCalledTimes(1);
-	});
 });
 
 describe('Subfont collector', () => {
@@ -294,7 +295,7 @@ describe('Subfont collector', () => {
 	});
 });
 
-describe.only('Cookies collector', ()=>{
+describe('Cookies collector', ()=>{
 	let assets:CollectCookiesTraces | undefined;
 	beforeAll(async () => {
 		const path = 'cookies';

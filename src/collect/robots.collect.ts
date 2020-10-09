@@ -88,6 +88,8 @@ export default class CollectRobots extends Collect {
 				}
 			});
 
+			debug('done')
+
 			return {
 				robots: results
 			};
