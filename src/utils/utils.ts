@@ -485,6 +485,15 @@ export function getUrlLastSegment(url: string) {
 	);
 }
 
+export function str2ab(str:string):ArrayBuffer {
+	var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
+	var bufView = new Uint16Array(buf);
+	for (var i = 0, strLen = str.length; i < strLen; i++) {
+	  bufView[i] = str.charCodeAt(i);
+	}
+	return buf;
+  }
+
 /**
  * 
  * All this is to obtain summary from traces, commented out at the moment
@@ -701,5 +710,26 @@ export function getSummary(model, startTime, endTime) {
 
 
   return buildRangeStats(model, startTime, endTime);
+}
+*/
+
+//COMPRESS UPLOAD FILES
+
+/*
+async function readStream() {
+const inputReadableStream = file.files[0].stream()
+const compressedReadableStream
+= inputReadableStream.pipeThrough(new CompressionStream('gzip'));
+const reader = compressedReadableStream.getReader() 
+let totalSize = 0;
+while (true) {
+const { value, done } = await reader.read();
+if (done)
+break;
+totalSize += value.byteLength;
+}
+
+return totalSize
+
 }
 */

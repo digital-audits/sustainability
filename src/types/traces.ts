@@ -254,6 +254,7 @@ export interface Response {
 	fromServiceWorker: boolean;
 	headers: Headers;
 	uncompressedSize: ByteFormat;
+	gzipSize: ByteFormat;
 	timestamp: number;
 }
 
