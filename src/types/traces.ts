@@ -30,14 +30,18 @@ export interface Traces {
 	redirect: RedirectResponse[];
 	lazyMedia: LazyMediaFormat;
 	screenshot: ScreenShotFormat;
-	animations: AnimationsFormat[];
+	animations: AnimationsFormat;
 	cookies: Cookie[];
 	metatag: MetaTagFormat[];
 }
 
 export interface AnimationsFormat {
-	initSummary: any;
-	endSummary: any;
+	notReactive: SingleAnimationFormat[];
+}
+export interface SingleAnimationFormat {
+	name: string;
+	type: string;
+	selector: string;
 }
 
 export interface MediaTrace {
@@ -341,7 +345,7 @@ export interface CollectLazyMediaTraces {
 }
 
 export interface CollectAnimationsTraces {
-	animations: AnimationsFormat[];
+	animations: AnimationsFormat | undefined;
 }
 
 export interface CollectCookiesTraces {

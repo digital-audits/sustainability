@@ -26,6 +26,8 @@ import AvoidURLRedirectsAudit from '../audits/AvoidURLRedirects.audits';
 import CollectRobots from '../collect/robots.collect';
 import CollectMetaTags from '../collect/meta-tag.collect';
 import AvoidableBotTrafficAudit from '../audits/AvoidableBotTraffic.audit';
+import CollectAnimations from '../collect/animations.collect';
+import ReactiveAnimationsAudit from '../audits/ReactiveAnimations.audit';
 
 export const DEFAULT: DefaultSettings = {
 	LAUNCH_SETTINGS: {
@@ -74,7 +76,7 @@ export const DEFAULT: DefaultSettings = {
 			CollectLazyMedia,
 			CollectScreenshot,
 			CollectCookies,
-			// CollectAnimations,
+			CollectAnimations,
 			CollectRobots,
 			CollectMetaTags
 		],
@@ -94,7 +96,8 @@ export const DEFAULT: DefaultSettings = {
 			LeverageBrowserCachingAudit,
 			UsesWebmVideoFormatAudit,
 			AvoidURLRedirectsAudit,
-			AvoidableBotTrafficAudit
+			AvoidableBotTrafficAudit,
+			ReactiveAnimationsAudit
 		]
 	},
 	REPORT: {

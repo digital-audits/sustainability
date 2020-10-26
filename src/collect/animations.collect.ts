@@ -3,8 +3,10 @@ import {ConnectionSettingsPrivate} from '../types/settings';
 import * as util from '../utils/utils';
 import {CollectorsIds} from '../types/audit';
 import {PageContext} from '../types';
-import {AnimationsFormat, CollectAnimationsTraces} from '../types/traces';
-const TraceToTimelineModel = require('devtools-timeline-model');
+import {CollectAnimationsTraces, SingleAnimationFormat} from '../types/traces';
+import {ElementHandle} from 'puppeteer';
+import {DEFAULT} from '../settings/settings';
+// Const TraceToTimelineModel = require('devtools-timeline-model');
 
 /**
  * @overview: Get CSSTransitions/CSSAnimations, stuff that requires CPU process and see if they are stoped when tab is switched
@@ -26,27 +28,91 @@ export default class CollectAnimations extends Collect {
 			const debug = util.debugGenerator('Animations collect');
 			debug('running');
 			const {page} = pageContext;
+
+			const client = await page.target().createCDPSession();
+			await client.send('Animation.enable');
+			await client.send('DOM.enable');
+			const animations: Map<string, any> = new Map();
+			const getClassOrIdName = (nodeAttributes: any, type: string) => {
+				const classNameIndex = nodeAttributes.findIndex(
+					(attr: any) => attr === type
+				);
+				const className =
+					classNameIndex > -1
+						? nodeAttributes[classNameIndex + 1].split(' ')[0]
+						: undefined;
+				return className;
+			};
+
+			const reactiveAnimationsSet = new Set<string>();
+			client.on('Animation.animationCanceled', data => {
+				reactiveAnimationsSet.add(data.id);
+			});
+
+			client.on('Animation.animationStarted', async data => {
+				const backendNodeId = data.animation.source.backendNodeId;
+				const nodeInfo: any = await client.send('DOM.describeNode', {
+					backendNodeId
+				});
+				const nodeAttributes = nodeInfo.node.attributes;
+				const classname = getClassOrIdName(nodeAttributes, 'class');
+				const idname = getClassOrIdName(nodeAttributes, 'id');
+				if (classname || idname) {
+					data.animation.meta = {classname, idname};
+					animations.set(data.animation.id, data.animation);
+				}
+			});
+			const notReactiveAnimations: SingleAnimationFormat[] = [];
+			const notReactiveAnimationsSet = new Set<string>();
+			// Todo test when switching tabs
+			const hasAnimations = await new Promise((resolve, reject) => {
+				// @ts-ignore scrollFinished (custom event)
+				page.on('scrollFinished', () => {
+					try {
+						const animationsArray = Array.from(animations.entries());
+						if (!animationsArray.length) {
+							throw new Error('No animations found');
+						}
+
+						const reactiveAnimationArray = Array.from(
+							reactiveAnimationsSet.values()
+						);
+						animationsArray.filter(animation => {
+							const data = animation[1];
+							const id = animation[0];
+							if (reactiveAnimationArray.includes(id)) return true;
+							const {classname, idname} = data.meta;
+							if (!notReactiveAnimationsSet.has(data.name)) {
+								notReactiveAnimations.push({
+									name: data.name,
+									type: data.type,
+									selector: classname ? classname : idname
+								});
+								notReactiveAnimationsSet.add(data.name);
+							}
+
+							return false;
+						});
+						resolve(true);
+					} catch (error) {
+						util.log(`Error: Animations collect failed with message: ${error}`);
+						reject(false);
+					}
+				});
+			});
+
+			return {
+				animations: hasAnimations
+					? {notReactive: notReactiveAnimations}
+					: undefined
+			};
+
 			/*
-Const client = await page.target().createCDPSession();
-await client.send('Animation.enable');
-await client.send('DOM.enable')
-const animations: Array<any>= []
-client.on('Animation.animationStarted',async (data) =>{
-	const animationId = data.animation.id
-	const animationName = data.animation.name
-	const animationType = data.animation.type
-	const isAnimationPaused = data.animation.pausedState
-	const animationPlayState = data.animation.playState
-	const backendNodeId = data.animation.source.backendNodeId
-	const nodeInfo:any= await client.send('DOM.describeNode', {backendNodeId})
-	const nodeAttributes = nodeInfo.node.attributes
-	const output = {animationId, animationName, animationType, isAnimationPaused, animationPlayState, nodeAttributes}
- animations.push(output)
-})
-*/
+
+			*/
 
 			// get initial trace
-			const categories: string[] = [
+			/* const categories: string[] = [
 				'-*',
 				'v8.execute',
 				'blink.user_timing',
@@ -87,6 +153,7 @@ client.on('Animation.animationStarted',async (data) =>{
 			 * second summary
 			 * compare diff
 			 */
+			/*
 			const getSummary = async () => {
 				const summaryArray: AnimationsFormat[] = [];
 				debug('getting init page tracing');
@@ -112,11 +179,10 @@ client.on('Animation.animationStarted',async (data) =>{
 			});
 
 			debug('done');
-			console.log(summary);
-			return {animations: summary};
+			*/
 		} catch (error) {
 			util.log(`Error: Animations collect failed with message: ${error}`);
-			return undefined;
+			return {animations: undefined};
 		}
 	}
 }

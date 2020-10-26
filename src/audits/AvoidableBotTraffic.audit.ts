@@ -55,6 +55,7 @@ export default class AvoidableBotTrafficAudit extends Audit {
 
 				return false;
 			};
+
 			const score = Number(passAudit());
 			const meta = util.successOrFailureMeta(
 				AvoidableBotTrafficAudit.meta,

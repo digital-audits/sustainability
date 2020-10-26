@@ -8,7 +8,6 @@ import {
 import memoizee = require('memoizee');
 import fetch from 'node-fetch';
 import AbortController from 'abort-controller';
-import {DEFAULT} from '../settings/settings';
 import {
 	getLogNormalScore,
 	sum,
@@ -25,6 +24,7 @@ import {
 	Result
 } from '../types/audit';
 import {Record, Headers} from '../types/traces';
+import {DEFAULT} from '../settings/settings';
 
 export function debugGenerator(namespace: string): Debug.IDebugger {
 	const debug = Debug(`sustainability: ${namespace}`);
@@ -48,52 +48,66 @@ export function toHexString(codePointArray: number[]): string[] {
 export async function scrollFunction(
 	page: Page,
 	maxScrollInterval: number,
-	debug: CallableFunction
+	debug: CallableFunction = debugGenerator('Testing')
 ): Promise<any> {
 	debug('running scroll function');
-	return page.evaluate(
-		maxScrollInterval =>
-			new Promise(resolve => {
-				let scrollTop = -1;
-				const interval = setInterval(() => {
-					window.scrollBy(0, 100);
-					const getScrollTop =
-						window.pageYOffset ||
-						document.documentElement.scrollTop ||
-						document.body.scrollTop;
-					if (getScrollTop !== scrollTop) {
-						scrollTop = getScrollTop;
-						return;
-					}
+	const ableToScroll = await isPageAbleToScroll(page);
+	if (ableToScroll) {
+		await Promise.race([
+			page.evaluate(
+				maxScrollInterval =>
+					new Promise(resolve => {
+						let scrollTop = -1;
+						const interval = setInterval(() => {
+							window.scrollBy(0, 100);
+							const getScrollTop =
+								window.pageYOffset ||
+								document.documentElement.scrollTop ||
+								document.body.scrollTop;
+							if (getScrollTop !== scrollTop) {
+								scrollTop = getScrollTop;
+								return;
+							}
 
-					clearInterval(interval);
-					resolve();
-				}, maxScrollInterval);
-			}),
-		maxScrollInterval
-	);
+							clearInterval(interval);
+							resolve();
+						}, maxScrollInterval);
+					}),
+				maxScrollInterval
+			),
+			new Promise(resolve =>
+				setTimeout(
+					() => resolve(),
+					DEFAULT.CONNECTION_SETTINGS.maxScrollWaitingTime
+				)
+			)
+		]);
+	}
+
+	page.emit('scrollFinished');
+	debug('done scrolling');
 }
 
 export async function isPageAbleToScroll(page: Page) {
-	return page.evaluate(
-		() => {
-			const initialTopValue = window.pageYOffset ||
+	return page.evaluate(() => {
+		const initialTopValue =
+			window.pageYOffset ||
 			document.documentElement.scrollTop ||
 			document.body.scrollTop;
 
-			window.scrollBy(0,100)
-			const finalTopValue = window.pageYOffset ||
+		window.scrollBy(0, 100);
+		const finalTopValue =
+			window.pageYOffset ||
 			document.documentElement.scrollTop ||
 			document.body.scrollTop;
 
-			if(finalTopValue !== initialTopValue){
-				window.scrollBy(0, -100)
-				return true
-			}
-
-			return false
+		if (finalTopValue !== initialTopValue) {
+			window.scrollBy(0, -100);
+			return true;
 		}
-	);
+
+		return false;
+	});
 }
 
 export function parseAllSettled(
@@ -485,14 +499,15 @@ export function getUrlLastSegment(url: string) {
 	);
 }
 
-export function str2ab(str:string):ArrayBuffer {
-	var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
-	var bufView = new Uint16Array(buf);
-	for (var i = 0, strLen = str.length; i < strLen; i++) {
-	  bufView[i] = str.charCodeAt(i);
+export function str2ab(string): ArrayBuffer {
+	const buf = new ArrayBuffer(string.length * 2); // 2 bytes for each char
+	const bufView = new Uint16Array(buf);
+	for (let i = 0, stringLength = string.length; i < stringLength; i++) {
+		bufView[i] = string.charCodeAt(i);
 	}
+
 	return buf;
-  }
+}
 
 /**
  * 
@@ -713,7 +728,7 @@ export function getSummary(model, startTime, endTime) {
 }
 */
 
-//COMPRESS UPLOAD FILES
+// COMPRESS UPLOAD FILES
 
 /*
 async function readStream() {

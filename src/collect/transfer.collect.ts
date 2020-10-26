@@ -78,57 +78,61 @@ export default class CollectTransfer extends Collect {
 
 			page.on('requestfinished', async (request: Request) => {
 				const response = request.response();
-				const responseHeaders = response?.headers()!
+				const responseHeaders = response?.headers()!;
 				let responseBody: Buffer;
 				let uncompressedSize: ByteFormat;
-				let gzipSize: ByteFormat
-				
+				let gzipSize: ByteFormat;
+
 				if (response) {
 					try {
 						responseBody = await response.buffer();
-						if(APPLICABLE_COMPRESSION_MIME_TYPES.includes(
-							responseHeaders['content-type']
-						)){
-						const gzipSizeValue = async (bodyBuffer:Buffer) => await page.evaluate(async (input)=>{
-							const str2ab= (str:string)=>{
-								
-							var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
-							var bufView = new Uint16Array(buf);
-							for (var i = 0, strLen = str.length; i < strLen; i++) {
-								bufView[i] = str.charCodeAt(i);
-								}
-							return buf;
-								  
-							}
-							//@ts-ignore
-							const cs = new CompressionStream('gzip')
-							const writer = cs.writable.getWriter();
-							writer.write(str2ab(input));
-							writer.close();
-							let totalSize = 0;
-							const reader = cs.readable.getReader();
-							while (true) {
-								const { value, done } = await reader.read();
-								if (done)
-								  break;
-								totalSize += value.byteLength;
-							  }
+						if (
+							APPLICABLE_COMPRESSION_MIME_TYPES.includes(
+								responseHeaders['content-type']
+							)
+						) {
+							const gzipSizeValue = async (bodyBuffer: Buffer) =>
+								page.evaluate(async input => {
+									const string2ab = string => {
+										const buf = new ArrayBuffer(string.length * 2); // 2 bytes for each char
+										const bufView = new Uint16Array(buf);
+										for (
+											let i = 0, stringLength = string.length;
+											i < stringLength;
+											i++
+										) {
+											bufView[i] = string.charCodeAt(i);
+										}
 
-							return totalSize
+										return buf;
+									};
 
-						}, bodyBuffer.toString('utf-8'))
-						gzipSize = {
-							value: await gzipSizeValue(responseBody),
-							units: 'bytes'
+									// @ts-ignore
+									const cs = new CompressionStream('gzip');
+									const writer = cs.writable.getWriter();
+									writer.write(string2ab(input));
+									writer.close();
+									let totalSize = 0;
+									const reader = cs.readable.getReader();
+									while (true) {
+										const {value, done} = await reader.read();
+										if (done) break;
+										totalSize += value.byteLength;
+									}
+
+									return totalSize;
+								}, bodyBuffer.toString('utf-8'));
+							gzipSize = {
+								value: await gzipSizeValue(responseBody),
+								units: 'bytes'
+							};
+						} else {
+							gzipSize = {
+								value: 0,
+								units: 'bytes'
+							};
 						}
 
-					
-					}else{
-						gzipSize = {
-							value: 0,
-							units:'bytes'
-						}
-					}
 						uncompressedSize = {
 							value: responseBody.length,
 							units: 'bytes'
@@ -142,7 +146,6 @@ export default class CollectTransfer extends Collect {
 								value: Number(contentLengthFromResponseHeader),
 								units: 'bytes'
 							};
-							
 						} else {
 							uncompressedSize = {
 								value: 0,
@@ -152,12 +155,14 @@ export default class CollectTransfer extends Collect {
 
 						gzipSize = {
 							value: 0,
-							units:'bytes'
-						}
+							units: 'bytes'
+						};
 
 						debug('failed at redirect response');
 						util.log(
-							`Error: Transfer collect failed at ${request.url()} with message: ${error.message}`
+							`Error: Transfer collect failed at ${request.url()} with message: ${
+								error.message
+							}`
 						);
 					}
 

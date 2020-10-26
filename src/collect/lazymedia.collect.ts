@@ -5,7 +5,6 @@ import {CollectorsIds} from '../types/audit';
 import {PageContext} from '../types';
 import {CollectLazyMediaTraces} from '../types/traces';
 import {Request} from 'puppeteer';
-import {DEFAULT} from '../settings/settings';
 
 export default class CollectLazyMedia extends Collect {
 	collectId: CollectorsIds = 'transfercollect';
@@ -45,19 +44,9 @@ export default class CollectLazyMedia extends Collect {
 			};
 
 			requestListener();
-			await Promise.race([
-				util.scrollFunction(page, settings.maxScrollInterval, debug),
-				new Promise(resolve =>
-					setTimeout(
-						() => resolve(),
-						DEFAULT.CONNECTION_SETTINGS.maxScrollWaitingTime
-					)
-				)
-			]);
 
-			page.emit('scrollFinished');
-			debug('done scrolling');
-			page.removeAllListeners('requestfinished');
+			await util.scrollFunction(page, settings.maxScrollInterval, debug),
+				page.removeAllListeners('requestfinished');
 			debug('done');
 
 			return {

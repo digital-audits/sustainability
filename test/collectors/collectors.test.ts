@@ -17,7 +17,8 @@ import {
 	CollectTransferTraces,
 	CollectSubfontsTraces,
 	CollectCookiesTraces,
-	CollectLazyMediaTraces
+	CollectLazyMediaTraces,
+	CollectAnimationsTraces
 } from '../../src/types/traces';
 import CollectRedirect from '../../src/collect/redirect.collect';
 import CollectMedia from '../../src/collect/media.collect';
@@ -83,11 +84,19 @@ const navigateAndReturnAssets = async <
 ): Promise<ReturnType<T> | undefined> => {
 	const pageContext = await createPageContext(path, url);
 	const {page} = pageContext
+
 	try {
+		const runSpecificCode = async ()=>{
+			if(path==='animations'){
+				await util.scrollFunction(page, defaultConnectionSettings.maxScrollInterval)
+			}
+		}
+
 		const promises = await Promise.all([
-			navigate(pageContext),
+			navigate(pageContext).then(runSpecificCode),
 			collector(pageContext, defaultConnectionSettings)
 			]);
+		
 
 		return promises[1];
 	} catch (error) {
@@ -103,7 +112,7 @@ beforeAll(async () => {
 	await server.listen(3333);
 	browser = await puppeteer.launch({
 		headless:true,
-		args: ['--no-sandbox', '--disable-setuid-sandbox']
+		args: ['--no-sandbox', '--disable-setuid-sandbo', '--disable-dev-shm-usage','--shm-size=3gb']
 	});
 });
 
@@ -316,5 +325,18 @@ describe('Cookies collector', ()=>{
 		}])
 	})
 	
+
+})
+
+describe('Animation collector', ()=>{
+	let assets:CollectAnimationsTraces | undefined;
+	beforeAll(async () => {
+		const path = 'animations';
+		assets = await navigateAndReturnAssets(path, CollectAnimations.collect);
+	});
+	it('two animations: one reactive (paused whenever out of viewport) the other not reactive', ()=>{
+		expect(assets?.animations?.notReactive.length).toEqual(1)
+		expect(assets?.animations?.notReactive[0].name).toBe('slide')
+	})
 
 })

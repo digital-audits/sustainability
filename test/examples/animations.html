@@ -3,94 +3,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Animations Collector</title>
-    <style>
-        #particles-js{ position:absolute; width: 100%; height: 100%; background-color: #b61924; background-image: url(""); background-repeat: no-repeat; background-size: cover; background-position: 50% 50%; } 
-    </style>
-</head>
-<body>
-    <div id="particles-js"></div>
-
-    <script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
-        particlesJS.load("particles-js","particles.json", ()=>{
-            console.log('particles loaded')
-        })
+      
+    document.addEventListener("DOMContentLoaded", function() {
+    const reactiveAnimation= document.querySelector("#loading");
 
-        let hidden, visibilityChange; 
-        if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
-        hidden = "hidden";
-        visibilityChange = "visibilitychange";
-        } else if (typeof document.msHidden !== "undefined") {
-        hidden = "msHidden";
-        visibilityChange = "msvisibilitychange";
-        } else if (typeof document.webkitHidden !== "undefined") {
-        hidden = "webkitHidden";
-        visibilityChange = "webkitvisibilitychange";
-}
-
-        const el = document.getElementById('particles-js')
-        function handleVisibilityChange() {
-            if (document[hidden]) {
-                console.log('removing particles...')
-               // el.style.display = 'none'
-                /*cancelRequestAnimFrame(pJSDom[0].pJS.fn.checkAnimFrame);
-                cancelRequestAnimFrame(pJSDom[0].pJS.fn.drawAnimFrame);
-                pJSDom[0].pJS.fn.particlesEmpty();
-                pJSDom[0].pJS.fn.canvasClear();
-                */
-            } else {
-                console.log('showing back particles ...')
-                //el.style.display = 'block'
-                //pJSDom[0].pJS.fn.vendors.start();
-            }
+  if ("IntersectionObserver" in window) {
+    let reactiveAnimationObserver = new IntersectionObserver(function(entries, observer) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState= "running"
+        }else{
+          entry.target.style.animationPlayState = "paused"
         }
-        if (typeof document.addEventListener === "undefined" || hidden === undefined) {
-        console.log("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.");
-    } else {
-    // Handle page visibility change   
-    document.addEventListener(visibilityChange, handleVisibilityChange, false); 
-    }
+      });
+    });
 
+    reactiveAnimationObserver.observe(reactiveAnimation)
+    
+  }
+});
 
     </script>
+    <style>
 
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Battery Status API Example</title>
-  <script>
-    window.onload = function () {
-      function updateBatteryStatus(battery) {
-        document.querySelector('#charging').textContent = battery.charging ? 'charging' : 'not charging';
-        document.querySelector('#level').textContent = battery.level;
-        document.querySelector('#dischargingTime').textContent = battery.dischargingTime / 60;
-      }
+body{padding: 3em;background-color: #ccc;}
 
-      navigator.getBattery().then(function(battery) {
-        // Update the battery status initially when the promise resolves ...
-        updateBatteryStatus(battery);
 
-        // .. and for any subsequent updates.
-        battery.onchargingchange = function () {
-          updateBatteryStatus(battery);
-        };
+/*slideshow styles*/
+.long{
+  background-color: #137b85;
+  height: 100vh;
+  width: 100vw;
+}
+.slideshow {
+  width: 625px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: solid 1px white;
+}
 
-        battery.onlevelchange = function () {
-          updateBatteryStatus(battery);
-        };
+.slideshow-container {
+  width: 100vw;
+  font-size: 0;
+  transition: 1s ease;
+  height: 100vh;
+}
 
-        battery.ondischargingtimechange = function () {
-          updateBatteryStatus(battery);
-        };
-      });
-    };
-  </script>
+.slideshow-container:hover {
+  animation-play-state: paused;
+}
+
+img{
+  width: 625px;
+  height: auto;
+  display: inline-block;
+  font-size: 16px;
+  text-align: center;
+}
+
+.slide {
+  animation: slide 24s ease infinite;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(0%);
+  }
+  
+  12.5% {
+    transform: translateX(0%);
+  }
+  
+  25% {
+    transform: translateX(-25%);
+  }
+  
+  37.5% {
+    transform: translateX(-25%);
+  }
+  
+  50% {
+    transform: translateX(-50%);
+  }
+  
+  62.5% {
+    transform: translateX(-50%);
+  }
+  
+  75% {
+    transform: translateX(-75%);
+  }
+  
+  87.5% {
+    transform: translateX(-75%);
+  }
+  
+  99% {
+    transform: translateX(-75%);
+  }
+  
+  100% {
+    transform: translateX(0);
+  }
+  
+}
+#loading {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255,255,255,.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+@keyframes spin {
+  to { -webkit-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+  to { -webkit-transform: rotate(360deg); }
+}
+</style>
 </head>
 <body>
-  <div id="charging">(charging state unknown)</div>
-  <div id="level">(battery level unknown)</div>
-  <div id="dischargingTime">(discharging time unknown)</div>
+<section class="slideshow">
+  <div class="slideshow-container slide">
+    <img src="http://placeimg.com/625/225/animals"/>
+    <img src="http://placeimg.com/625/225/animals"/>
+    <img src="http://placeimg.com/625/225/arch"/>
+  </div>
+</section>
+<section class="long">
+  <div id="loading"></div>
+</section>
 </body>
 </html>
 </body>
 </html>
+

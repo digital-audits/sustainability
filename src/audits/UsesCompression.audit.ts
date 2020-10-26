@@ -2,7 +2,7 @@ import Audit from './audit';
 import * as util from '../utils/utils';
 import {Traces} from '../types/traces';
 import {Meta, SkipResult, Result} from '../types/audit';
-import { resolveSoa } from 'dns';
+import {resolveSoa} from 'dns';
 /**
  * @fileoverview Audits if compression is used. Instead of looking for the content encoding
  *  Response header, which may not reflect the origin server configuration if it serves
@@ -64,12 +64,18 @@ export default class UsesCompressionAudit extends Audit {
 			.filter(record => {
 				const compressedSize = record.CDP.compressedSize.value;
 				const originalSize = record.response.uncompressedSize.value;
-				const gzipSize = record.response.gzipSize.value	
-				const gzipSavings = originalSize - gzipSize
-				
-				if(gzipSize === 0) return false
-				if(!APPLICABLE_COMPRESSION_MIME_TYPES.includes(record.response.headers['content-type'])) return false
-				if (gzipSavings <= IGNORE_THRESHOLD_BYTES || 
+				const gzipSize = record.response.gzipSize.value;
+				const gzipSavings = originalSize - gzipSize;
+
+				if (gzipSize === 0) return false;
+				if (
+					!APPLICABLE_COMPRESSION_MIME_TYPES.includes(
+						record.response.headers['content-type']
+					)
+				)
+					return false;
+				if (
+					gzipSavings <= IGNORE_THRESHOLD_BYTES ||
 					1 - compressedSize / originalSize > IGNORE_THRESHOLD_PERCENT ||
 					compressedSize < gzipSize
 				)
@@ -81,7 +87,7 @@ export default class UsesCompressionAudit extends Audit {
 				return true;
 			})
 			.map(record => {
-				const isNginx = () => {	
+				const isNginx = () => {
 					if (record.response.headers.server) {
 						const server = record.response.headers.server;
 						return server.toUpperCase().includes('NGINX');
@@ -97,15 +103,13 @@ export default class UsesCompressionAudit extends Audit {
 					justOneTime = false;
 				}
 
-				
-
-				const gzipSize = record.response.gzipSize.value
-				const gzipSavings = record.response.uncompressedSize.value -gzipSize
+				const gzipSize = record.response.gzipSize.value;
+				const gzipSavings = record.response.uncompressedSize.value - gzipSize;
 
 				return {
 					url: util.getUrlLastSegment(recordUrl.toString()).split('?')[0],
-					resourceType:record.request.resourceType,
-					savings:{value:gzipSavings, units: 'bytes'}
+					resourceType: record.request.resourceType,
+					savings: {value: gzipSavings, units: 'bytes'}
 				};
 			})
 			.filter(record => {
