@@ -5,26 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Animations Collector</title>
     <script>
-      
     document.addEventListener("DOMContentLoaded", function() {
-    const reactiveAnimation= document.querySelector("#loading");
-
-  if ("IntersectionObserver" in window) {
-    let reactiveAnimationObserver = new IntersectionObserver(function(entries, observer) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          entry.target.style.animationPlayState= "running"
-        }else{
-          entry.target.style.animationPlayState = "paused"
+      let hidden, visibilityChange;
+      if (typeof document.hidden !== "undefined") {  
+        hidden = "hidden";
+        visibilityChange = "visibilitychange";
+    } else if (typeof document.msHidden !== "undefined") {
+        hidden = "msHidden";
+        visibilityChange = "msvisibilitychange";
+    } else if (typeof document.webkitHidden !== "undefined") {
+        hidden = "webkitHidden";
+        visibilityChange = "webkitvisibilitychange";
+}
+      const animEl = document.querySelector('#loading')
+      function handleVisibilityChange() {
+        if (document[hidden]) {
+            animEl.style.animationPlayState = 'paused'
+        } else {
+            animEl.style.animationPlayState = 'running'
         }
-      });
-    });
+}
 
-    reactiveAnimationObserver.observe(reactiveAnimation)
-    
-  }
-});
-
+if (typeof document.addEventListener === "undefined" || hidden === undefined) {
+    console.log('Browser is not compatible, it needs the Page Visibility API')
+} else {
+    document.addEventListener(visibilityChange, handleVisibilityChange, false);
+}
+    })
     </script>
     <style>
 
@@ -49,10 +56,6 @@ body{padding: 3em;background-color: #ccc;}
   font-size: 0;
   transition: 1s ease;
   height: 100vh;
-}
-
-.slideshow-container:hover {
-  animation-play-state: paused;
 }
 
 img{
@@ -117,7 +120,6 @@ img{
   border-radius: 50%;
   border-top-color: #fff;
   animation: spin 1s ease-in-out infinite;
-  animation-play-state: paused;
 }
 
 @keyframes spin {

@@ -47,9 +47,11 @@ export default class CollectAnimations extends Collect {
 			const reactiveAnimationsSet = new Set<string>();
 			client.on('Animation.animationCanceled', data => {
 				reactiveAnimationsSet.add(data.id);
+				console.log('cancel', data.id);
 			});
 
 			client.on('Animation.animationStarted', async data => {
+				console.log('start', data.animation.id);
 				const backendNodeId = data.animation.source.backendNodeId;
 				const nodeInfo: any = await client.send('DOM.describeNode', {
 					backendNodeId
@@ -64,10 +66,9 @@ export default class CollectAnimations extends Collect {
 			});
 			const notReactiveAnimations: SingleAnimationFormat[] = [];
 			const notReactiveAnimationsSet = new Set<string>();
-			// Todo test when switching tabs
 			const hasAnimations = await new Promise((resolve, reject) => {
 				// @ts-ignore scrollFinished (custom event)
-				page.on('scrollFinished', () => {
+				page.on('scrollFinished', async function scrollHandler() {
 					try {
 						const animationsArray = Array.from(animations.entries());
 						if (!animationsArray.length) {
@@ -97,6 +98,8 @@ export default class CollectAnimations extends Collect {
 					} catch (error) {
 						util.log(`Error: Animations collect failed with message: ${error}`);
 						reject(false);
+					} finally {
+						page.removeListener('scrollFinished', scrollHandler);
 					}
 				});
 			});

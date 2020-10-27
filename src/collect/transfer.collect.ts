@@ -93,7 +93,7 @@ export default class CollectTransfer extends Collect {
 						) {
 							const gzipSizeValue = async (bodyBuffer: Buffer) =>
 								page.evaluate(async input => {
-									const string2ab = string => {
+									const string2ab = (string: string) => {
 										const buf = new ArrayBuffer(string.length * 2); // 2 bytes for each char
 										const bufView = new Uint16Array(buf);
 										for (

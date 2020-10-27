@@ -9,7 +9,7 @@ export default class ReactiveAnimationsAudit extends Audit {
 			id: 'reactiveanimations',
 			title: `Animations are reactive`,
 			failureTitle: `Animations are not reactive`,
-			description: `CSS animations should only run whenever the user is interacting with them and automatically pause otherwise.`,
+			description: `CSS animations should only run whenever the user is interacting with them and automatically pause otherwise. <a href="https://gist.github.com/sirdmon/0fda06c8288ad0fc9712d9f2f955c907">More info</a>`,
 			category: 'design',
 			collectors: ['transfercollect']
 		} as Meta;

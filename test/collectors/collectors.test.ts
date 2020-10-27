@@ -27,6 +27,7 @@ import CollectTransfer from '../../src/collect/transfer.collect';
 import CollectSubfont from '../../src/collect/subfont.collect';
 import CollectAnimations from '../../src/collect/animations.collect';
 import CollectCookies from '../../src/collect/cookies.collect';
+import { isSymbol } from 'util';
 
 const server: fastify.FastifyInstance<
 	Server,
@@ -87,7 +88,7 @@ const navigateAndReturnAssets = async <
 
 	try {
 		const runSpecificCode = async ()=>{
-			if(path==='animations'){
+			if(path.startsWith('animations')){
 				await util.scrollFunction(page, defaultConnectionSettings.maxScrollInterval)
 			}
 		}
@@ -329,14 +330,11 @@ describe('Cookies collector', ()=>{
 })
 
 describe('Animation collector', ()=>{
-	let assets:CollectAnimationsTraces | undefined;
-	beforeAll(async () => {
-		const path = 'animations';
-		assets = await navigateAndReturnAssets(path, CollectAnimations.collect);
-	});
-	it('two animations: one reactive (paused whenever out of viewport) the other not reactive', ()=>{
+
+	it('Intersection Observer (same page): two animations: one reactive (paused whenever out of viewport) the other not reactive', async ()=>{
+		const path = 'animations'
+		const assets:CollectAnimationsTraces | undefined = await navigateAndReturnAssets(path, CollectAnimations.collect);
 		expect(assets?.animations?.notReactive.length).toEqual(1)
 		expect(assets?.animations?.notReactive[0].name).toBe('slide')
 	})
-
 })

@@ -499,7 +499,7 @@ export function getUrlLastSegment(url: string) {
 	);
 }
 
-export function str2ab(string): ArrayBuffer {
+export function str2ab(string: string): ArrayBuffer {
 	const buf = new ArrayBuffer(string.length * 2); // 2 bytes for each char
 	const bufView = new Uint16Array(buf);
 	for (let i = 0, stringLength = string.length; i < stringLength; i++) {
