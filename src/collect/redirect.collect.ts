@@ -20,6 +20,7 @@ export default class CollectRedirect extends Collect {
 		debug('running');
 		const results: RedirectResponse[] = [];
 		const {page, url} = pageContext;
+
 		page.on('response', (response: Response) => {
 			const status = response.status();
 			const url = response.url();

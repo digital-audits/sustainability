@@ -40,7 +40,7 @@ export default class CollectMetaTags extends Collect {
 
 			return metaTags;
 		});
-
+		debug('done');
 		return {
 			metatag: metaTags
 		};

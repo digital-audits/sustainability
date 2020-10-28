@@ -1,0 +1,13 @@
+:root{
+    color-scheme: light dark;
+}
+
+body{
+    color: var(--color);
+    background-color: var(--background-color);
+}
+
+#container{
+    height: 100vh;
+    width: 80%;
+}

@@ -35,7 +35,7 @@ export const DEFAULT: DefaultSettings = {
 		timeout: 0
 	},
 	CONNECTION_SETTINGS: {
-		maxNavigationTime: 60 * 1000,
+		maxNavigationTime: 30 * 1000,
 		maxScrollInterval: 30,
 		maxScrollWaitingTime: 30 * 1000,
 		maxThrottle: 5000,

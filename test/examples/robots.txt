@@ -1,0 +1,5 @@
+User-Agent: *
+Disallow: /secret.html/
+Allow: /
+User-Agent: Mafiabot
+Disallow: /

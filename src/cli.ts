@@ -118,6 +118,12 @@ const options: AuditSettings = {
 		: {})
 };
 
+process.on('unhandledRejection', error => {
+	console.log(`Unhandled promise rejection. 
+	This seems to be a problem with DAS. Please, report this bug at https://github.com/digital-audits/sustainability/issues.
+	${error}`);
+});
+
 Sustainability.audit(url, Object.keys(options).length ? options : {})
 	.then(report => {
 		if (argv.output) {

@@ -25,6 +25,7 @@ export default class CollectCookies extends Collect {
 				debug
 			);
 			const cookieJar = await page.cookies();
+			debug('done');
 			return {
 				cookies: cookieJar
 			};

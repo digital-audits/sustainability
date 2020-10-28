@@ -200,9 +200,7 @@ export default class CollectTransfer extends Collect {
 					results.push(information);
 				}
 			});
-
 			debug('done');
-
 			return {
 				record: results
 			};

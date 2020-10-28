@@ -22,8 +22,8 @@ export default class CollectRobots extends Collect {
 		try {
 			const patterns = {
 				agents: /^([Uu]ser-[Aa]gent:) (.+)$/,
-				allow: /^([Aa]llow:) (\/.+)$/,
-				disallow: /^([Dd]isallow:) (\/.+)$/,
+				allow: /^([Aa]llow:) (\/(.+)?)$/,
+				disallow: /^([Dd]isallow:) (\/(.+)?)$/,
 				host: /^([Hh]ost:) (.+)$/,
 				sitemaps: /^([Ss]itemap:) (.+)$/
 			};
@@ -36,9 +36,9 @@ export default class CollectRobots extends Collect {
 				sitemaps: []
 			};
 			const {url} = pageContext;
-			const hostname = new URL(url).hostname;
-			const body = (await utils.fetchRobots(hostname)) || undefined;
-
+			const host = new URL(url).host;
+			debug('Fetching robots.txt');
+			const body = (await utils.fetchRobots(host)) || undefined;
 			if (!body) {
 				throw new Error('');
 			}

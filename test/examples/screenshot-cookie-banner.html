@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .cookie-box {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        text-align: center;
+        padding: 1rem 2rem;
+        background: #fff;
+        -webkit-transition: all 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+        transition: all 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .cookie-box--hide {
+        opacity: 0;
+        bottom: -100%;
+        }
+
+        .cookie-button {
+        display: inline-block;
+        cursor: pointer;
+        padding: 0.65rem 0.85rem;
+        margin-left: 0.45rem;
+        color: #fff;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        background-image: linear-gradient(62deg, #fbab7E 0%, #f7ce68 100%);
+}
+
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const cookieScript = document.createElement('script')
+            const cookieBox = document.getElementById('js-cookie-box');
+            const cookieButton = document.getElementById('js-cookie-button');
+            if(!document.cookie){
+                cookieBox.classList.remove('cookie-box--hide');
+            }
+            cookieButton.addEventListener('click', ()=>{
+                cookieScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js'
+                cookieScript.async=true
+                document.getElementsByTagName("script")[0].parentNode.appendChild(cookieScript);
+                cookieBox.classList.add('cookie-box--hide');
+            })
+            cookieScript.addEventListener('load', ()=>{
+                Cookies.set('cookie-box', true, { expires: 7 });
+            })
+        })
+        </script>
+</head>
+<body>
+    <h1>Testing cookie banners aren't showed on screenshots</h1>
+    <div id="container">
+    </div>
+    <div id="js-cookie-box" class="cookie-box cookie-box--hide">
+        En poursuivant votre navigation sur ce site, vous acceptez l'utilisation de cookies 🍪 ! <span id="js-cookie-button" class="cookie-button">Allez pourquoi pas</span>
+    </div>
+</body>
+</html>

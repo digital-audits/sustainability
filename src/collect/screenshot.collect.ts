@@ -21,7 +21,7 @@ export default class CollectScreenshot extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectScreenShotTraces | undefined> {
 		try {
-			const debug = util.debugGenerator('Collect screenshot');
+			const debug = util.debugGenerator('Screenshot collect');
 			debug('running');
 			const {page, url} = pageContext;
 			const rgbPower: RGBPowerFormat = {
@@ -50,18 +50,20 @@ export default class CollectScreenshot extends Collect {
 				darkModePage.setCacheEnabled(false),
 				darkModePage.setBypassCSP(true)
 			]);
+
+			const darkModePageContext = {page: darkModePage, url};
 			await Promise.race([
-				darkModePage.goto(url, {waitUntil: 'domcontentloaded'}),
+				util.navigate(darkModePageContext, 'domcontentloaded', debug),
 				util.safeNavigateTimeout(
 					darkModePage,
 					'domcontentloaded',
 					settings.maxNavigationTime
 				)
 			]);
-
 			const base64ScreenshotDark = await darkModePage.screenshot({
 				encoding: 'base64'
 			});
+
 			await Promise.all([page.bringToFront(), darkModePage.close()]);
 
 			const RGBPixelPower = async (
@@ -83,7 +85,7 @@ export default class CollectScreenshot extends Collect {
 						};
 
 						image.src = 'data:image/png;base64,' + base64Screenshot;
-						await imgLoadPromise;
+						await imgLoadPromise; // Dont ever end with ()
 
 						//  Console.log('DARK',window.matchMedia('(prefers-color-scheme: light)').matches
 						// )
@@ -126,6 +128,7 @@ export default class CollectScreenshot extends Collect {
 					JSON.stringify(rgbPower)
 				);
 
+			debug('Evaluating pixel power');
 			const shPromises = await Promise.all([
 				RGBPixelPower(base64Screenshot, rgbPower),
 				RGBPixelPower(base64ScreenshotDark, rgbPower)
@@ -139,6 +142,7 @@ export default class CollectScreenshot extends Collect {
 					SCREENSHOT_SIMILARITY_THRESHOLD;
 
 			debug(`Page has dark mode option: ${hasDarkMode}`);
+			debug('done');
 			return {
 				screenshot: {
 					power: hasDarkMode ? shPromises[1] : shPromises[0],

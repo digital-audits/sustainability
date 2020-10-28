@@ -23,15 +23,11 @@ class Commander {
 			this.settings = settings
 				? {...DEFAULT.CONNECTION_SETTINGS, ...settings}
 				: DEFAULT.CONNECTION_SETTINGS;
-
 			this.tracker = util.createTracker(page);
 
 			// Page.setJavaScriptEnabled(false); Speeds up process drastically
 			const pageFeaturesArray = [
-				page.setViewport({
-					width: this.settings.emulatedDevice.viewport.width,
-					height: this.settings.emulatedDevice.viewport.height
-				}),
+				page.setViewport(this.settings.emulatedDevice.viewport),
 				page.setUserAgent(this.settings.emulatedDevice.userAgent),
 				page.browserContext().overridePermissions(url, ['geolocation']),
 				page.setGeolocation({
@@ -41,6 +37,8 @@ class Commander {
 				}),
 				page.setCacheEnabled(false),
 				page.setBypassCSP(true),
+				page.setJavaScriptEnabled(true),
+				page.setRequestInterception(false),
 				// Glyphhanger dependency
 				page.evaluateOnNewDocument(
 					fs.readFileSync(require.resolve('characterset'), 'utf8')
@@ -58,38 +56,6 @@ class Commander {
 			return page;
 		} catch (error) {
 			throw new Error(`Setup error ${error.message}`);
-		}
-	}
-
-	async navigate(pageContext: PageContext) {
-		try {
-			const {page, url} = pageContext;
-			debug(`Starting navigation to ${url}`);
-			let stopCallback: any = null;
-			const stopPromise = new Promise(x => (stopCallback = x));
-			const navigateAndClearTimeout = async () => {
-				await page.goto(url, {
-					waitUntil: 'networkidle0',
-					timeout: 0
-				});
-				clearTimeout(stopNavigation);
-			};
-
-			const stopNavigation = setTimeout(
-				() =>
-					stopCallback(
-						debug(
-							'Forced end of navigation because the URL surpassed the maxNavigationTime'
-						)
-					),
-				this.settings.maxNavigationTime
-			);
-			await Promise.race([navigateAndClearTimeout(), stopPromise]);
-			page.removeAllListeners('requestfinished');
-			page.removeAllListeners('response');
-			debug('Done navigation');
-		} catch (error) {
-			util.safeReject(error, this.tracker);
 		}
 	}
 

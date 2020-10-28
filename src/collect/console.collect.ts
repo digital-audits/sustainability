@@ -18,37 +18,30 @@ export default class CollectConsole extends Collect {
 	): Promise<CollectConsoleTraces | undefined> {
 		const debug = util.debugGenerator('Console collect');
 		debug('running');
-		const {page, url} = pageContext;
-		const client = await page.target().createCDPSession();
+		try {
+			const {page} = pageContext;
+			const client = await page.target().createCDPSession();
+			await client.send('Page.enable');
+			const results: ConsoleMessageFormat[] = [];
 
-		await client.send('Page.enable');
-		const results: ConsoleMessageFormat[] = [];
-
-		page.on('console', async (message: ConsoleMessage) => {
-			const information = {
-				type: message.type(),
-				text: message.text()
-			};
-			/*
+			page.on('console', async (message: ConsoleMessage) => {
+				const information = {
+					type: message.type(),
+					text: message.text()
+				};
+				/*
 			Console log client messages. Useful for debugging page evaluate
 			*/
 
+				/*
 			for (let i = 0; i < message.args().length; ++i) {
 				debug(`${i}: ${message.args()[i]}`);
 			}
+			*/
 
-			results.push(information);
-		});
-
-		try {
-			await util.safeNavigateTimeout(
-				page,
-				'networkidle0',
-				settings.maxNavigationTime,
-				debug
-			);
-			// https://stackoverflow.com/questions/51491928/uploading-a-file-on-non-input-type-file
-
+				results.push(information);
+			});
+			debug('done');
 			return {
 				console: results
 			};

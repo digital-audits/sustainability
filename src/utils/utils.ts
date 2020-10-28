@@ -1,6 +1,7 @@
 import * as Debug from 'debug';
 import {Page, Request, LoadEvent} from 'puppeteer';
 import {
+	PageContext,
 	PromiseAllSettledFulfilled,
 	PromiseAllSettledRejected,
 	Tracker
@@ -25,6 +26,7 @@ import {
 } from '../types/audit';
 import {Record, Headers} from '../types/traces';
 import {DEFAULT} from '../settings/settings';
+import {ConnectionSettings} from '../types/settings';
 
 export function debugGenerator(namespace: string): Debug.IDebugger {
 	const debug = Debug(`sustainability: ${namespace}`);
@@ -108,6 +110,48 @@ export async function isPageAbleToScroll(page: Page) {
 
 		return false;
 	});
+}
+
+export async function navigate(
+	pageContext: PageContext,
+	waitUntil: LoadEvent | LoadEvent[],
+	debug: CallableFunction,
+	end = false,
+	settings?: ConnectionSettings
+) {
+	const {page, url} = pageContext;
+	try {
+		// @ts-ignore private _id
+		const pageId = page.mainFrame()._id
+		debug(`${pageId} Starting navigation to ${url}`);
+		let stopCallback: any = null;
+		const stopPromise = new Promise(x => (stopCallback = x));
+		const navigateAndClearTimeout = async () => {
+			await page.goto(url, {
+				waitUntil,
+				timeout: 0
+			});
+			clearTimeout(stopNavigation);
+		};
+
+		const stopNavigation = setTimeout(
+			() =>
+				stopCallback(
+					debug(
+						`Forced end of navigation for page ${pageId} because the URL surpassed the maxNavigationTime`
+					)
+				),
+			settings?.maxNavigationTime ??
+				DEFAULT.CONNECTION_SETTINGS.maxNavigationTime
+		);
+		await Promise.race([navigateAndClearTimeout(), stopPromise]);
+		debug('Done navigation');
+	} finally {
+		if (end) {
+			await page.evaluate(() => window.stop());
+			await page.close();
+		}
+	}
 }
 
 export function parseAllSettled(
@@ -223,14 +267,14 @@ const isGreenServer = async (
 export const isGreenServerMem = memoizee(isGreenServer, {async: true});
 
 export async function fetchRobots(
-	hostname: string,
+	host: string,
 	secure = false
 ): Promise<string> {
 	const controller = new AbortController();
 	const timeout = setTimeout(() => {
 		controller.abort();
 	}, DEFAULT.CONNECTION_SETTINGS.maxThrottle + 15000);
-	const url = `http${secure ? 's' : ''}://${hostname}/robots.txt`;
+	const url = `http${secure ? 's' : ''}://${host}/robots.txt`;
 	try {
 		const response = await fetch(url, {
 			signal: controller.signal,

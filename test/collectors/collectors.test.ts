@@ -9,7 +9,6 @@ import * as fs from 'fs';
 
 import CollectAssets from '../../src/collect/assets.collect';
 import {DEFAULT} from '../../src/settings/settings';
-import CollectConsole from '../../src/collect/console.collect';
 import CollectFailedTransfers from '../../src/collect/failed-transfer.collect';
 import {ConnectionSettingsPrivate} from '../../src/types/settings';
 import {
@@ -18,7 +17,10 @@ import {
 	CollectSubfontsTraces,
 	CollectCookiesTraces,
 	CollectLazyMediaTraces,
-	CollectAnimationsTraces
+	CollectAnimationsTraces,
+	CollectRobotsTraces,
+	CollectMetaTagsTraces,
+	CollectScreenShotTraces
 } from '../../src/types/traces';
 import CollectRedirect from '../../src/collect/redirect.collect';
 import CollectMedia from '../../src/collect/media.collect';
@@ -27,7 +29,9 @@ import CollectTransfer from '../../src/collect/transfer.collect';
 import CollectSubfont from '../../src/collect/subfont.collect';
 import CollectAnimations from '../../src/collect/animations.collect';
 import CollectCookies from '../../src/collect/cookies.collect';
-import { isSymbol } from 'util';
+import CollectRobots from '../../src/collect/robots.collect';
+import CollectMetaTags from '../../src/collect/meta-tag.collect';
+import CollectScreenshot from '../../src/collect/screenshot.collect';
 
 const server: fastify.FastifyInstance<
 	Server,
@@ -50,21 +54,30 @@ server.get('/redirect-host-js', (_, reply) => {
 	reply.redirect('http://mylocalhost:3333/redirected.js');
 });
 
+
 let browser: Browser;
 const defaultConnectionSettings = DEFAULT.CONNECTION_SETTINGS;
 const createPageContext = async (file: string, url?: string) => {
-	const page = await browser.newPage();
-	await Promise.all([
+	const context = await browser.createIncognitoBrowserContext()
+	const page = await context.newPage();
+	const pageFeaturesArray = [
+		page.setViewport(defaultConnectionSettings.emulatedDevice.viewport),
+		page.setUserAgent(defaultConnectionSettings.emulatedDevice.userAgent),
+		page.setCacheEnabled(false),
+		page.setBypassCSP(true),
+		// Glyphhanger dependency
 		page.evaluateOnNewDocument(
 			fs.readFileSync(require.resolve('characterset'), 'utf8')
 		),
+		page.setDefaultNavigationTimeout(0),
 		page.evaluateOnNewDocument(
 			fs.readFileSync(
 				path.resolve(__dirname, '../../src/bin/glyphhanger-script.js'),
 				'utf8'
 			)
 		)
-	]);
+	];
+	await Promise.all(pageFeaturesArray);
 
 	if (!url) url = `http://localhost:3333/${file}.html`;
 
@@ -133,7 +146,6 @@ describe('Assets collector', () => {
 		const path = 'externalcss';
 		const assets = await navigateAndReturnAssets(path, CollectAssets.collect);
 		expect(assets?.css.sheets.length).toBeGreaterThan(1);
-		expect(assets?.css.sheets[0].text).toMatch(`body{background-color: green}`);
 	});
 	it('collects inline js assets', async () => {
 		const path = 'inlinejs';
@@ -160,8 +172,6 @@ describe('Assets collector', () => {
 		
 	})
 });
-
-
 
 describe('Failed transfer collector', () => {
 	it('collects failed requests', async () => {
@@ -230,7 +240,7 @@ describe('Lazy media collector', () => {
 			path,
 			CollectLazyMedia.collect
 		);
-		expect(assets?.lazyMedia.lazyImages.length).toBe(6);
+		expect(assets?.lazyMedia.lazyImages.length).toBeGreaterThan(1)
 	});
 	it('collects lazy loaded videos with page being able to scroll', async ()=>{
 		const path='videos'
@@ -278,6 +288,7 @@ describe('Transfer collector', () => {
 			'fromServiceWorker',
 			'headers',
 			'uncompressedSize',
+			'gzipSize',
 			'timestamp'
 		]);
 	});
@@ -326,15 +337,77 @@ describe('Cookies collector', ()=>{
 		}])
 	})
 	
-
 })
-
+describe('Robots collector', ()=>{
+	let assets: CollectRobotsTraces | undefined;
+	const path = '';
+	beforeAll(async () => {
+		assets = await navigateAndReturnAssets(path, CollectRobots.collect);
+	})
+	const disallowRules = ['/secret.html/', '/']
+	const allowRules = ['/']
+	it('collects user agents',()=>{
+		expect(assets?.robots.agents.all).toBeTruthy()
+	})
+	it('collects disallow rules',()=>{
+		expect(assets?.robots.disallow).toEqual(disallowRules)
+	})
+	it('collects allow rules',()=>{
+		expect(assets?.robots.allow).toEqual(allowRules)
+	})
+	it('collects specific user agent rules', ()=>{
+		expect(assets?.robots.agents['Mafiabot'].disallow).toEqual(['/'])
+	})
+	it('retries on secure domain if previous insecure one is invalid',async ()=>{
+		const invalidUrl = 'http://localhost:2323'
+		assets = await navigateAndReturnAssets(path, CollectRobots.collect,invalidUrl)
+		expect(assets?.robots).toBeUndefined()
+	})
+})
 describe('Animation collector', ()=>{
-
-	it('Intersection Observer (same page): two animations: one reactive (paused whenever out of viewport) the other not reactive', async ()=>{
+	it('Two animations: one reactive (paused whenever out of viewport) the other not reactive', async ()=>{
 		const path = 'animations'
 		const assets:CollectAnimationsTraces | undefined = await navigateAndReturnAssets(path, CollectAnimations.collect);
 		expect(assets?.animations?.notReactive.length).toEqual(1)
 		expect(assets?.animations?.notReactive[0].name).toBe('slide')
 	})
+})
+
+describe('Meta tag collector', ()=>{
+	let assets: CollectMetaTagsTraces | undefined;
+	const path = 'meta-tags';
+	beforeAll(async () => {
+		assets = await navigateAndReturnAssets(path, CollectMetaTags.collect);
+	})
+	it('collects meta tags',()=>{
+		expect(assets?.metatag.length).toBe(3)
+	})
+	it('collects robot meta tags', ()=>{
+		const robotsMetaTag = assets?.metatag.filter(meta=>{
+			if(meta.attr.some(at=>at.name === 'robots')) return true
+			return false
+		})
+		expect(robotsMetaTag).toBeTruthy()
+	})
+})
+
+describe('Screenshot collector', ()=>{
+	let darkmodePower:number | undefined;
+	let lightmodePower:number | undefined;
+	it('detects dark mode with user sys preferences (prefers color scheme)', async ()=>{
+		const path = 'screenshot-darkmode';
+		const assets:CollectScreenShotTraces | undefined = await navigateAndReturnAssets(path, CollectScreenshot.collect)
+		darkmodePower = assets?.screenshot.power
+		expect(assets?.screenshot.hasDarkMode).toBe(true)	
+	})
+	it('detects absence of dark mode',async ()=>{
+		const path = 'screenshot-no-darkmode'
+		const assets:CollectScreenShotTraces | undefined = await navigateAndReturnAssets(path, CollectScreenshot.collect)
+		lightmodePower= assets?.screenshot.power
+		expect(assets?.screenshot.hasDarkMode).toBe(false)
+	})
+	it('power in dark mode is less compared to light mode', ()=>{
+		if(darkmodePower && lightmodePower)
+		expect(darkmodePower).toBeLessThan(lightmodePower)
+	})	
 })

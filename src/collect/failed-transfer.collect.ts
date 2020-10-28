@@ -19,32 +19,26 @@ export default class CollectFailedTransfers extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectFailedTransferTraces | undefined> {
 		debug('running');
-		const {page} = pageContext;
-		const result: FailedRequest[] = [];
-		page.on('response', (response: Response) => {
-			const status = response.status();
-			const url = response.url();
-			if (status >= 400) {
-				const information = {
-					url,
-					code: status,
-					statusText: response.statusText(),
-					failureText: response.request().failure()?.errorText,
-					// @ts-ignore
-					requestId: response.request()._requestId
-				};
-
-				result.push(information);
-			}
-		});
-
 		try {
-			await util.safeNavigateTimeout(
-				page,
-				'networkidle0',
-				settings.maxNavigationTime,
-				debug
-			);
+			const {page} = pageContext;
+			const result: FailedRequest[] = [];
+			page.on('response', (response: Response) => {
+				const status = response.status();
+				const url = response.url();
+				if (status >= 400) {
+					const information = {
+						url,
+						code: status,
+						statusText: response.statusText(),
+						failureText: response.request().failure()?.errorText,
+						// @ts-ignore
+						requestId: response.request()._requestId
+					};
+
+					result.push(information);
+				}
+			});
+
 			debug('done');
 			return {
 				failed: result

@@ -63,9 +63,14 @@ export interface AuditReportMeta {
 }
 
 export interface Report {
+	comments?: string[];
 	globalScore: number;
 	meta: AuditReportMeta;
 	audits: AuditsByCategory[];
+}
+
+export interface ErrorMsg {
+	error: string;
 }
 
 export interface AuditsByCategory {
