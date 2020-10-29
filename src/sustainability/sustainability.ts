@@ -22,6 +22,7 @@ export default class Sustainability {
 				(await sustainability.startNewConnectionAndReturnBrowser(
 					settings?.launchSettings
 				));
+			//optional coldrun?
 			const coldRunPage = await browser.newPage();
 
 			await coldRunPage.setRequestInterception(true);
@@ -105,8 +106,9 @@ export default class Sustainability {
 				false,
 				settings?.connectionSettings
 			),
-			Commander.asyncEvaluate(pageContext)
+			Commander.dynamicEvaluate(pageContext)
 		]);
+		
 		page.removeAllListeners();
 		const resultsParsed = util.parseAllSettled(results, true);
 		const audits = util.groupAudits(resultsParsed);

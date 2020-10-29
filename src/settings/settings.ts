@@ -69,7 +69,7 @@ export const DEFAULT: DefaultSettings = {
 		collectors: [
 			CollectTransfer,
 			CollectRedirect,
-			CollectConsole,
+			/*CollectConsole,
 			CollectSubfont,
 			CollectAssets,
 			CollectMedia,
@@ -79,25 +79,24 @@ export const DEFAULT: DefaultSettings = {
 			CollectAnimations,
 			CollectRobots,
 			CollectMetaTags
+			*/
 		],
 		audits: [
-			UsesCompressionAudit,
-			CarbonFootprintAudit,
+			//UsesCompressionAudit,
 			UsesHTTP2Audit,
-			UsesGreenServerAudit,
-			UsesWebpImageFormatAudit,
-			NoConsoleLogsAudit,
-			UsesFontSubsettingAudit,
-			UsesLazyLoadingAudit,
-			PixelEnergyEfficiencyAudit,
-			UsesDarkModeAudit,
-			CookieOptimisation,
-			AvoidInlineAssetsAudit,
-			LeverageBrowserCachingAudit,
-			UsesWebmVideoFormatAudit,
-			AvoidURLRedirectsAudit,
-			AvoidableBotTrafficAudit,
-			ReactiveAnimationsAudit
+			//UsesGreenServerAudit,
+			//UsesWebpImageFormatAudit,
+			//NoConsoleLogsAudit,
+			//UsesLazyLoadingAudit,
+			//PixelEnergyEfficiencyAudit,
+			//UsesDarkModeAudit,
+			//CookieOptimisation,
+			//AvoidInlineAssetsAudit,
+			//LeverageBrowserCachingAudit,
+			//UsesWebmVideoFormatAudit,
+			//AvoidURLRedirectsAudit,
+			//AvoidableBotTrafficAudit,
+			//ReactiveAnimationsAudit
 		]
 	},
 	REPORT: {

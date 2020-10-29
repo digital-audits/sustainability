@@ -1,3 +1,5 @@
+import { LoadEvent } from "puppeteer";
+
 export interface Meta {
 	/** String identifier of the audit */
 	id: string;
@@ -26,6 +28,17 @@ export type CollectorsIds =
 	| 'consolecollect'
 	| 'assetscollect'
 	| 'screenshotcollect';
+
+export type PassContext = 
+	| 'beforenavigation'
+	| 'navigation'
+	| SelectorContext
+	| LoadEvent
+	| 'afternavigation'
+export interface SelectorContext{
+	selector:string
+}
+
 
 export interface Result {
 	score: number;

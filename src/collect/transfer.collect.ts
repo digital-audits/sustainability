@@ -9,7 +9,7 @@ import {
 	Record,
 	ByteFormat
 } from '../types/traces';
-import {CollectorsIds} from '../types/audit';
+import {CollectorsIds, PassContext} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
 const APPLICABLE_COMPRESSION_MIME_TYPES = [
@@ -38,9 +38,15 @@ const APPLICABLE_COMPRESSION_MIME_TYPES = [
 	'image/vnd.microsoft.icon'
 ];
 export default class CollectTransfer extends Collect {
-	collectId: CollectorsIds = 'transfercollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'transfercollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('Transfer collect')
+		}
+	}
+	static get context(){
+		return this.passContext
 	}
 
 	static async collect(
@@ -48,7 +54,7 @@ export default class CollectTransfer extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectTransferTraces | undefined> {
 		try {
-			const debug = util.debugGenerator('Transfer collect');
+			const debug = CollectTransfer.meta.debug
 			debug('running');
 			const {page} = pageContext;
 			const results: Record[] = [];
@@ -200,6 +206,12 @@ export default class CollectTransfer extends Collect {
 					results.push(information);
 				}
 			});
+			await util.safeNavigateTimeout(
+				page,
+				'networkidle0',
+				settings.maxNavigationTime,
+				debug
+			);
 			debug('done');
 			return {
 				record: results

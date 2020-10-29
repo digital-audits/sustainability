@@ -7,9 +7,10 @@ import {CollectRedirectTraces, RedirectResponse} from '../types/traces';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
 export default class CollectRedirect extends Collect {
-	collectId: CollectorsIds = 'redirectcollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'redirectcollect'
+		}
 	}
 
 	static async collect(
@@ -59,6 +60,8 @@ export default class CollectRedirect extends Collect {
 		};
 
 		try {
+			//what to do here? passContext is networkidle0 but there is also post processing logic..
+			//sol 1: declare passContext:false and implement own passcontext events...
 			await util.safeNavigateTimeout(
 				page,
 				'networkidle0',

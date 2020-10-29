@@ -6,7 +6,6 @@ import {AuditSettings} from '../src/types';
 import * as fastify from 'fastify';
 import {Server, IncomingMessage, ServerResponse} from 'http';
 import * as path from 'path';
-import * as puppeteer from 'puppeteer';
 import { Report } from '../src/types/audit';
 
 const server: fastify.FastifyInstance<
@@ -32,7 +31,6 @@ beforeAll(async () => {
 afterAll(async () => {
 	await server.close();
 });
-
 
 describe('run test on sites', ()=>{
 	it('scores audits', async ()=>{
