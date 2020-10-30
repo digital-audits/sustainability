@@ -11,9 +11,12 @@ import {
 import {ConnectionSettingsPrivate} from '../types/settings';
 
 export default class CollectSubfont extends Collect {
-	collectId: CollectorsIds = 'subfontcollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'subfontcollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('Subfont collect'),
+		}
 	}
 
 	static async collect(
@@ -21,7 +24,7 @@ export default class CollectSubfont extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectSubfontsTraces | undefined> {
 		try {
-			const debug = util.debugGenerator('Subfont collect');
+			const debug = CollectSubfont.meta.debug;
 			// May be interesting to give a try at Page._client.FontFamilies
 			debug('running');
 			const {page} = pageContext;

@@ -11,9 +11,12 @@ const GREEN_CHANNEL_POWER = 2.5;
 const SCREENSHOT_SIMILARITY_THRESHOLD = 0.9;
 
 export default class CollectScreenshot extends Collect {
-	collectId: CollectorsIds = 'screenshotcollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'screenshotcollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('Screenshot collect'),
+		}
 	}
 
 	static async collect(
@@ -21,7 +24,7 @@ export default class CollectScreenshot extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectScreenShotTraces | undefined> {
 		try {
-			const debug = util.debugGenerator('Screenshot collect');
+			const debug = CollectScreenshot.meta.debug
 			debug('running');
 			const {page, url} = pageContext;
 			const rgbPower: RGBPowerFormat = {

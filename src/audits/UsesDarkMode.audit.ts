@@ -11,7 +11,7 @@ export default class UsesDarkModeAudit extends Audit {
 			failureTitle: `Dark mode is unavailable`,
 			description: `Having a dark theme or dark mode available in your website can significally decrease the power consumption in OLED displays. You should use it along with the prefers-colors-scheme CSS media feature to detect if the user has requested the system use a light or dark color theme`,
 			category: 'design',
-			collectors: ['transfercollect']
+			collectors: ['screenshotcollect']
 		} as Meta;
 	}
 

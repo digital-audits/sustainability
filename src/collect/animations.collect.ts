@@ -14,9 +14,12 @@ import {DEFAULT} from '../settings/settings';
 
 // fails on : https://codebeautify.org/jsonminifier
 export default class CollectAnimations extends Collect {
-	collectId: CollectorsIds = 'transfercollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'animationscollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('Animations Collect'),
+		}
 	}
 
 	static async collect(
@@ -25,7 +28,7 @@ export default class CollectAnimations extends Collect {
 	): Promise<CollectAnimationsTraces | undefined> {
 		try {
 			// https://chromedevtools.github.io/devtools-protocol/tot/DOM/#type-Node
-			const debug = util.debugGenerator('Animations collect');
+			const debug = CollectAnimations.meta.debug
 			debug('running');
 			const {page} = pageContext;
 
@@ -66,7 +69,7 @@ export default class CollectAnimations extends Collect {
 			const notReactiveAnimationsSet = new Set<string>();
 			const hasAnimations = await new Promise((resolve, reject) => {
 				// @ts-ignore scrollFinished (custom event emited in lazyMedia collect)
-				page.on('scrollFinished', async function scrollHandler() {
+				page.once('scrollFinished', async function scrollHandler() {
 					try {
 						const animationsArray = Array.from(animations.entries());
 						if (!animationsArray.length) {

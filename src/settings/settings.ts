@@ -53,7 +53,8 @@ export const DEFAULT: DefaultSettings = {
 			latitude: 47.6062,
 			longitude: -122.3331,
 			accuracy: 100
-		}
+		},
+		streams:true
 	},
 	CATEGORIES: {
 		server: {
@@ -69,7 +70,7 @@ export const DEFAULT: DefaultSettings = {
 		collectors: [
 			CollectTransfer,
 			CollectRedirect,
-			/*CollectConsole,
+			CollectConsole,
 			CollectSubfont,
 			CollectAssets,
 			CollectMedia,
@@ -79,36 +80,26 @@ export const DEFAULT: DefaultSettings = {
 			CollectAnimations,
 			CollectRobots,
 			CollectMetaTags
-			*/
+			
 		],
 		audits: [
-			//UsesCompressionAudit,
+			UsesCompressionAudit,
 			UsesHTTP2Audit,
-			//UsesGreenServerAudit,
-			//UsesWebpImageFormatAudit,
-			//NoConsoleLogsAudit,
-			//UsesLazyLoadingAudit,
-			//PixelEnergyEfficiencyAudit,
-			//UsesDarkModeAudit,
-			//CookieOptimisation,
-			//AvoidInlineAssetsAudit,
-			//LeverageBrowserCachingAudit,
-			//UsesWebmVideoFormatAudit,
-			//AvoidURLRedirectsAudit,
-			//AvoidableBotTrafficAudit,
-			//ReactiveAnimationsAudit
+			CarbonFootprintAudit,
+			UsesGreenServerAudit,
+			UsesLazyLoadingAudit,
+			PixelEnergyEfficiencyAudit,
+			UsesDarkModeAudit,
+			CookieOptimisation,
+			AvoidInlineAssetsAudit,
+			LeverageBrowserCachingAudit,
+			UsesWebmVideoFormatAudit,
+			AvoidURLRedirectsAudit,
+			AvoidableBotTrafficAudit,
+			ReactiveAnimationsAudit
 		]
 	},
 	REPORT: {
-		scoringWeight: {
-			server: 0.23076923076923078,
-			js: 0.15384615384615385,
-			css: 0.07692307692307693,
-			html: 0.07692307692307693,
-			fonts: 0.07692307692307693,
-			media: 0.15384615384615385,
-			transfer: 0.23076923076923078
-		},
 		scoring: {
 			CF: {median: 4, p10: 1.2, name: 'Carbon Footprint'},
 			cache: {median: 128 * 1024, p10: 28 * 1024, name: 'Cache'}

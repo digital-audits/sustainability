@@ -9,15 +9,19 @@ import {ConnectionSettingsPrivate} from '../types/settings';
 const debug = util.debugGenerator('Failed transfer collect');
 
 export default class CollectFailedTransfers extends Collect {
-	collectId: CollectorsIds = 'failedtransfercollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'failedtransfercollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('Failed transfer collect')
+		}
 	}
 
 	static async collect(
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectFailedTransferTraces | undefined> {
+		const debug = CollectFailedTransfers.meta.debug
 		debug('running');
 		try {
 			const {page} = pageContext;

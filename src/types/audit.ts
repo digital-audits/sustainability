@@ -12,7 +12,7 @@ export interface Meta {
 	/** Audit category: Server or Design */
 	category: 'server' | 'design';
 	/** Traces names this audit requires */
-	collectors: CollectorsIds[];
+	collectors: CollectorsIds|any[];
 }
 export type ScoreDisplayMode = 'numeric' | 'binary' | 'skip';
 
@@ -27,7 +27,8 @@ export type CollectorsIds =
 	| 'imagescollect'
 	| 'consolecollect'
 	| 'assetscollect'
-	| 'screenshotcollect';
+	| 'screenshotcollect'
+	| any;
 
 export type PassContext = 
 	| 'beforenavigation'

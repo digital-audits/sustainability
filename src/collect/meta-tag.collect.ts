@@ -6,16 +6,19 @@ import {ConnectionSettingsPrivate} from '../types/settings';
 import {MetaTagFormat, CollectMetaTagsTraces, MetaTag} from '../types/traces';
 
 export default class CollectMetaTags extends Collect {
-	collectId: CollectorsIds = 'htmlcollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'metatagscollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('Meta tags collect'),
+		}
 	}
 
 	static async collect(
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectMetaTagsTraces | undefined> {
-		const debug = util.debugGenerator('Console Collect');
+		const debug = CollectMetaTags.meta.debug
 		debug('running');
 		const {page} = pageContext;
 

@@ -1,10 +1,9 @@
 import {Readable} from 'stream'
 
 
-export const reportStream = new Readable({
+export const auditStream = new Readable({
     objectMode:true,
     read() {}
 })
 
-reportStream.pipe(process.stdout)
 

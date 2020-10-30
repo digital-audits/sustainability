@@ -6,16 +6,19 @@ import {CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
 export default class CollectMedia extends Collect {
-	collectId: CollectorsIds = 'imagescollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'mediacollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('Collect media'),
+		}
 	}
 
 	static async collect(
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectMediaTraces> {
-		const debug = util.debugGenerator('Collect media');
+		const debug = CollectMedia.meta.debug;
 		debug('running');
 		const {page} = pageContext;
 		const fetchMedia = async () => {
@@ -64,7 +67,6 @@ export default class CollectMedia extends Collect {
 		debug('Fetching document media');
 		const media = await fetchMedia();
 		debug('done');
-
 		return {
 			media
 		};

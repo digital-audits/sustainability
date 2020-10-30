@@ -12,7 +12,7 @@ export default class UsesWebmVideoFormatAudit extends Audit {
 			description:
 				'WebM videos provides superior lossless and lossy compression for videos on the web. They maintain a low file size and high quality at the same time.  Although browser support is good (95%) you may use WebM videos along with other fallback sources.',
 			category: 'design',
-			collectors: ['transfercollect', 'imagescollect']
+			collectors: ['lazymediacollect', 'mediacollect']
 		} as Meta;
 	}
 

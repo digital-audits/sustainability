@@ -12,7 +12,7 @@ export default class AvoidableBotTrafficAudit extends Audit {
 			failureTitle: `Handle bot traffic`,
 			description: `About 40% of current internet traffic and bandwidth is due to bots or web crawlers. Proper handling of robot.txt and <meta name="robots"> allow to control which content should be allowed for bots visiting your site and thus save precious resources. More <a href="https://support.google.com/webmasters/answer/6062596?hl=en">info</a>`,
 			category: 'design',
-			collectors: ['transfercollect']
+			collectors: ['robotscollect', 'metatagscollect','transfercollect']
 		} as Meta;
 	}
 
@@ -46,7 +46,6 @@ export default class AvoidableBotTrafficAudit extends Audit {
 				if (robotMetaTag.length || xRobotTag.length) {
 					return true;
 				}
-
 				if (!traces.robots)
 					errorMessage = 'Consider handling bot traffic in a robots.txt file';
 

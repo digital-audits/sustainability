@@ -13,7 +13,7 @@ export default class PixelEnergyEfficiencyAudit extends Audit {
 			failureTitle: `Website is not pixel energy efficient`,
 			description: `Displays are the dominant energy consuming component of battery-operated devices. Unlike liquid crystal display (LCD) panels which require high intensity backlight, the new emerging organic light emitting diode displays (OLED) emit light by their pixels themselves, which do not need an external backlight as the illumination source. Thus this brings us a new opportunity for energy saving, since energy consumption of each pixel of the OLED depends on the content displayed. `,
 			category: 'design',
-			collectors: ['transfercollect']
+			collectors: ['screenshotcollect']
 		} as Meta;
 	}
 

@@ -2,7 +2,6 @@ import Audit from './audit';
 import * as util from '../utils/utils';
 import {Traces} from '../types/traces';
 import {Meta, SkipResult, Result} from '../types/audit';
-import {resolveSoa} from 'dns';
 /**
  * @fileoverview Audits if compression is used. Instead of looking for the content encoding
  *  Response header, which may not reflect the origin server configuration if it serves

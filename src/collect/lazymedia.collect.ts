@@ -7,9 +7,12 @@ import {CollectLazyMediaTraces} from '../types/traces';
 import {Request} from 'puppeteer';
 
 export default class CollectLazyMedia extends Collect {
-	collectId: CollectorsIds = 'transfercollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'lazymediacollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('Lazy media collect'),
+		}
 	}
 
 	static async collect(
@@ -17,7 +20,7 @@ export default class CollectLazyMedia extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectLazyMediaTraces | undefined> {
 		try {
-			const debug = util.debugGenerator('Lazy media collect');
+			const debug = CollectLazyMedia.meta.debug
 			const {page} = pageContext;
 			await util.safeNavigateTimeout(
 				page,

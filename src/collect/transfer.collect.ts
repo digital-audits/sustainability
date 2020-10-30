@@ -11,6 +11,7 @@ import {
 } from '../types/traces';
 import {CollectorsIds, PassContext} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
+import { EventEmitter } from 'events';
 
 const APPLICABLE_COMPRESSION_MIME_TYPES = [
 	'text/css',
@@ -42,7 +43,7 @@ export default class CollectTransfer extends Collect {
 		return {
 			id:'transfercollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Transfer collect')
+			debug:util.debugGenerator('Transfer collect'),
 		}
 	}
 	static get context(){
@@ -206,12 +207,18 @@ export default class CollectTransfer extends Collect {
 					results.push(information);
 				}
 			});
+			/**
+			 * added this for dynamic evaluation
+			 */
+
+			if(settings.streams)
 			await util.safeNavigateTimeout(
 				page,
 				'networkidle0',
 				settings.maxNavigationTime,
 				debug
 			);
+			
 			debug('done');
 			return {
 				record: results

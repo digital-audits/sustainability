@@ -9,7 +9,8 @@ import Audit from '../audits/audit';
 import { PassContext } from '../types/audit';
 import Collect from '../collect/collect';
 import { Traces } from '../types/traces';
-import { reportStream } from '../sustainability/stream';
+import { auditStream } from '../sustainability/stream';
+import {once, EventEmitter} from 'events'
 
 const debug = util.debugGenerator('Commander');
 
@@ -64,9 +65,17 @@ class Commander {
 		}
 	}
 
-	async asyncEvaluate(pageContext: PageContext): Promise<Array<Promise<any>>> {
+	async evaluate(pageContext:PageContext):Promise<Array<Promise<any>>>{
+		if(this.settings.streams)
+		return this.dynamicEvaluate(pageContext)
+		
+		return this.staticEvaluate(pageContext)
+
+	}
+
+	async staticEvaluate(pageContext: PageContext): Promise<Array<Promise<any>>> {
 		try {
-			debug('Async evaluate')
+			debug('Static evaluate')
 			debug('Runnining collectors');
 			// @ts-ignore
 			const traces = await Promise.allSettled(
@@ -86,21 +95,15 @@ class Commander {
 		}
 	}
 
-	async dynamicEvaluate(pageContext: PageContext){
+	async dynamicEvaluate(pageContext: PageContext):Promise<Array<Promise<any>>>{
 		debug('Dynamic evaluate')
 		debug('Scheduling collectors')
 		const runAuditsMap = new Map<string, any[]>()
-		const {page} = pageContext
-
 		const getCollector = (collectId:string) => 
 		this.audits.collectors.filter((collect:any)=>
 			collect.meta.id === collectId)
-
 		const getAudit = (auditId:string)=>
 		this.audits.audits.filter((audit:any)=>audit.meta.id === auditId)
-
-
-
 		this.audits.audits.forEach((audit:any)=>{
 			const auditCollectorsIds = audit.meta.collectors
 			auditCollectorsIds.forEach((collectorId:string)=>{
@@ -114,11 +117,11 @@ class Commander {
 					}
 			})
 		})
-
 		const schedulerArray = [...runAuditsMap.entries()]
 		const alreadyInstancedCollects = new Set()
 		let globalTraces = {} as Traces
-
+		const globalEventEmitter = new EventEmitter()
+		globalEventEmitter.setMaxListeners(20)
 		//@ts-ignore
 		return Promise.allSettled(
 			schedulerArray.map(async scheduled=>{
@@ -133,46 +136,30 @@ class Commander {
 					}
 					return false
 				})
-
-
 			if(filteredCollectInstances.length){
-				//todo implement passcontext cycle
 				//@ts-ignore
 				const traces = await Promise.allSettled([
 				...collectInstances.map((c:any)=>c.collect(pageContext, this.settings))
 				])
+				debug('parsing traces')
 				const parsedTraces = util.parseAllSettled(traces)
 				globalTraces = {...globalTraces, ...parsedTraces}
-				collectInstances.forEach((collect:any)=>page.emit(collect.meta.id))
+				collectInstances.forEach((collect:any)=>globalEventEmitter.emit(collect.meta.id))
 			}else{
-				await Promise.all([
-					collectInstances.map((collect:any)=>{
-						return new Promise((resolve)=>{
-							debug(`Waiting for ${collect.meta.id} to resolve`)
-							page.on(collect.meta.id, resolve)
-						})
-					})
-				])
+				const promiseArr = collectInstances.map((collect:any)=>{
+					debug(`${auditInstance.meta.id} is waiting for ${collect.meta.id} to resolve`)
+					return once(globalEventEmitter, collect.meta.id)
+				})
+				await Promise.all(promiseArr)
 			}
 			const auditResult = await auditInstance.audit(globalTraces)
-			debug(`Streaming ${auditInstance.meta.id}`)
-			reportStream.push(JSON.stringify(auditResult))
+			debug(`Streaming ${auditInstance.meta.id} audit`)
+			auditStream.push(JSON.stringify(auditResult))
+			
 			return auditResult
 		})
 		)	
 	}
-
-
-	async loadEventContext(loadEvent:LoadEvent, collect:any, pageContext:PageContext){
-		const {page} = pageContext
-		const debug = collect.debug
-		return util.safeNavigateTimeout(page, loadEvent, this.settings.maxNavigationTime, debug)
-	}
-
-	async selectorContext(selector:string, pageContext:PageContext){
-
-	}
-
 }
 
 export default new Commander();

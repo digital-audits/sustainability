@@ -5,11 +5,14 @@ import {Response} from 'puppeteer';
 import {CollectorsIds} from '../types/audit';
 import {CollectRedirectTraces, RedirectResponse} from '../types/traces';
 import {ConnectionSettingsPrivate} from '../types/settings';
+import { EventEmitter } from 'events';
 
 export default class CollectRedirect extends Collect {
 	static get meta() {
 		return {
-			id:'redirectcollect'
+			id:'redirectcollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('Redirect collect')
 		}
 	}
 
@@ -17,7 +20,7 @@ export default class CollectRedirect extends Collect {
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectRedirectTraces | undefined> {
-		const debug = util.debugGenerator('Redirect collect');
+		const debug = CollectRedirect.meta.debug
 		debug('running');
 		const results: RedirectResponse[] = [];
 		const {page, url} = pageContext;

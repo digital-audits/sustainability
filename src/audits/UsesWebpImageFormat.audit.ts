@@ -12,7 +12,7 @@ export default class UsesWebpImageFormatAudit extends Audit {
 			description:
 				'WebP images provides superior lossless and lossy compression for images on the web. They maintain a low file size and high quality at the same time.  Although browser support is good (77%) you may use WebP images along with other fallback sources.',
 			category: 'design',
-			collectors: ['transfercollect', 'imagescollect']
+			collectors: ['lazymediacollect', 'mediacollect', 'lazymediacollect']
 		} as Meta;
 	}
 
@@ -30,7 +30,7 @@ export default class UsesWebpImageFormatAudit extends Audit {
 			img.src ? [img.src] : []
 		);
 
-		if (traces?.lazyMedia?.lazyImages) {
+		if (traces.lazyMedia?.lazyImages) {
 			mediaImages = [...mediaImages, ...traces.lazyMedia.lazyImages];
 		}
 

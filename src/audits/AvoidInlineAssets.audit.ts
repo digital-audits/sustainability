@@ -12,7 +12,7 @@ export default class AvoidInlineAssetsAudit extends Audit {
 			failureTitle: `Uses HTML inlining on big size css/js assets `,
 			description: `It’s not recommended to inline big (>2kb) static resources since they can’t be cached on browser memory`,
 			category: 'design',
-			collectors: ['transfercollect']
+			collectors: ['assetscollect']
 		} as Meta;
 	}
 

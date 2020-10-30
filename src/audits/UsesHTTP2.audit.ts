@@ -2,7 +2,6 @@ import Audit from './audit';
 import * as util from '../utils/utils';
 import {Meta, SkipResult, Result} from '../types/audit';
 import {Traces} from '../types/traces';
-import { reportStream } from '../sustainability/stream';
 
 /**
  * @fileoverview Audit request in the same origin as host use HTTP2.0

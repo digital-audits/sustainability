@@ -7,16 +7,19 @@ import {CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
 export default class CollectConsole extends Collect {
-	collectId: CollectorsIds = 'consolecollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'consolecollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('Console collect'),
+		}
 	}
 
 	static async collect(
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectConsoleTraces | undefined> {
-		const debug = util.debugGenerator('Console collect');
+		const debug = CollectConsole.meta.debug
 		debug('running');
 		try {
 			const {page} = pageContext;
@@ -41,6 +44,14 @@ export default class CollectConsole extends Collect {
 
 				results.push(information);
 			});
+			if(settings.streams)
+			await util.safeNavigateTimeout(
+				page,
+				'networkidle0',
+				settings.maxNavigationTime,
+				debug
+			);
+			
 			debug('done');
 			return {
 				console: results

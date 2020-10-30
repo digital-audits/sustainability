@@ -11,7 +11,7 @@ export default class AvoidURLRedirectsAudit extends Audit {
 			failureTitle: `Has URL redirects`,
 			description: `URL redirects create unnecessary HTTP traffic`,
 			category: 'server',
-			collectors: ['transfercollect']
+			collectors: ['redirectcollect']
 		} as Meta;
 	}
 

@@ -14,7 +14,7 @@ export default class CookieOptimisation extends Audit {
 			failureTitle: `Cookies are not optimised`,
 			description: `Cookies should never exceed more than 1kB in size and always be unique`,
 			category: 'server',
-			collectors: ['transfercollect']
+			collectors: ['redirectcollect', 'cookiescollect']
 		} as Meta;
 	}
 

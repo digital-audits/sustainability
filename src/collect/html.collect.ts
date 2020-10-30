@@ -5,16 +5,19 @@ import {CollectorsIds} from '../types/audit';
 import {CollectHtmlTraces} from '../types/traces';
 
 export default class CollectHTML extends Collect {
-	collectId: CollectorsIds = 'htmlcollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'htmlcollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('HTML Collect'),
+		}
 	}
 
 	static async collect(
 		pageContext: PageContext
 	): Promise<CollectHtmlTraces | undefined> {
 		try {
-			const debug = util.debugGenerator('Console Collect');
+			const debug = CollectHTML.meta.debug
 			debug('running');
 			const {page} = pageContext;
 			const result: string[] = [];

@@ -21,7 +21,7 @@ export default class LeverageBrowserCachingAudit extends Audit {
 			description:
 				'Serving static assets with long cache lifetime can save up important resources',
 			category: 'server',
-			collectors: ['transfercollect', 'imagescollect']
+			collectors: ['transfercollect', 'redirectcollect']
 		} as Meta;
 	}
 

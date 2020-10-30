@@ -1,23 +1,25 @@
 import {PageContext} from '../types';
-import {CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 import {CollectRobotsTraces, RobotsFormat} from '../types/traces';
 import Collect from './collect';
-import * as utils from '../utils/utils';
+import * as util from '../utils/utils';
 
 // Inspired from https://github.com/b4dnewz/robots-parse/blob/master/src/parser.ts work
 
 export default class CollectRobots extends Collect {
-	collectId: CollectorsIds = 'performancecollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id:'robotscollect',
+			passContext: 'networkidle0',
+			debug:util.debugGenerator('Robots collect'),
+		}
 	}
 
 	static async collect(
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectRobotsTraces | undefined> {
-		const debug = utils.debugGenerator('Robots Collect');
+		const debug = CollectRobots.meta.debug
 		debug('running');
 		try {
 			const patterns = {
@@ -38,7 +40,7 @@ export default class CollectRobots extends Collect {
 			const {url} = pageContext;
 			const host = new URL(url).host;
 			debug('Fetching robots.txt');
-			const body = (await utils.fetchRobots(host)) || undefined;
+			const body = (await util.fetchRobots(host)) || undefined;
 			if (!body) {
 				throw new Error('');
 			}

@@ -9,7 +9,6 @@ export interface DefaultSettings {
 	};
 	AUDITS: CollectorAndAudit;
 	REPORT: {
-		scoringWeight: {[key: string]: number};
 		scoring: Scoring;
 		format?: string;
 		webhook?: string;
@@ -35,6 +34,7 @@ export interface ConnectionSettingsPrivate {
 	emulatedDevice: EmulatedDevice;
 	location: EmulatedLocation;
 	maxThrottle: number;
+	streams: boolean
 }
 
 export interface Scoring {
