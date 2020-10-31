@@ -2,16 +2,16 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {CollectMediaTraces, MediaFormat} from '../types/traces';
-import {CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
+import {CollectMeta} from '../types/audit';
 
 export default class CollectMedia extends Collect {
 	static get meta() {
 		return {
-			id:'mediacollect',
+			id: 'mediacollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Collect media'),
-		}
+			debug: util.debugGenerator('Collect media')
+		} as CollectMeta;
 	}
 
 	static async collect(

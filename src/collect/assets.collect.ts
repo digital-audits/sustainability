@@ -11,16 +11,16 @@ import {
 	Sheets,
 	CollectAssetsTraces
 } from '../types/traces';
-import {CollectorsIds} from '../types/audit';
+import {CollectMeta, CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
 export default class CollectAssets extends Collect {
 	static get meta() {
 		return {
-			id:'assetscollect',
+			id: 'assetscollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Assets Collect'),
-		}
+			debug: util.debugGenerator('Assets Collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
@@ -28,7 +28,7 @@ export default class CollectAssets extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectAssetsTraces | undefined> {
 		try {
-			const debug = CollectAssets.meta.debug
+			const debug = CollectAssets.meta.debug;
 			debug('running');
 			const {page} = pageContext;
 			const sheets: Sheets[] = [];

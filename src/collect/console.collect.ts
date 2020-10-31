@@ -3,23 +3,23 @@ import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {ConsoleMessage} from 'puppeteer';
 import {CollectConsoleTraces, ConsoleMessageFormat} from '../types/traces';
-import {CollectorsIds} from '../types/audit';
+import {CollectMeta, CollectorsIds} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
 export default class CollectConsole extends Collect {
 	static get meta() {
 		return {
-			id:'consolecollect',
+			id: 'consolecollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Console collect'),
-		}
+			debug: util.debugGenerator('Console collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectConsoleTraces | undefined> {
-		const debug = CollectConsole.meta.debug
+		const debug = CollectConsole.meta.debug;
 		debug('running');
 		try {
 			const {page} = pageContext;
@@ -44,14 +44,14 @@ export default class CollectConsole extends Collect {
 
 				results.push(information);
 			});
-			if(settings.streams)
-			await util.safeNavigateTimeout(
-				page,
-				'networkidle0',
-				settings.maxNavigationTime,
-				debug
-			);
-			
+			if (settings.streams)
+				await util.safeNavigateTimeout(
+					page,
+					'networkidle0',
+					settings.maxNavigationTime,
+					debug
+				);
+
 			debug('done');
 			return {
 				console: results

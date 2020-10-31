@@ -3,23 +3,24 @@ import {ConnectionSettingsPrivate} from '../types/settings';
 import {CollectRobotsTraces, RobotsFormat} from '../types/traces';
 import Collect from './collect';
 import * as util from '../utils/utils';
+import {CollectMeta} from '../types/audit';
 
 // Inspired from https://github.com/b4dnewz/robots-parse/blob/master/src/parser.ts work
 
 export default class CollectRobots extends Collect {
 	static get meta() {
 		return {
-			id:'robotscollect',
+			id: 'robotscollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Robots collect'),
-		}
+			debug: util.debugGenerator('Robots collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectRobotsTraces | undefined> {
-		const debug = CollectRobots.meta.debug
+		const debug = CollectRobots.meta.debug;
 		debug('running');
 		try {
 			const patterns = {

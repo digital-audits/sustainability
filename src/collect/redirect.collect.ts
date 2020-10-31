@@ -2,25 +2,24 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {Response} from 'puppeteer';
-import {CollectorsIds} from '../types/audit';
+import {CollectMeta} from '../types/audit';
 import {CollectRedirectTraces, RedirectResponse} from '../types/traces';
 import {ConnectionSettingsPrivate} from '../types/settings';
-import { EventEmitter } from 'events';
 
 export default class CollectRedirect extends Collect {
 	static get meta() {
 		return {
-			id:'redirectcollect',
+			id: 'redirectcollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Redirect collect')
-		}
+			debug: util.debugGenerator('Redirect collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
 		pageContext: PageContext,
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectRedirectTraces | undefined> {
-		const debug = CollectRedirect.meta.debug
+		const debug = CollectRedirect.meta.debug;
 		debug('running');
 		const results: RedirectResponse[] = [];
 		const {page, url} = pageContext;
@@ -29,10 +28,6 @@ export default class CollectRedirect extends Collect {
 			const status = response.status();
 			const url = response.url();
 			if (status >= 300 && status !== 304 && status <= 399) {
-				// If the 'Location' header points to a relative URL,
-				// convert it to an absolute URL.
-				// If it already was an absolute URL, it stays like that.
-
 				const redirectsTo = new URL(
 					response.headers().location,
 					url
@@ -63,8 +58,6 @@ export default class CollectRedirect extends Collect {
 		};
 
 		try {
-			//what to do here? passContext is networkidle0 but there is also post processing logic..
-			//sol 1: declare passContext:false and implement own passcontext events...
 			await util.safeNavigateTimeout(
 				page,
 				'networkidle0',

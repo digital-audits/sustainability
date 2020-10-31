@@ -1,9 +1,6 @@
-import {Readable} from 'stream'
-
+import {Readable} from 'stream';
 
 export const auditStream = new Readable({
-    objectMode:true,
-    read() {}
-})
-
-
+	objectMode: true,
+	read() {}
+});

@@ -54,7 +54,7 @@ export const DEFAULT: DefaultSettings = {
 			longitude: -122.3331,
 			accuracy: 100
 		},
-		streams:true
+		streams: true
 	},
 	CATEGORIES: {
 		server: {
@@ -80,7 +80,6 @@ export const DEFAULT: DefaultSettings = {
 			CollectAnimations,
 			CollectRobots,
 			CollectMetaTags
-			
 		],
 		audits: [
 			UsesCompressionAudit,

@@ -1,4 +1,6 @@
 import {LaunchOptions} from 'puppeteer';
+import Audit from '../audits/audit';
+import Collect from '../collect/collect';
 
 export interface DefaultSettings {
 	LAUNCH_SETTINGS: LaunchOptions;
@@ -16,8 +18,8 @@ export interface DefaultSettings {
 }
 
 export interface CollectorAndAudit {
-	collectors: any;
-	audits: any;
+	collectors: Array<typeof Collect>;
+	audits: Array<typeof Audit>;
 }
 
 export interface ConnectionSettings {
@@ -34,7 +36,7 @@ export interface ConnectionSettingsPrivate {
 	emulatedDevice: EmulatedDevice;
 	location: EmulatedLocation;
 	maxThrottle: number;
-	streams: boolean
+	streams: boolean;
 }
 
 export interface Scoring {

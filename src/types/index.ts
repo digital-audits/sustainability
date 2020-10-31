@@ -7,7 +7,7 @@ export interface AuditSettings {
 	page?: Page;
 	launchSettings?: LaunchOptions;
 	connectionSettings?: ConnectionSettings;
-	streams?:boolean
+	streams?: boolean;
 }
 
 export interface Tracker {

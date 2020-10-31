@@ -3,14 +3,15 @@ import {ConnectionSettingsPrivate} from '../types/settings';
 import Collect from './collect';
 import * as util from '../utils/utils';
 import {CollectCookiesTraces} from '../types/traces';
+import {CollectMeta} from '../types/audit';
 
 export default class CollectCookies extends Collect {
 	static get meta() {
 		return {
-			id:'cookiescollect',
+			id: 'cookiescollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Cookies collect'),
-		}
+			debug: util.debugGenerator('Cookies collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
@@ -18,7 +19,7 @@ export default class CollectCookies extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectCookiesTraces | undefined> {
 		try {
-			const debug = CollectCookies.meta.debug
+			const debug = CollectCookies.meta.debug;
 			debug('running');
 			const {page} = pageContext;
 			await util.safeNavigateTimeout(

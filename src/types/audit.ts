@@ -1,4 +1,4 @@
-import { LoadEvent } from "puppeteer";
+import {LoadEvent} from 'puppeteer';
 
 export interface Meta {
 	/** String identifier of the audit */
@@ -12,7 +12,7 @@ export interface Meta {
 	/** Audit category: Server or Design */
 	category: 'server' | 'design';
 	/** Traces names this audit requires */
-	collectors: CollectorsIds|any[];
+	collectors: CollectorsIds[];
 }
 export type ScoreDisplayMode = 'numeric' | 'binary' | 'skip';
 
@@ -28,18 +28,22 @@ export type CollectorsIds =
 	| 'consolecollect'
 	| 'assetscollect'
 	| 'screenshotcollect'
-	| any;
+	| 'animationscollect'
+	| 'mediacollect'
+	| 'lazymediacollect'
+	| 'metatagscollect'
+	| 'robotscollect'
+	| 'cookiescollect';
 
-export type PassContext = 
+export type PassContext =
 	| 'beforenavigation'
 	| 'navigation'
 	| SelectorContext
 	| LoadEvent
-	| 'afternavigation'
-export interface SelectorContext{
-	selector:string
+	| 'afternavigation';
+export interface SelectorContext {
+	selector: string;
 }
-
 
 export interface Result {
 	score: number;
@@ -47,6 +51,12 @@ export interface Result {
 	meta: SuccessOrFailureMeta;
 	extendedInfo?: {value: ExtendedInfo};
 	errorMessage?: string;
+}
+
+export interface CollectMeta {
+	id: CollectorsIds;
+	passContext?: PassContext;
+	debug: debug.Debugger;
 }
 
 export interface SuccessOrFailureMeta {

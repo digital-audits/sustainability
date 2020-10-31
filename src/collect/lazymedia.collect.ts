@@ -1,7 +1,7 @@
 import Collect from './collect';
 import {ConnectionSettingsPrivate} from '../types/settings';
 import * as util from '../utils/utils';
-import {CollectorsIds} from '../types/audit';
+import {CollectMeta} from '../types/audit';
 import {PageContext} from '../types';
 import {CollectLazyMediaTraces} from '../types/traces';
 import {Request} from 'puppeteer';
@@ -9,10 +9,10 @@ import {Request} from 'puppeteer';
 export default class CollectLazyMedia extends Collect {
 	static get meta() {
 		return {
-			id:'lazymediacollect',
+			id: 'lazymediacollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Lazy media collect'),
-		}
+			debug: util.debugGenerator('Lazy media collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
@@ -20,7 +20,7 @@ export default class CollectLazyMedia extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectLazyMediaTraces | undefined> {
 		try {
-			const debug = CollectLazyMedia.meta.debug
+			const debug = CollectLazyMedia.meta.debug;
 			const {page} = pageContext;
 			await util.safeNavigateTimeout(
 				page,

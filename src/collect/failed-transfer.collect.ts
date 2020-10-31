@@ -2,26 +2,24 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {Response} from 'puppeteer';
-import {CollectorsIds} from '../types/audit';
+import {CollectMeta} from '../types/audit';
 import {CollectFailedTransferTraces, FailedRequest} from '../types/traces';
-import {ConnectionSettingsPrivate} from '../types/settings';
 
 const debug = util.debugGenerator('Failed transfer collect');
 
 export default class CollectFailedTransfers extends Collect {
 	static get meta() {
 		return {
-			id:'failedtransfercollect',
+			id: 'failedtransfercollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Failed transfer collect')
-		}
+			debug: util.debugGenerator('Failed transfer collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
-		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		pageContext: PageContext
 	): Promise<CollectFailedTransferTraces | undefined> {
-		const debug = CollectFailedTransfers.meta.debug
+		const debug = CollectFailedTransfers.meta.debug;
 		debug('running');
 		try {
 			const {page} = pageContext;

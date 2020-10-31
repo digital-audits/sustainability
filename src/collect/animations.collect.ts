@@ -1,7 +1,7 @@
 import Collect from './collect';
 import {ConnectionSettingsPrivate} from '../types/settings';
 import * as util from '../utils/utils';
-import {CollectorsIds} from '../types/audit';
+import {CollectMeta, CollectorsIds} from '../types/audit';
 import {PageContext} from '../types';
 import {CollectAnimationsTraces, SingleAnimationFormat} from '../types/traces';
 import {ElementHandle} from 'puppeteer';
@@ -16,10 +16,10 @@ import {DEFAULT} from '../settings/settings';
 export default class CollectAnimations extends Collect {
 	static get meta() {
 		return {
-			id:'animationscollect',
+			id: 'animationscollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Animations Collect'),
-		}
+			debug: util.debugGenerator('Animations Collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
@@ -28,7 +28,7 @@ export default class CollectAnimations extends Collect {
 	): Promise<CollectAnimationsTraces | undefined> {
 		try {
 			// https://chromedevtools.github.io/devtools-protocol/tot/DOM/#type-Node
-			const debug = CollectAnimations.meta.debug
+			const debug = CollectAnimations.meta.debug;
 			debug('running');
 			const {page} = pageContext;
 

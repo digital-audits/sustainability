@@ -122,7 +122,7 @@ export async function navigate(
 	const {page, url} = pageContext;
 	try {
 		// @ts-ignore private _id
-		const pageId = page.mainFrame()._id
+		const pageId = page.mainFrame()._id;
 		debug(`${pageId} Starting navigation to ${url}`);
 		let stopCallback: any = null;
 		const stopPromise = new Promise(x => (stopCallback = x));

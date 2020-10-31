@@ -1,5 +1,5 @@
 import {PageContext} from '../types';
-import {CollectorsIds} from '../types/audit';
+import {CollectMeta, CollectorsIds} from '../types/audit';
 import Collect from './collect';
 import * as util from '../utils/utils';
 import {CollectScreenShotTraces, RGBPowerFormat} from '../types/traces';
@@ -13,10 +13,10 @@ const SCREENSHOT_SIMILARITY_THRESHOLD = 0.9;
 export default class CollectScreenshot extends Collect {
 	static get meta() {
 		return {
-			id:'screenshotcollect',
+			id: 'screenshotcollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Screenshot collect'),
-		}
+			debug: util.debugGenerator('Screenshot collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
@@ -24,7 +24,7 @@ export default class CollectScreenshot extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectScreenShotTraces | undefined> {
 		try {
-			const debug = CollectScreenshot.meta.debug
+			const debug = CollectScreenshot.meta.debug;
 			debug('running');
 			const {page, url} = pageContext;
 			const rgbPower: RGBPowerFormat = {
@@ -88,16 +88,11 @@ export default class CollectScreenshot extends Collect {
 						};
 
 						image.src = 'data:image/png;base64,' + base64Screenshot;
-						await imgLoadPromise; // Dont ever end with ()
-
-						//  Console.log('DARK',window.matchMedia('(prefers-color-scheme: light)').matches
-						// )
-
+						await imgLoadPromise;
 						const canvas = document.createElement(
 							'CANVAS'
 						) as HTMLCanvasElement;
 						const context = canvas.getContext('2d');
-
 						const width = image.naturalWidth;
 						const height = image.naturalHeight;
 						canvas.width = width;

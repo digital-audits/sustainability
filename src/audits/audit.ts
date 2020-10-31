@@ -2,7 +2,7 @@ import {Meta, Result, SkipResult} from '../types/audit';
 import {Traces} from '../types/traces';
 
 export default class Audit {
-	get meta(): Meta {
+	static get meta(): Meta {
 		return {} as Meta;
 	}
 

@@ -5,11 +5,11 @@ import {LaunchOptions, Browser, Page, LoadEvent} from 'puppeteer';
 
 import * as util from '../utils/utils';
 import {Report} from '../types/audit';
-import { auditStream } from './stream';
+import {auditStream} from './stream';
 
 const debug = util.debugGenerator('Sustainability');
 export default class Sustainability {
-	public static auditStream=auditStream;
+	public static auditStream = auditStream;
 	public static async audit(
 		url: string,
 		settings?: AuditSettings
@@ -24,7 +24,7 @@ export default class Sustainability {
 				(await sustainability.startNewConnectionAndReturnBrowser(
 					settings?.launchSettings
 				));
-			
+
 			const coldRunPage = await browser.newPage();
 			await coldRunPage.setRequestInterception(true);
 			await coldRunPage.setJavaScriptEnabled(false);
@@ -33,7 +33,6 @@ export default class Sustainability {
 					const redirectURL = request.url();
 					request.abort();
 					resolve(redirectURL);
-					
 				} else {
 					request.continue();
 				}
@@ -58,6 +57,7 @@ export default class Sustainability {
 				);
 				url = redirectURL;
 			}
+
 			page = await browser.newPage();
 			try {
 				const pageContext = {page, url};
@@ -108,10 +108,10 @@ export default class Sustainability {
 			),
 			Commander.evaluate(pageContext)
 		]);
-		
+
 		page.removeAllListeners();
-		debug('Done streaming audits')
-		Sustainability.auditStream.push(null)
+		debug('Done streaming audits');
+		Sustainability.auditStream.push(null);
 		const resultsParsed = util.parseAllSettled(results, true);
 		const audits = util.groupAudits(resultsParsed);
 		const globalScore = util.computeScore(audits);

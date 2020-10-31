@@ -1,22 +1,17 @@
 import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
-import {CollectorsIds} from '../types/audit';
-import {
-	CollectSubfontsTraces,
-	SubfontFormat,
-	FontInformation,
-	GHOutput
-} from '../types/traces';
+import {CollectSubfontsTraces, SubfontFormat, GHOutput} from '../types/traces';
 import {ConnectionSettingsPrivate} from '../types/settings';
+import {CollectMeta} from '../types/audit';
 
 export default class CollectSubfont extends Collect {
 	static get meta() {
 		return {
-			id:'subfontcollect',
+			id: 'subfontcollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Subfont collect'),
-		}
+			debug: util.debugGenerator('Subfont collect')
+		} as CollectMeta;
 	}
 
 	static async collect(

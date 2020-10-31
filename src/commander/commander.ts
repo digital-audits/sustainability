@@ -6,11 +6,11 @@ import {Tracker, PageContext} from '../types';
 import * as util from '../utils/utils';
 import {ConnectionSettingsPrivate, ConnectionSettings} from '../types/settings';
 import Audit from '../audits/audit';
-import { PassContext } from '../types/audit';
+import {CollectorsIds, PassContext} from '../types/audit';
 import Collect from '../collect/collect';
-import { Traces } from '../types/traces';
-import { auditStream } from '../sustainability/stream';
-import {once, EventEmitter} from 'events'
+import {Traces} from '../types/traces';
+import {auditStream} from '../sustainability/stream';
+import {once, EventEmitter} from 'events';
 
 const debug = util.debugGenerator('Commander');
 
@@ -65,21 +65,19 @@ class Commander {
 		}
 	}
 
-	async evaluate(pageContext:PageContext):Promise<Array<Promise<any>>>{
-		if(this.settings.streams)
-		return this.dynamicEvaluate(pageContext)
-		
-		return this.staticEvaluate(pageContext)
+	async evaluate(pageContext: PageContext): Promise<Array<Promise<any>>> {
+		if (this.settings.streams) return this.dynamicEvaluate(pageContext);
 
+		return this.staticEvaluate(pageContext);
 	}
 
 	async staticEvaluate(pageContext: PageContext): Promise<Array<Promise<any>>> {
 		try {
-			debug('Static evaluate')
+			debug('Static evaluate');
 			debug('Runnining collectors');
 			// @ts-ignore
 			const traces = await Promise.allSettled(
-				this.audits.collectors.map((collect: any) =>
+				this.audits.collectors.map(collect =>
 					collect.collect(pageContext, this.settings)
 				)
 			);
@@ -88,77 +86,89 @@ class Commander {
 			debug('Running audits');
 			// @ts-ignore
 			return Promise.allSettled(
-				this.audits.audits.map((audit: any) => audit.audit(parsedTraces))
+				this.audits.audits.map(audit => audit.audit(parsedTraces))
 			);
 		} catch (error) {
 			throw new Error(`Error: Commander failed with ${error.message}`);
 		}
 	}
 
-	async dynamicEvaluate(pageContext: PageContext):Promise<Array<Promise<any>>>{
-		debug('Dynamic evaluate')
-		debug('Scheduling collectors')
-		const runAuditsMap = new Map<string, any[]>()
-		const getCollector = (collectId:string) => 
-		this.audits.collectors.filter((collect:any)=>
-			collect.meta.id === collectId)
-		const getAudit = (auditId:string)=>
-		this.audits.audits.filter((audit:any)=>audit.meta.id === auditId)
-		this.audits.audits.forEach((audit:any)=>{
-			const auditCollectorsIds = audit.meta.collectors
-			auditCollectorsIds.forEach((collectorId:string)=>{
-					const collectorsArray = runAuditsMap.get(audit.meta.id)
-					const collectorInstance = getCollector(collectorId)
-					
-					if(collectorsArray){
-						runAuditsMap.set(audit.meta.id, [...collectorsArray, collectorInstance])
-					}else{
-						runAuditsMap.set(audit.meta.id, [collectorInstance])
-					}
-			})
-		})
-		const schedulerArray = [...runAuditsMap.entries()]
-		const alreadyInstancedCollects = new Set()
-		let globalTraces = {} as Traces
-		const globalEventEmitter = new EventEmitter()
-		globalEventEmitter.setMaxListeners(20)
-		//@ts-ignore
+	async dynamicEvaluate(
+		pageContext: PageContext
+	): Promise<Array<Promise<any>>> {
+		debug('Dynamic evaluate');
+		debug('Scheduling collectors');
+		const runAuditsMap = new Map<string, Array<typeof Collect>>();
+
+		const getCollector = (collectId: string) =>
+			this.audits.collectors.filter(collect => collect.meta.id === collectId);
+		const getAudit = (auditId: string) =>
+			this.audits.audits.filter(audit => audit.meta.id === auditId);
+
+		this.audits.audits.forEach(audit => {
+			const auditCollectorsIds = audit.meta.collectors;
+			auditCollectorsIds.forEach((collectorId: string) => {
+				const collectorsArray = runAuditsMap.get(audit.meta.id);
+				const collectorInstance = getCollector(collectorId);
+				if (collectorsArray) {
+					runAuditsMap.set(audit.meta.id, [
+						...collectorsArray,
+						...collectorInstance
+					]);
+				} else {
+					runAuditsMap.set(audit.meta.id, collectorInstance);
+				}
+			});
+		});
+		const schedulerArray = [...runAuditsMap.entries()];
+		const alreadyInstancedCollects = new Set<CollectorsIds>();
+		let globalTraces = {} as Traces;
+		const globalEventEmitter = new EventEmitter();
+		globalEventEmitter.setMaxListeners(20);
+		// @ts-ignore
 		return Promise.allSettled(
-			schedulerArray.map(async scheduled=>{
-				//@ts-ignore
-				const collectInstances = scheduled[1].flat()
-				const auditInstance = getAudit(scheduled[0])[0]
-				const filteredCollectInstances = collectInstances.filter((collect:any)=>{
-					if(!alreadyInstancedCollects.has(collect.meta.id)){
-						alreadyInstancedCollects.add(collect.meta.id)
-						debug(`Updated collect queue ${[...alreadyInstancedCollects.values()]}`)
-						return true
+			schedulerArray.map(async scheduled => {
+				const collectInstances = scheduled[1];
+				const auditInstance = getAudit(scheduled[0])[0];
+				const filteredCollectInstances = collectInstances.filter(collect => {
+					if (!alreadyInstancedCollects.has(collect.meta.id)) {
+						alreadyInstancedCollects.add(collect.meta.id);
+						debug(
+							`Updated collect queue ${[...alreadyInstancedCollects.values()]}`
+						);
+						return true;
 					}
-					return false
-				})
-			if(filteredCollectInstances.length){
-				//@ts-ignore
-				const traces = await Promise.allSettled([
-				...collectInstances.map((c:any)=>c.collect(pageContext, this.settings))
-				])
-				debug('parsing traces')
-				const parsedTraces = util.parseAllSettled(traces)
-				globalTraces = {...globalTraces, ...parsedTraces}
-				collectInstances.forEach((collect:any)=>globalEventEmitter.emit(collect.meta.id))
-			}else{
-				const promiseArr = collectInstances.map((collect:any)=>{
-					debug(`${auditInstance.meta.id} is waiting for ${collect.meta.id} to resolve`)
-					return once(globalEventEmitter, collect.meta.id)
-				})
-				await Promise.all(promiseArr)
-			}
-			const auditResult = await auditInstance.audit(globalTraces)
-			debug(`Streaming ${auditInstance.meta.id} audit`)
-			auditStream.push(JSON.stringify(auditResult))
-			
-			return auditResult
-		})
-		)	
+
+					return false;
+				});
+				if (filteredCollectInstances.length) {
+					// @ts-ignore
+					const traces = await Promise.allSettled([
+						...collectInstances.map(c => c.collect(pageContext, this.settings))
+					]);
+					debug('parsing traces');
+					const parsedTraces = util.parseAllSettled(traces);
+					globalTraces = {...globalTraces, ...parsedTraces};
+					collectInstances.forEach(collect =>
+						globalEventEmitter.emit(collect.meta.id)
+					);
+				} else {
+					const promiseArray = collectInstances.map(collect => {
+						debug(
+							`${auditInstance.meta.id} is waiting for ${collect.meta.id} to resolve`
+						);
+						return once(globalEventEmitter, collect.meta.id);
+					});
+					await Promise.all(promiseArray);
+				}
+
+				const auditResult = await auditInstance.audit(globalTraces);
+				debug(`Streaming ${auditInstance.meta.id} audit`);
+				auditStream.push(JSON.stringify(auditResult));
+
+				return auditResult;
+			})
+		);
 	}
 }
 

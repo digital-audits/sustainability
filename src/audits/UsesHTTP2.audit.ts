@@ -48,7 +48,7 @@ export default class UsesHTTP2Audit extends Audit {
 				return true;
 			});
 		const score = Number(auditUrls.size === 0);
-		const meta = util.successOrFailureMeta(UsesHTTP2Audit.meta, score);		
+		const meta = util.successOrFailureMeta(UsesHTTP2Audit.meta, score);
 		debug('done');
 		return {
 			meta,

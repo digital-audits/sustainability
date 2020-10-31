@@ -1,24 +1,23 @@
 import {PageContext} from '../types';
-import {CollectorsIds, Meta} from '../types/audit';
 import Collect from './collect';
 import * as util from '../utils/utils';
 import {ConnectionSettingsPrivate} from '../types/settings';
 import {MetaTagFormat, CollectMetaTagsTraces, MetaTag} from '../types/traces';
+import {CollectMeta} from '../types/audit';
 
 export default class CollectMetaTags extends Collect {
 	static get meta() {
 		return {
-			id:'metatagscollect',
+			id: 'metatagscollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Meta tags collect'),
-		}
+			debug: util.debugGenerator('Meta tags collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
-		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		pageContext: PageContext
 	): Promise<CollectMetaTagsTraces | undefined> {
-		const debug = CollectMetaTags.meta.debug
+		const debug = CollectMetaTags.meta.debug;
 		debug('running');
 		const {page} = pageContext;
 

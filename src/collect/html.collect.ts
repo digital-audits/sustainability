@@ -1,23 +1,23 @@
 import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
-import {CollectorsIds} from '../types/audit';
+import {CollectMeta} from '../types/audit';
 import {CollectHtmlTraces} from '../types/traces';
 
 export default class CollectHTML extends Collect {
 	static get meta() {
 		return {
-			id:'htmlcollect',
+			id: 'htmlcollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('HTML Collect'),
-		}
+			debug: util.debugGenerator('HTML Collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
 		pageContext: PageContext
 	): Promise<CollectHtmlTraces | undefined> {
 		try {
-			const debug = CollectHTML.meta.debug
+			const debug = CollectHTML.meta.debug;
 			debug('running');
 			const {page} = pageContext;
 			const result: string[] = [];

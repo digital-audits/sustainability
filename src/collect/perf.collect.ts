@@ -1,15 +1,17 @@
 import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
-import {CollectorsIds} from '../types/audit';
+import {CollectMeta, CollectorsIds} from '../types/audit';
 import {CollectPerformanceTraces} from '../types/traces';
 import {Metrics} from 'puppeteer';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
 export default class CollectPerformance extends Collect {
-	collectId: CollectorsIds = 'performancecollect';
-	static get id() {
-		return this.collectId;
+	static get meta() {
+		return {
+			id: 'performancecollect',
+			debug: util.debugGenerator('Performance collect')
+		} as CollectMeta;
 	}
 
 	static async collect(
@@ -17,6 +19,8 @@ export default class CollectPerformance extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectPerformanceTraces> {
 		const {page} = pageContext;
+		const debug = CollectPerformance.meta.debug;
+		debug('running');
 		await util.safeNavigateTimeout(page, 'load', settings.maxNavigationTime);
 		const perf: Performance = await page.evaluate(() => performance.toJSON());
 		const metrics: Metrics = await page.metrics();
@@ -24,7 +28,7 @@ export default class CollectPerformance extends Collect {
 			perf,
 			metrics
 		};
-		console.log(JSON.stringify(info));
+		debug('done');
 		return {
 			performance: info
 		};

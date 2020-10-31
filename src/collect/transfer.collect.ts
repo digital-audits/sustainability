@@ -9,9 +9,8 @@ import {
 	Record,
 	ByteFormat
 } from '../types/traces';
-import {CollectorsIds, PassContext} from '../types/audit';
+import {CollectMeta} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
-import { EventEmitter } from 'events';
 
 const APPLICABLE_COMPRESSION_MIME_TYPES = [
 	'text/css',
@@ -41,13 +40,14 @@ const APPLICABLE_COMPRESSION_MIME_TYPES = [
 export default class CollectTransfer extends Collect {
 	static get meta() {
 		return {
-			id:'transfercollect',
+			id: 'transfercollect',
 			passContext: 'networkidle0',
-			debug:util.debugGenerator('Transfer collect'),
-		}
+			debug: util.debugGenerator('Transfer collect')
+		} as CollectMeta;
 	}
-	static get context(){
-		return this.passContext
+
+	static get context() {
+		return this.passContext;
 	}
 
 	static async collect(
@@ -55,7 +55,7 @@ export default class CollectTransfer extends Collect {
 		settings: ConnectionSettingsPrivate
 	): Promise<CollectTransferTraces | undefined> {
 		try {
-			const debug = CollectTransfer.meta.debug
+			const debug = CollectTransfer.meta.debug;
 			debug('running');
 			const {page} = pageContext;
 			const results: Record[] = [];
@@ -207,18 +207,14 @@ export default class CollectTransfer extends Collect {
 					results.push(information);
 				}
 			});
-			/**
-			 * added this for dynamic evaluation
-			 */
 
-			if(settings.streams)
-			await util.safeNavigateTimeout(
-				page,
-				'networkidle0',
-				settings.maxNavigationTime,
-				debug
-			);
-			
+			if (settings.streams)
+				await util.safeNavigateTimeout(
+					page,
+					'networkidle0',
+					settings.maxNavigationTime,
+					debug
+				);
 			debug('done');
 			return {
 				record: results

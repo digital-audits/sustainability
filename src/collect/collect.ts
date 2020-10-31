@@ -8,26 +8,30 @@ import {
 	CollectSubfontsTraces,
 	CollectTransferTraces,
 	CollectPerformanceTraces,
-	CollectFailedTransferTraces
+	CollectFailedTransferTraces,
+	CollectLazyMediaTraces,
+	CollectMetaTagsTraces,
+	CollectScreenShotTraces,
+	CollectCookiesTraces,
+	CollectAnimationsTraces,
+	CollectRobotsTraces
 } from '../types/traces';
-import {CollectorsIds, PassContext} from '../types/audit';
+import {CollectMeta, CollectorsIds, PassContext} from '../types/audit';
 import {ConnectionSettingsPrivate} from '../types/settings';
 
 export default class Collect {
 	public static collectId: CollectorsIds;
-	public static passContext: PassContext
-	public static debug: CallableFunction
-	static get id() {
-		return this.collectId;
-	}
-	static get context(){
-		return this.passContext
-	}
-	static get debugObject(){
-		return this.debug
+	public static passContext: PassContext;
+	public static debug: CallableFunction;
+
+	static get meta() {
+		return {} as CollectMeta;
 	}
 
-	collect(pageContext: PageContext, settings: ConnectionSettingsPrivate) {
+	static async collect(
+		pageContext: PageContext,
+		settings: ConnectionSettingsPrivate
+	) {
 		return {} as Promise<
 			| CollectHtmlTraces
 			| CollectAssetsTraces
@@ -38,6 +42,13 @@ export default class Collect {
 			| CollectTransferTraces
 			| CollectPerformanceTraces
 			| CollectFailedTransferTraces
+			| CollectLazyMediaTraces
+			| CollectMediaTraces
+			| CollectMetaTagsTraces
+			| CollectScreenShotTraces
+			| CollectCookiesTraces
+			| CollectAnimationsTraces
+			| CollectRobotsTraces
 			| undefined
 		>;
 	}
