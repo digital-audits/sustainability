@@ -10,7 +10,7 @@ import {
 	ByteFormat
 } from '../types/traces';
 import {CollectMeta} from '../types/audit';
-import {ConnectionSettingsPrivate} from '../types/settings';
+import {PrivateSettings} from '../types/settings';
 
 const APPLICABLE_COMPRESSION_MIME_TYPES = [
 	'text/css',
@@ -52,7 +52,7 @@ export default class CollectTransfer extends Collect {
 
 	static async collect(
 		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		settings: PrivateSettings
 	): Promise<CollectTransferTraces | undefined> {
 		try {
 			const debug = CollectTransfer.meta.debug;

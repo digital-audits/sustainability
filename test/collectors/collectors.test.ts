@@ -1,16 +1,16 @@
-import {PageContext} from '../../src/types';
-import {Browser} from 'puppeteer';
+import { PageContext } from '../../src/types';
+import { Browser } from 'puppeteer';
 import * as fastify from 'fastify';
-import {Server, IncomingMessage, ServerResponse} from 'http';
+import { Server, IncomingMessage, ServerResponse } from 'http';
 import * as path from 'path';
 import * as puppeteer from 'puppeteer';
 import * as util from '../../src/utils/utils';
 import * as fs from 'fs';
 
 import CollectAssets from '../../src/collect/assets.collect';
-import {DEFAULT} from '../../src/settings/settings';
+import { DEFAULT } from '../../src/settings/settings';
 import CollectFailedTransfers from '../../src/collect/failed-transfer.collect';
-import {ConnectionSettingsPrivate} from '../../src/types/settings';
+import { PrivateSettings } from '../../src/types/settings';
 import {
 	CollectMediaTraces,
 	CollectTransferTraces,
@@ -81,27 +81,27 @@ const createPageContext = async (file: string, url?: string) => {
 
 	if (!url) url = `http://localhost:3333/${file}.html`;
 
-	return {page, url};
+	return { page, url };
 };
 
 const navigate = (pageContext: PageContext) => {
-	const {page, url} = pageContext;
-	return page.goto(url, {waitUntil: 'networkidle0'});
+	const { page, url } = pageContext;
+	return page.goto(url, { waitUntil: 'networkidle0' });
 };
 
 const navigateAndReturnAssets = async <
-	T extends (context: PageContext, settings: ConnectionSettingsPrivate) => any
+	T extends (context: PageContext, settings: PrivateSettings) => any
 >(
 	path: string,
 	collector: T,
 	url?: string
 ): Promise<ReturnType<T> | undefined> => {
 	const pageContext = await createPageContext(path, url);
-	const {page} = pageContext
+	const { page } = pageContext
 
 	try {
-		const runSpecificCode = async ()=>{
-			if(path.startsWith('animations')){
+		const runSpecificCode = async () => {
+			if (path.startsWith('animations')) {
 				await util.scrollFunction(page, defaultConnectionSettings.maxScrollInterval)
 			}
 		}
@@ -109,15 +109,15 @@ const navigateAndReturnAssets = async <
 		const promises = await Promise.all([
 			navigate(pageContext).then(runSpecificCode),
 			collector(pageContext, defaultConnectionSettings)
-			]);
-		
+		]);
+
 
 		return promises[1];
 	} catch (error) {
 		console.log(error);
 		return undefined;
 	}
-	finally{
+	finally {
 		await page.close()
 	}
 };
@@ -125,8 +125,8 @@ const navigateAndReturnAssets = async <
 beforeAll(async () => {
 	await server.listen(3333);
 	browser = await puppeteer.launch({
-		headless:true,
-		args: ['--no-sandbox', '--disable-setuid-sandbo', '--disable-dev-shm-usage','--shm-size=3gb']
+		headless: true,
+		args: ['--no-sandbox', '--disable-setuid-sandbo', '--disable-dev-shm-usage', '--shm-size=3gb']
 	});
 });
 
@@ -161,15 +161,15 @@ describe('Assets collector', () => {
 			`body{background-color: green}`
 		);
 	});
-	it('collects inline assets file size', async()=>{
+	it('collects inline assets file size', async () => {
 		const path = 'inlinecss'
 		const assets = await navigateAndReturnAssets(path, CollectAssets.collect);
 		const cssInlineStyle = assets?.css.info.styles[0]
-		if(cssInlineStyle){
+		if (cssInlineStyle) {
 			const assetSize = encodeURIComponent(cssInlineStyle.text).replace(/%../g, 'x').length
 			expect(cssInlineStyle?.size).toEqual(assetSize)
 		}
-		
+
 	})
 });
 
@@ -236,24 +236,24 @@ describe('Media collector', () => {
 describe('Lazy media collector', () => {
 	it('collects lazy loaded images with page being able to scroll', async () => {
 		const path = 'images';
-		const assets:CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(
+		const assets: CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(
 			path,
 			CollectLazyMedia.collect
 		);
 		expect(assets?.lazyMedia.lazyImages.length).toBeGreaterThan(1)
 	});
-	it('collects lazy loaded videos with page being able to scroll', async ()=>{
-		const path='videos'
-		const assets:CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(
+	it('collects lazy loaded videos with page being able to scroll', async () => {
+		const path = 'videos'
+		const assets: CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(
 			path,
 			CollectLazyMedia.collect
 		);
 
 		expect(assets?.lazyMedia.lazyVideos.length).toBeGreaterThanOrEqual(1)
 	})
-	it('returns undefined with pages unable to scroll', async ()=>{
-		const path='unable-to-scroll'
-		const assets:CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(
+	it('returns undefined with pages unable to scroll', async () => {
+		const path = 'unable-to-scroll'
+		const assets: CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(
 			path,
 			CollectLazyMedia.collect
 		);
@@ -316,29 +316,29 @@ describe('Subfont collector', () => {
 	});
 });
 
-describe('Cookies collector', ()=>{
-	let assets:CollectCookiesTraces | undefined;
+describe('Cookies collector', () => {
+	let assets: CollectCookiesTraces | undefined;
 	beforeAll(async () => {
 		const path = 'cookies';
 		assets = await navigateAndReturnAssets(path, CollectCookies.collect);
 	});
 
-	it('works',()=>{
+	it('works', () => {
 		expect(assets?.cookies).toEqual([{
-			name:'fav', 
-			value:'true', 
-			domain:'localhost',
-			expires:-1,
-			httpOnly:false,
-			path:'/',
-			secure:false,
-			session:true,
-			size:7
+			name: 'fav',
+			value: 'true',
+			domain: 'localhost',
+			expires: -1,
+			httpOnly: false,
+			path: '/',
+			secure: false,
+			session: true,
+			size: 7
 		}])
 	})
-	
+
 })
-describe('Robots collector', ()=>{
+describe('Robots collector', () => {
 	let assets: CollectRobotsTraces | undefined;
 	const path = '';
 	beforeAll(async () => {
@@ -346,68 +346,68 @@ describe('Robots collector', ()=>{
 	})
 	const disallowRules = ['/secret.html/', '/']
 	const allowRules = ['/']
-	it('collects user agents',()=>{
+	it('collects user agents', () => {
 		expect(assets?.robots.agents.all).toBeTruthy()
 	})
-	it('collects disallow rules',()=>{
+	it('collects disallow rules', () => {
 		expect(assets?.robots.disallow).toEqual(disallowRules)
 	})
-	it('collects allow rules',()=>{
+	it('collects allow rules', () => {
 		expect(assets?.robots.allow).toEqual(allowRules)
 	})
-	it('collects specific user agent rules', ()=>{
+	it('collects specific user agent rules', () => {
 		expect(assets?.robots.agents['Mafiabot'].disallow).toEqual(['/'])
 	})
-	it('retries on secure domain if previous insecure one is invalid',async ()=>{
+	it('retries on secure domain if previous insecure one is invalid', async () => {
 		const invalidUrl = 'http://localhost:2323'
-		assets = await navigateAndReturnAssets(path, CollectRobots.collect,invalidUrl)
+		assets = await navigateAndReturnAssets(path, CollectRobots.collect, invalidUrl)
 		expect(assets?.robots).toBeUndefined()
 	})
 })
-describe('Animation collector', ()=>{
-	it('Two animations: one reactive (paused whenever out of viewport) the other not reactive', async ()=>{
+describe('Animation collector', () => {
+	it('Two animations: one reactive (paused whenever out of viewport) the other not reactive', async () => {
 		const path = 'animations'
-		const assets:CollectAnimationsTraces | undefined = await navigateAndReturnAssets(path, CollectAnimations.collect);
+		const assets: CollectAnimationsTraces | undefined = await navigateAndReturnAssets(path, CollectAnimations.collect);
 		expect(assets?.animations?.notReactive.length).toEqual(1)
 		expect(assets?.animations?.notReactive[0].name).toBe('slide')
 	})
 })
 
-describe('Meta tag collector', ()=>{
+describe('Meta tag collector', () => {
 	let assets: CollectMetaTagsTraces | undefined;
 	const path = 'meta-tags';
 	beforeAll(async () => {
 		assets = await navigateAndReturnAssets(path, CollectMetaTags.collect);
 	})
-	it('collects meta tags',()=>{
+	it('collects meta tags', () => {
 		expect(assets?.metatag.length).toBe(3)
 	})
-	it('collects robot meta tags', ()=>{
-		const robotsMetaTag = assets?.metatag.filter(meta=>{
-			if(meta.attr.some(at=>at.name === 'robots')) return true
+	it('collects robot meta tags', () => {
+		const robotsMetaTag = assets?.metatag.filter(meta => {
+			if (meta.attr.some(at => at.name === 'robots')) return true
 			return false
 		})
 		expect(robotsMetaTag).toBeTruthy()
 	})
 })
 
-describe('Screenshot collector', ()=>{
-	let darkmodePower:number | undefined;
-	let lightmodePower:number | undefined;
-	it('detects dark mode with user sys preferences (prefers color scheme)', async ()=>{
+describe('Screenshot collector', () => {
+	let darkmodePower: number | undefined;
+	let lightmodePower: number | undefined;
+	it('detects dark mode with user sys preferences (prefers color scheme)', async () => {
 		const path = 'screenshot-darkmode';
-		const assets:CollectScreenShotTraces | undefined = await navigateAndReturnAssets(path, CollectScreenshot.collect)
+		const assets: CollectScreenShotTraces | undefined = await navigateAndReturnAssets(path, CollectScreenshot.collect)
 		darkmodePower = assets?.screenshot.power
-		expect(assets?.screenshot.hasDarkMode).toBe(true)	
+		expect(assets?.screenshot.hasDarkMode).toBe(true)
 	})
-	it('detects absence of dark mode',async ()=>{
+	it('detects absence of dark mode', async () => {
 		const path = 'screenshot-no-darkmode'
-		const assets:CollectScreenShotTraces | undefined = await navigateAndReturnAssets(path, CollectScreenshot.collect)
-		lightmodePower= assets?.screenshot.power
+		const assets: CollectScreenShotTraces | undefined = await navigateAndReturnAssets(path, CollectScreenshot.collect)
+		lightmodePower = assets?.screenshot.power
 		expect(assets?.screenshot.hasDarkMode).toBe(false)
 	})
-	it('power in dark mode is less compared to light mode', ()=>{
-		if(darkmodePower && lightmodePower)
-		expect(darkmodePower).toBeLessThan(lightmodePower)
-	})	
+	it('power in dark mode is less compared to light mode', () => {
+		if (darkmodePower && lightmodePower)
+			expect(darkmodePower).toBeLessThan(lightmodePower)
+	})
 })

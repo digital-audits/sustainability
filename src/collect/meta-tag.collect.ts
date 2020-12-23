@@ -1,7 +1,7 @@
 import {PageContext} from '../types';
 import Collect from './collect';
 import * as util from '../utils/utils';
-import {ConnectionSettingsPrivate} from '../types/settings';
+import {PrivateSettings} from '../types/settings';
 import {MetaTagFormat, CollectMetaTagsTraces, MetaTag} from '../types/traces';
 import {CollectMeta} from '../types/audit';
 

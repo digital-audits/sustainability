@@ -2,7 +2,7 @@ import Collect from './collect';
 import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {CollectMediaTraces, MediaFormat} from '../types/traces';
-import {ConnectionSettingsPrivate} from '../types/settings';
+import {PrivateSettings} from '../types/settings';
 import {CollectMeta} from '../types/audit';
 
 export default class CollectMedia extends Collect {
@@ -16,7 +16,7 @@ export default class CollectMedia extends Collect {
 
 	static async collect(
 		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		settings: PrivateSettings
 	): Promise<CollectMediaTraces> {
 		const debug = CollectMedia.meta.debug;
 		debug('running');

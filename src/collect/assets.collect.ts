@@ -11,8 +11,8 @@ import {
 	Sheets,
 	CollectAssetsTraces
 } from '../types/traces';
-import {CollectMeta, CollectorsIds} from '../types/audit';
-import {ConnectionSettingsPrivate} from '../types/settings';
+import {CollectMeta} from '../types/audit';
+import {PrivateSettings} from '../types/settings';
 
 export default class CollectAssets extends Collect {
 	static get meta() {
@@ -25,7 +25,7 @@ export default class CollectAssets extends Collect {
 
 	static async collect(
 		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		settings: PrivateSettings
 	): Promise<CollectAssetsTraces | undefined> {
 		try {
 			const debug = CollectAssets.meta.debug;

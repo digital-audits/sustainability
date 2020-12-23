@@ -1,5 +1,5 @@
 import {PageContext} from '../types';
-import {ConnectionSettingsPrivate} from '../types/settings';
+import {PrivateSettings} from '../types/settings';
 import {CollectRobotsTraces, RobotsFormat} from '../types/traces';
 import Collect from './collect';
 import * as util from '../utils/utils';
@@ -18,7 +18,7 @@ export default class CollectRobots extends Collect {
 
 	static async collect(
 		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		settings: PrivateSettings
 	): Promise<CollectRobotsTraces | undefined> {
 		const debug = CollectRobots.meta.debug;
 		debug('running');

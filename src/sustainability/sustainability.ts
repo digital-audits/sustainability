@@ -9,7 +9,13 @@ import {auditStream} from './stream';
 
 const debug = util.debugGenerator('Sustainability');
 export default class Sustainability {
+	/**
+	 * A readable stream of audits to pipe from. Used in combination with streams option.
+	 */
 	public static auditStream = auditStream;
+	/**
+	 * Main method to start a new test on a given url. Returns a report.
+	 */
 	public static async audit(
 		url: string,
 		settings?: AuditSettings
@@ -92,10 +98,7 @@ export default class Sustainability {
 	): Promise<Report> {
 		const startTime = Date.now();
 		const {url} = pageContextRaw;
-		const page = await Commander.setUp(
-			pageContextRaw,
-			settings?.connectionSettings
-		);
+		const page = await Commander.setUp(pageContextRaw, settings);
 		const pageContext = {...pageContextRaw, page};
 		// @ts-ignore allSettled lacks typescript support
 		const results = await Promise.allSettled([
@@ -110,8 +113,11 @@ export default class Sustainability {
 		]);
 
 		page.removeAllListeners();
-		debug('Done streaming audits');
-		Sustainability.auditStream.push(null);
+		if (settings?.connectionSettings?.streams) {
+			debug('Done streaming audits');
+			Sustainability.auditStream.push(null);
+		}
+
 		const resultsParsed = util.parseAllSettled(results, true);
 		const audits = util.groupAudits(resultsParsed);
 		const globalScore = util.computeScore(audits);

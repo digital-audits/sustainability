@@ -1,9 +1,9 @@
 import {PageContext} from '../types';
-import {CollectMeta, CollectorsIds} from '../types/audit';
+import {CollectMeta} from '../types/audit';
 import Collect from './collect';
 import * as util from '../utils/utils';
 import {CollectScreenShotTraces, RGBPowerFormat} from '../types/traces';
-import {ConnectionSettingsPrivate} from '../types/settings';
+import {PrivateSettings} from '../types/settings';
 
 const BLUE_CHANNEL_POWER = 6;
 const RED_CHANNEL_POWER = 2.5;
@@ -21,7 +21,7 @@ export default class CollectScreenshot extends Collect {
 
 	static async collect(
 		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		settings: PrivateSettings
 	): Promise<CollectScreenShotTraces | undefined> {
 		try {
 			const debug = CollectScreenshot.meta.debug;

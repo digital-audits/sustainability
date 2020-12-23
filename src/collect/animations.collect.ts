@@ -1,11 +1,9 @@
 import Collect from './collect';
-import {ConnectionSettingsPrivate} from '../types/settings';
+import {PrivateSettings} from '../types/settings';
 import * as util from '../utils/utils';
-import {CollectMeta, CollectorsIds} from '../types/audit';
+import {CollectMeta} from '../types/audit';
 import {PageContext} from '../types';
 import {CollectAnimationsTraces, SingleAnimationFormat} from '../types/traces';
-import {ElementHandle} from 'puppeteer';
-import {DEFAULT} from '../settings/settings';
 // Const TraceToTimelineModel = require('devtools-timeline-model');
 
 /**
@@ -24,7 +22,7 @@ export default class CollectAnimations extends Collect {
 
 	static async collect(
 		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		settings: PrivateSettings
 	): Promise<CollectAnimationsTraces | undefined> {
 		try {
 			// https://chromedevtools.github.io/devtools-protocol/tot/DOM/#type-Node

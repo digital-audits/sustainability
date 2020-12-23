@@ -4,7 +4,7 @@ import Collect from '../collect/collect';
 
 export interface DefaultSettings {
 	LAUNCH_SETTINGS: LaunchOptions;
-	CONNECTION_SETTINGS: ConnectionSettingsPrivate;
+	CONNECTION_SETTINGS: PrivateSettings;
 	CATEGORIES: {
 		server: {description: string};
 		design: {description: string};
@@ -23,13 +23,41 @@ export interface CollectorAndAudit {
 }
 
 export interface ConnectionSettings {
+	/**
+	 * Navigation timeout. Defaults to 30000 ms
+	 */
 	maxNavigationTime?: number;
+	/**
+	 * Page srolling timeout. Defaults to 30 ms
+	 */
 	maxScrollInterval?: number;
+	/**
+	 * Emulated device defaults to: 
+	 * name: 'Desktop 1920x1080',
+			userAgent:
+				'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36',
+			viewport: {
+				width: 1920,
+				height: 1080
+			}
+	 */
+
 	emulatedDevice?: EmulatedDevice;
+	/**
+	 * Emulated location defaults to: 	
+	 * name: 'Seattle',
+			latitude: 47.6062,
+			longitude: -122.3331,
+			accuracy: 100
+	 */
 	location?: EmulatedLocation;
+	/**
+	 * Should push individual audits results as they go. Defaults to false
+	 */
+	streams?: boolean;
 }
 
-export interface ConnectionSettingsPrivate {
+export interface PrivateSettings {
 	maxNavigationTime: number;
 	maxScrollInterval: number;
 	maxScrollWaitingTime: number;

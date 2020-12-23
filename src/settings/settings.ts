@@ -54,7 +54,7 @@ export const DEFAULT: DefaultSettings = {
 			longitude: -122.3331,
 			accuracy: 100
 		},
-		streams: true
+		streams: false
 	},
 	CATEGORIES: {
 		server: {

@@ -3,8 +3,8 @@ import {PageContext} from '../types';
 import * as util from '../utils/utils';
 import {ConsoleMessage} from 'puppeteer';
 import {CollectConsoleTraces, ConsoleMessageFormat} from '../types/traces';
-import {CollectMeta, CollectorsIds} from '../types/audit';
-import {ConnectionSettingsPrivate} from '../types/settings';
+import {CollectMeta} from '../types/audit';
+import {PrivateSettings} from '../types/settings';
 
 export default class CollectConsole extends Collect {
 	static get meta() {
@@ -17,7 +17,7 @@ export default class CollectConsole extends Collect {
 
 	static async collect(
 		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		settings: PrivateSettings
 	): Promise<CollectConsoleTraces | undefined> {
 		const debug = CollectConsole.meta.debug;
 		debug('running');

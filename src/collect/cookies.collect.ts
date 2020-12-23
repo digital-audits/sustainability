@@ -1,5 +1,5 @@
 import {PageContext} from '../types';
-import {ConnectionSettingsPrivate} from '../types/settings';
+import {PrivateSettings} from '../types/settings';
 import Collect from './collect';
 import * as util from '../utils/utils';
 import {CollectCookiesTraces} from '../types/traces';
@@ -16,7 +16,7 @@ export default class CollectCookies extends Collect {
 
 	static async collect(
 		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		settings: PrivateSettings
 	): Promise<CollectCookiesTraces | undefined> {
 		try {
 			const debug = CollectCookies.meta.debug;

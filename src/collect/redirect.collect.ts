@@ -4,7 +4,7 @@ import * as util from '../utils/utils';
 import {Response} from 'puppeteer';
 import {CollectMeta} from '../types/audit';
 import {CollectRedirectTraces, RedirectResponse} from '../types/traces';
-import {ConnectionSettingsPrivate} from '../types/settings';
+import {PrivateSettings} from '../types/settings';
 
 export default class CollectRedirect extends Collect {
 	static get meta() {
@@ -17,7 +17,7 @@ export default class CollectRedirect extends Collect {
 
 	static async collect(
 		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		settings: PrivateSettings
 	): Promise<CollectRedirectTraces | undefined> {
 		const debug = CollectRedirect.meta.debug;
 		debug('running');

@@ -1,5 +1,5 @@
 import Collect from './collect';
-import {ConnectionSettingsPrivate} from '../types/settings';
+import {PrivateSettings} from '../types/settings';
 import * as util from '../utils/utils';
 import {CollectMeta} from '../types/audit';
 import {PageContext} from '../types';
@@ -17,7 +17,7 @@ export default class CollectLazyMedia extends Collect {
 
 	static async collect(
 		pageContext: PageContext,
-		settings: ConnectionSettingsPrivate
+		settings: PrivateSettings
 	): Promise<CollectLazyMediaTraces | undefined> {
 		try {
 			const debug = CollectLazyMedia.meta.debug;

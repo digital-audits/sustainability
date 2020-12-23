@@ -2,12 +2,26 @@ import {LaunchOptions, Page, Browser} from 'puppeteer';
 import {ConnectionSettings} from './settings';
 
 export interface AuditSettings {
+	/**
+	 * Identifier for the current test. Defaults to uuid
+	 */
 	id?: string;
+	/**
+	 * Puppeteer browser object. Defaults to a newly instiatiated browser
+	 */
 	browser?: Browser;
+	/**
+	 * Puppeteer page object. Defaults a new page
+	 */
 	page?: Page;
+	/**
+	 * Puppeteer launch settings. Defaults to puppeteer's
+	 */
 	launchSettings?: LaunchOptions;
+	/**
+	 * Sustainability test settings
+	 */
 	connectionSettings?: ConnectionSettings;
-	streams?: boolean;
 }
 
 export interface Tracker {

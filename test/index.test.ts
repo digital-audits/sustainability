@@ -1,5 +1,4 @@
-import {Sustainability} from '../src';
-import commander from '../src/commander/commander';
+import { Sustainability } from '../src';
 
 test('Sustainability is exported', () => {
 	expect(Sustainability).toBeDefined();

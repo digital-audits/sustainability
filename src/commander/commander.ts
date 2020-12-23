@@ -2,10 +2,9 @@ import {LoadEvent, Page} from 'puppeteer';
 import {DEFAULT} from '../settings/settings';
 import path = require('path');
 import fs = require('fs');
-import {Tracker, PageContext} from '../types';
+import {Tracker, PageContext, AuditSettings} from '../types';
 import * as util from '../utils/utils';
-import {ConnectionSettingsPrivate, ConnectionSettings} from '../types/settings';
-import Audit from '../audits/audit';
+import {PrivateSettings, ConnectionSettings} from '../types/settings';
 import {CollectorsIds, PassContext} from '../types/audit';
 import Collect from '../collect/collect';
 import {Traces} from '../types/traces';
@@ -15,20 +14,21 @@ import {once, EventEmitter} from 'events';
 const debug = util.debugGenerator('Commander');
 
 class Commander {
-	private settings = {} as ConnectionSettingsPrivate;
+	private settings = {} as PrivateSettings;
 	private readonly audits = DEFAULT.AUDITS;
 	private tracker = {} as Tracker;
 
 	async setUp(
 		pageContext: PageContext,
-		settings?: ConnectionSettings
+		settings?: AuditSettings
 	): Promise<Page> {
 		try {
 			debug('Running set up');
 			const {page, url} = pageContext;
-			this.settings = settings
-				? {...DEFAULT.CONNECTION_SETTINGS, ...settings}
+			this.settings = settings?.connectionSettings
+				? {...DEFAULT.CONNECTION_SETTINGS, ...settings.connectionSettings}
 				: DEFAULT.CONNECTION_SETTINGS;
+
 			this.tracker = util.createTracker(page);
 
 			// Page.setJavaScriptEnabled(false); Speeds up process drastically
@@ -102,8 +102,6 @@ class Commander {
 
 		const getCollector = (collectId: string) =>
 			this.audits.collectors.filter(collect => collect.meta.id === collectId);
-		const getAudit = (auditId: string) =>
-			this.audits.audits.filter(audit => audit.meta.id === auditId);
 
 		this.audits.audits.forEach(audit => {
 			const auditCollectorsIds = audit.meta.collectors;
@@ -121,54 +119,65 @@ class Commander {
 			});
 		});
 		const schedulerArray = [...runAuditsMap.entries()];
+		const auditResults = await this.getAuditResults(
+			schedulerArray,
+			pageContext
+		);
+		// @ts-ignore
+		return Promise.allSettled(auditResults);
+	}
+
+	private async getAuditResults(
+		schedulerArray: Array<[string, Array<typeof Collect>]>,
+		pageContext: PageContext
+	) {
 		const alreadyInstancedCollects = new Set<CollectorsIds>();
 		let globalTraces = {} as Traces;
 		const globalEventEmitter = new EventEmitter();
 		globalEventEmitter.setMaxListeners(20);
-		// @ts-ignore
-		return Promise.allSettled(
-			schedulerArray.map(async scheduled => {
-				const collectInstances = scheduled[1];
-				const auditInstance = getAudit(scheduled[0])[0];
-				const filteredCollectInstances = collectInstances.filter(collect => {
-					if (!alreadyInstancedCollects.has(collect.meta.id)) {
-						alreadyInstancedCollects.add(collect.meta.id);
-						debug(
-							`Updated collect queue ${[...alreadyInstancedCollects.values()]}`
-						);
-						return true;
-					}
-
-					return false;
-				});
-				if (filteredCollectInstances.length) {
-					// @ts-ignore
-					const traces = await Promise.allSettled([
-						...collectInstances.map(c => c.collect(pageContext, this.settings))
-					]);
-					debug('parsing traces');
-					const parsedTraces = util.parseAllSettled(traces);
-					globalTraces = {...globalTraces, ...parsedTraces};
-					collectInstances.forEach(collect =>
-						globalEventEmitter.emit(collect.meta.id)
+		const getAudit = (auditId: string) =>
+			this.audits.audits.filter(audit => audit.meta.id === auditId);
+		return schedulerArray.map(async scheduled => {
+			const collectInstances = scheduled[1];
+			const auditInstance = getAudit(scheduled[0])[0];
+			const filteredCollectInstances = collectInstances.filter(collect => {
+				if (!alreadyInstancedCollects.has(collect.meta.id)) {
+					alreadyInstancedCollects.add(collect.meta.id);
+					debug(
+						`Updated collect queue ${[...alreadyInstancedCollects.values()]}`
 					);
-				} else {
-					const promiseArray = collectInstances.map(collect => {
-						debug(
-							`${auditInstance.meta.id} is waiting for ${collect.meta.id} to resolve`
-						);
-						return once(globalEventEmitter, collect.meta.id);
-					});
-					await Promise.all(promiseArray);
+					return true;
 				}
 
-				const auditResult = await auditInstance.audit(globalTraces);
-				debug(`Streaming ${auditInstance.meta.id} audit`);
-				auditStream.push(JSON.stringify(auditResult));
+				return false;
+			});
+			if (filteredCollectInstances.length) {
+				// @ts-ignore
+				const traces = await Promise.allSettled([
+					...collectInstances.map(c => c.collect(pageContext, this.settings))
+				]);
+				debug('parsing traces');
+				const parsedTraces = util.parseAllSettled(traces);
+				globalTraces = {...globalTraces, ...parsedTraces};
+				collectInstances.forEach(collect =>
+					globalEventEmitter.emit(collect.meta.id)
+				);
+			} else {
+				const promiseArray = collectInstances.map(collect => {
+					debug(
+						`${auditInstance.meta.id} is waiting for ${collect.meta.id} to resolve`
+					);
+					return once(globalEventEmitter, collect.meta.id);
+				});
+				await Promise.all(promiseArray);
+			}
 
-				return auditResult;
-			})
-		);
+			const auditResult = await auditInstance.audit(globalTraces);
+			debug(`Streaming ${auditInstance.meta.id} audit`);
+			auditStream.push(JSON.stringify(auditResult));
+
+			return auditResult;
+		});
 	}
 }
 
