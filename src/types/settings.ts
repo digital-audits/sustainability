@@ -1,4 +1,4 @@
-import {LaunchOptions} from 'puppeteer';
+import { LaunchOptions } from 'puppeteer';
 import Audit from '../audits/audit';
 import Collect from '../collect/collect';
 
@@ -6,8 +6,8 @@ export interface DefaultSettings {
 	LAUNCH_SETTINGS: LaunchOptions;
 	CONNECTION_SETTINGS: PrivateSettings;
 	CATEGORIES: {
-		server: {description: string};
-		design: {description: string};
+		server: { description: string };
+		design: { description: string };
 	};
 	AUDITS: CollectorAndAudit;
 	REPORT: {
@@ -55,6 +55,10 @@ export interface ConnectionSettings {
 	 * Should push individual audits results as they go. Defaults to false
 	 */
 	streams?: boolean;
+	/**
+	 * Should initialise a cold run to find any potential URL redirect. Defaults to true
+	 */
+	coldRun?: boolean;
 }
 
 export interface PrivateSettings {
@@ -65,6 +69,7 @@ export interface PrivateSettings {
 	location: EmulatedLocation;
 	maxThrottle: number;
 	streams: boolean;
+	coldRun: boolean;
 }
 
 export interface Scoring {

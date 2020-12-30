@@ -11,7 +11,7 @@ import UsesWebpImageFormatAudit from '../audits/UsesWebpImageFormat.audit';
 import NoConsoleLogsAudit from '../audits/NoConsoleLogs.audit';
 import UsesFontSubsettingAudit from '../audits/UsesFontSubsetting.audit';
 import UsesLazyLoadingAudit from '../audits/UsesLazyLoading.audit';
-import {DefaultSettings} from '../types/settings';
+import { DefaultSettings } from '../types/settings';
 import CollectScreenshot from '../collect/screenshot.collect';
 import PixelEnergyEfficiencyAudit from '../audits/PixelEnergyEfficiency.audit';
 import UsesDarkModeAudit from '../audits/UsesDarkMode.audit';
@@ -54,7 +54,8 @@ export const DEFAULT: DefaultSettings = {
 			longitude: -122.3331,
 			accuracy: 100
 		},
-		streams: false
+		streams: false,
+		coldRun: true
 	},
 	CATEGORIES: {
 		server: {
@@ -100,8 +101,8 @@ export const DEFAULT: DefaultSettings = {
 	},
 	REPORT: {
 		scoring: {
-			CF: {median: 4, p10: 1.2, name: 'Carbon Footprint'},
-			cache: {median: 128 * 1024, p10: 28 * 1024, name: 'Cache'}
+			CF: { median: 4, p10: 1.2, name: 'Carbon Footprint' },
+			cache: { median: 128 * 1024, p10: 28 * 1024, name: 'Cache' }
 		}
 	}
 };

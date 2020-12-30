@@ -1,11 +1,11 @@
 import Audit from './audit';
-import {variables} from '../references/references';
-import {DEFAULT} from '../settings/settings';
-import {sum} from '../bin/statistics';
-import {isGreenServerMem} from '../utils/utils';
+import { variables } from '../references/references';
+import { DEFAULT } from '../settings/settings';
+import { sum } from '../bin/statistics';
+import { isGreenServerMem } from '../utils/utils';
 import * as util from '../utils/utils';
-import {Meta, Result} from '../types/audit';
-import {Traces} from '../types/traces';
+import { Meta, Result } from '../types/audit';
+import { Traces } from '../types/traces';
 
 const MB_TO_BYTES = 1024 * 1024;
 const GB_TO_MB = 1024;
@@ -29,19 +29,19 @@ export default class CarbonFootprintAudit extends Audit {
 	 */
 	static async audit(traces: Traces): Promise<Result | undefined> {
 		/* Const getGeoLocation = (ip:string) => {
-            //2 letter ISO-3166-1 country code https://www.iban.com/country-codes
-            const country = geoip.lookup(ip)?.country
+			//2 letter ISO-3166-1 country code https://www.iban.com/country-codes
+			const country = geoip.lookup(ip)?.country
 
-            if(country){
-                return country
-            }
+			if(country){
+				return country
+			}
 
-            return 'AVG'
+			return 'AVG'
 
-            }
+			}
 
-        const getGeoLocationMem = memoize(getGeoLocation)
-        */
+		const getGeoLocationMem = memoize(getGeoLocation)
+		*/
 		const debug = util.debugGenerator('Carbonfootprint Audit');
 		debug('running');
 		const getValidRecords = async () => {
@@ -64,19 +64,19 @@ export default class CarbonFootprintAudit extends Audit {
 			// TODO: Bring the carbon data by regions first
 			/* Return records.map(record=>{
 
-                    
-                   /* if(record.isGreen === false){
-                        const location = getGeoLocationMem(record.ip)
+				    
+				   /* if(record.isGreen === false){
+						const location = getGeoLocationMem(record.ip)
 
-                        return {
-                            ...record,
-                            location
-                        }
-                    }
+						return {
+							...record,
+							location
+						}
+					}
 
-                    return record
-                })
-                */
+					return record
+				})
+				*/
 		};
 
 		debug('evaluating energy source');
@@ -132,9 +132,9 @@ export default class CarbonFootprintAudit extends Audit {
 			variables.defaultCarbonIntensity[0] *
 			variables.defaultDailyVisitors[0];
 
-		const {median, p10} = DEFAULT.REPORT.scoring.CF;
+		const { median, p10 } = DEFAULT.REPORT.scoring.CF;
 		debug('computing log normal score');
-		const score = util.computeLogNormalScore({median, p10}, metric) || 0;
+		const score = util.computeLogNormalScore({ median, p10 }, metric) || 0;
 		const meta = util.successOrFailureMeta(CarbonFootprintAudit.meta, score);
 		debug('done');
 		return {

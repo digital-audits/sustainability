@@ -1,11 +1,12 @@
 import Connection from '../connection/connection';
 import Commander from '../commander/commander';
-import {PageContext, AuditSettings} from '../types';
-import {LaunchOptions, Browser, Page, LoadEvent} from 'puppeteer';
+import { DEFAULT } from '../settings/settings';
+import { PageContext, AuditSettings } from '../types';
+import { LaunchOptions, Browser, Page, LoadEvent } from 'puppeteer';
 
 import * as util from '../utils/utils';
-import {Report} from '../types/audit';
-import {auditStream} from './stream';
+import { Report } from '../types/audit';
+import { auditStream } from './stream';
 
 const debug = util.debugGenerator('Sustainability');
 export default class Sustainability {
@@ -31,31 +32,11 @@ export default class Sustainability {
 					settings?.launchSettings
 				));
 
-			const coldRunPage = await browser.newPage();
-			await coldRunPage.setRequestInterception(true);
-			await coldRunPage.setJavaScriptEnabled(false);
-			async function handleRequest(request: any, resolve: any) {
-				if (request.isNavigationRequest() && request.redirectChain().length) {
-					const redirectURL = request.url();
-					request.abort();
-					resolve(redirectURL);
-				} else {
-					request.continue();
-				}
+			let redirectURL = undefined;
+			const isColdRun = settings?.connectionSettings?.coldRun ?? DEFAULT.CONNECTION_SETTINGS.coldRun
+			if (isColdRun) {
+				redirectURL = await sustainability.spawnColdRun(browser, url)
 			}
-
-			const redirectURLPromise = new Promise<string | undefined>(
-				async resolve => {
-					coldRunPage.on('request', request => handleRequest(request, resolve));
-					debug('Starting cold run and looking for URL redirects');
-				}
-			);
-			let redirectURL: string | undefined;
-			const coldPageContext = {page: coldRunPage, url};
-			await Promise.race([
-				redirectURLPromise.then(v => (redirectURL = v)),
-				util.navigate(coldPageContext, 'networkidle0', debug, true)
-			]);
 
 			if (redirectURL) {
 				comments.push(
@@ -66,7 +47,7 @@ export default class Sustainability {
 
 			page = await browser.newPage();
 			try {
-				const pageContext = {page, url};
+				const pageContext = { page, url };
 				const report = await sustainability.handler(pageContext, settings);
 				if (comments.length) report.comments = comments;
 
@@ -92,14 +73,44 @@ export default class Sustainability {
 		return browser;
 	}
 
+	private async spawnColdRun(browser: Browser, url: string): Promise<string | undefined> {
+		const coldRunPage = await browser.newPage();
+		await coldRunPage.setRequestInterception(true);
+		await coldRunPage.setJavaScriptEnabled(false);
+		async function handleRequest(request: any, resolve: any) {
+			if (request.isNavigationRequest() && request.redirectChain().length) {
+				const redirectURL = request.url();
+				request.abort();
+				resolve(redirectURL);
+			} else {
+				request.continue();
+			}
+		}
+
+		const redirectURLPromise = new Promise<string | undefined>(
+			async resolve => {
+				coldRunPage.on('request', request => handleRequest(request, resolve));
+				debug('Starting cold run and looking for URL redirects');
+			}
+		);
+		let redirectURL: string | undefined;
+		const coldPageContext = { page: coldRunPage, url };
+		await Promise.race([
+			redirectURLPromise.then(v => (redirectURL = v)),
+			util.navigate(coldPageContext, 'networkidle0', debug, true)
+		]);
+
+		return redirectURL
+	}
+
 	private async handler(
 		pageContextRaw: PageContext,
 		settings?: AuditSettings
 	): Promise<Report> {
 		const startTime = Date.now();
-		const {url} = pageContextRaw;
+		const { url } = pageContextRaw;
 		const page = await Commander.setUp(pageContextRaw, settings);
-		const pageContext = {...pageContextRaw, page};
+		const pageContext = { ...pageContextRaw, page };
 		// @ts-ignore allSettled lacks typescript support
 		const results = await Promise.allSettled([
 			util.navigate(

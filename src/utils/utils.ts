@@ -1,5 +1,5 @@
 import * as Debug from 'debug';
-import {Page, Request, LoadEvent} from 'puppeteer';
+import { Page, Request, LoadEvent } from 'puppeteer';
 import {
 	PageContext,
 	PromiseAllSettledFulfilled,
@@ -24,9 +24,9 @@ import {
 	AuditsByCategory,
 	Result
 } from '../types/audit';
-import {Record, Headers} from '../types/traces';
-import {DEFAULT} from '../settings/settings';
-import {ConnectionSettings} from '../types/settings';
+import { Record, Headers } from '../types/traces';
+import { DEFAULT } from '../settings/settings';
+import { ConnectionSettings } from '../types/settings';
 
 export function debugGenerator(namespace: string): Debug.IDebugger {
 	const debug = Debug(`sustainability: ${namespace}`);
@@ -72,14 +72,14 @@ export async function scrollFunction(
 							}
 
 							clearInterval(interval);
-							resolve();
+							resolve(undefined);
 						}, maxScrollInterval);
 					}),
 				maxScrollInterval
 			),
 			new Promise(resolve =>
 				setTimeout(
-					() => resolve(),
+					() => resolve(undefined),
 					DEFAULT.CONNECTION_SETTINGS.maxScrollWaitingTime
 				)
 			)
@@ -119,7 +119,7 @@ export async function navigate(
 	end = false,
 	settings?: ConnectionSettings
 ) {
-	const {page, url} = pageContext;
+	const { page, url } = pageContext;
 	try {
 		// @ts-ignore private _id
 		const pageId = page.mainFrame()._id;
@@ -142,7 +142,7 @@ export async function navigate(
 					)
 				),
 			settings?.maxNavigationTime ??
-				DEFAULT.CONNECTION_SETTINGS.maxNavigationTime
+			DEFAULT.CONNECTION_SETTINGS.maxNavigationTime
 		);
 		await Promise.race([navigateAndClearTimeout(), stopPromise]);
 		debug('Done navigation');
@@ -251,7 +251,7 @@ const isGreenServer = async (
 			signal: controller.signal
 		});
 
-		const responseToJson = await response.json();
+		const responseToJson = await response.json() as undefined | APIResponse;
 
 		return responseToJson;
 	} catch (error) {
@@ -264,12 +264,12 @@ const isGreenServer = async (
 	}
 };
 
-export const isGreenServerMem = memoizee(isGreenServer, {async: true});
+export const isGreenServerMem = memoizee(isGreenServer, { async: true });
 
 export async function fetchRobots(
 	host: string,
 	secure = false
-): Promise<string> {
+): Promise<string | undefined> {
 	const controller = new AbortController();
 	const timeout = setTimeout(() => {
 		controller.abort();
@@ -309,7 +309,7 @@ export async function safeNavigateTimeout(
 
 	let stopCallback: any = null;
 	const navigate = async () => {
-		await page.waitForNavigation({waitUntil});
+		await page.waitForNavigation({ waitUntil });
 		clearTimeout(stopNavigation);
 	};
 
@@ -328,7 +328,7 @@ export async function safeNavigateTimeout(
  *
  */
 export function computeLogNormalScore(
-	controlPoints: {median: number; p10: number},
+	controlPoints: { median: number; p10: number },
 	value: number
 ): number {
 	const percentile = getLogNormalScore(controlPoints, value);
@@ -362,7 +362,7 @@ export function groupAudits(list: Result[]): AuditsByCategory[] {
 			const catDescription = DEFAULT.CATEGORIES[key].description;
 
 			return {
-				category: {name: key, description: catDescription},
+				category: { name: key, description: catDescription },
 				score: auditScore,
 				audits: auditsByFailOrPassOrSkip
 			};
@@ -376,17 +376,17 @@ export function successOrFailureMeta(
 	meta: Meta,
 	score: number
 ): SuccessOrFailureMeta {
-	const {title, failureTitle, collectors, ...output} = meta;
+	const { title, failureTitle, collectors, ...output } = meta;
 
 	if (hasFailed(score)) {
-		return {title: failureTitle, ...output};
+		return { title: failureTitle, ...output };
 	}
 
-	return {title, ...output};
+	return { title, ...output };
 }
 
 export function skipMeta(meta: Meta): SkipMeta {
-	return {id: meta.id, category: meta.category, description: meta.description};
+	return { id: meta.id, category: meta.category, description: meta.description };
 }
 
 export function hasFailed(score: number) {
@@ -406,12 +406,12 @@ export function successOrFailureOrSkipAudits(
 			(skipAudit
 				? object.skip
 				: hasFailed(v.score)
-				? object.fail
-				: object.pass
+					? object.fail
+					: object.pass
 			).push(v);
 			return object;
 		},
-		{pass: [], fail: [], skip: []} as AuditByFailOrPassOrSkip
+		{ pass: [], fail: [], skip: [] } as AuditByFailOrPassOrSkip
 	);
 
 	return out;
@@ -554,25 +554,25 @@ export function str2ab(string: string): ArrayBuffer {
 }
 
 /**
- * 
+ *
  * All this is to obtain summary from traces, commented out at the moment
- 
+
 export function sleep(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  		//@ts-ignore
+			//@ts-ignore
 
 export function getSummary(model, startTime, endTime) {
 
 	let _aggregatedStatsKey = Symbol('aggregatedStats');
-  
+
 			//@ts-ignore
 
 	function buildRangeStats(model, startTime, endTime) {
 	  var aggregatedStats = {};
-  
-	  		//@ts-ignore
+
+				//@ts-ignore
 
 	  function compareEndTime(value, task) {
 		return value < task.endTime() ? -1 : 1;
@@ -592,7 +592,7 @@ export function getSummary(model, startTime, endTime) {
 			task[_aggregatedStatsKey] = taskStats;
 		  }
 		  for (var key in taskStats)
-		  		//@ts-ignore
+					//@ts-ignore
 
 			aggregatedStats[key] = (aggregatedStats[key] || 0) + taskStats[key];
 		  continue;
@@ -601,13 +601,13 @@ export function getSummary(model, startTime, endTime) {
 	  }
 	  var aggregatedTotal = 0;
 	  for (var categoryName in aggregatedStats)
-	  		//@ts-ignore
+				//@ts-ignore
 
 		aggregatedTotal += aggregatedStats[categoryName];
 				//@ts-ignore
 
 	  aggregatedStats['idle'] = Math.max(0, endTime - startTime - aggregatedTotal);
-  
+
 	  return aggregatedStats;
 	}
 
@@ -629,7 +629,7 @@ export function getSummary(model, startTime, endTime) {
 		var ownTime = Math.min(endTime, record.endTime()) - Math.max(startTime, record.startTime()) - childrenTime;
 		aggregatedStats[categoryName] = (aggregatedStats[categoryName] || 0) + ownTime;
 	  }
-	
+
 	  class TimelineCategory {
 		name:string
 		title:string
@@ -646,7 +646,7 @@ export function getSummary(model, startTime, endTime) {
 		  this.hidden = false;
 		}
 	  }
-	
+
 	  class TimelineRecordStyle  {
 		  title:string
 		  category:any
@@ -657,13 +657,13 @@ export function getSummary(model, startTime, endTime) {
 		  this.hidden = !!hidden;
 		}
 	  };
-	
+
 	  const Category = {
 		Console: 'blink.console',
 		UserTiming: 'blink.user_timing',
 		LatencyInfo: 'latencyInfo'
 	  };
-	
+
 	  const CATEGORIES = {
 		loading: new TimelineCategory('loading', 'Loading', true, 'hsl(214, 67%, 74%)', 'hsl(214, 67%, 66%)'),
 		scripting: new TimelineCategory('scripting', 'Scripting', true, 'hsl(43, 83%, 72%)', 'hsl(43, 83%, 64%) '),
@@ -673,7 +673,7 @@ export function getSummary(model, startTime, endTime) {
 		other: new TimelineCategory('other', 'Other', false, 'hsl(0, 0%, 87%)', 'hsl(0, 0%, 79%)'),
 		idle: new TimelineCategory('idle', 'Idle', false, 'hsl(0, 100%, 100%)', 'hsl(0, 100%, 100%)')
 	  };
-	
+
 	  let EVENT_STYLES = {
 		Task: new TimelineRecordStyle('Task', CATEGORIES['other']),
 		Program: new TimelineRecordStyle('Other', CATEGORIES['other']),
@@ -742,7 +742,7 @@ export function getSummary(model, startTime, endTime) {
 		['ThreadState::completeSweep']: new TimelineRecordStyle('DOM GC', CATEGORIES['scripting']),
 		['BlinkGCMarking']: new TimelineRecordStyle('DOM GC', CATEGORIES['scripting']),
 	  };
-	
+
 	  function eventStyle(event:any) {
 		if (event.hasCategory(Category.Console) || event.hasCategory(Category.UserTiming)) {
 		  return { title: event.name, category: CATEGORIES['scripting'] };
@@ -760,7 +760,7 @@ export function getSummary(model, startTime, endTime) {
 		var result:any = EVENT_STYLES[event.name];
 		if (!result) {
 		  result = new TimelineRecordStyle(event.name, CATEGORIES['other'], true);
-		  		//@ts-ignore
+					//@ts-ignore
 
 		  EVENT_STYLES[event.name] = result;
 		}
@@ -779,7 +779,7 @@ async function readStream() {
 const inputReadableStream = file.files[0].stream()
 const compressedReadableStream
 = inputReadableStream.pipeThrough(new CompressionStream('gzip'));
-const reader = compressedReadableStream.getReader() 
+const reader = compressedReadableStream.getReader()
 let totalSize = 0;
 while (true) {
 const { value, done } = await reader.read();
