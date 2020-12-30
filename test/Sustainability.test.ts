@@ -2,11 +2,11 @@ import { Sustainability } from '../src';
 
 
 import { AuditSettings } from '../src/types';
-import * as fastify from 'fastify';
+import fastify, { FastifyInstance } from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 import * as path from 'path';
 
-const server: fastify.FastifyInstance<
+const server: FastifyInstance<
 	Server,
 	IncomingMessage,
 	ServerResponse
@@ -33,7 +33,7 @@ afterAll(async () => {
 describe('run test on sites', () => {
 	it('scores audits', async () => {
 		const report = await runAudit('', {}, 'https://audits.digital')
-		expect(report.globalScore).toBeGreaterThan(50)
+		expect(report.globalScore).toBeGreaterThan(40)
 	})
 	it('scores akiles', async () => {
 		const report = await runAudit('', {}, 'https://akiles.app')

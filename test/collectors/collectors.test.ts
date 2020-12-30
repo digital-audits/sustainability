@@ -1,6 +1,6 @@
 import { PageContext } from '../../src/types';
 import { Browser } from 'puppeteer';
-import * as fastify from 'fastify';
+import fastify, { FastifyInstance } from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 import * as path from 'path';
 import * as puppeteer from 'puppeteer';
@@ -33,7 +33,7 @@ import CollectRobots from '../../src/collect/robots.collect';
 import CollectMetaTags from '../../src/collect/meta-tag.collect';
 import CollectScreenshot from '../../src/collect/screenshot.collect';
 
-const server: fastify.FastifyInstance<
+const server: FastifyInstance<
 	Server,
 	IncomingMessage,
 	ServerResponse

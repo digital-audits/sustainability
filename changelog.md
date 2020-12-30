@@ -2,6 +2,13 @@
 
 ## v. 1.0.0
 
+### Runs on node ^10.x.x
+
+### Dependency updates
+
+- Node fetch (3.0.0)
+
+
 ### API Audit Settings
 
 - Removed Page object
