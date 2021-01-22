@@ -1,8 +1,8 @@
 import Audit from './audit';
 import csstree = require('css-tree');
 import * as util from '../utils/utils';
-import {SubfontFormat, Traces} from '../types/traces';
-import {Result, SkipResult, Meta} from '../types/audit';
+import { SubfontFormat, Traces } from '../types/traces';
+import { Result, SkipResult, Meta } from '../types/audit';
 
 /**
  * @description Find non-local fonts (i.e downloaded) and assert whether they are a subset.
@@ -47,8 +47,7 @@ export default class UsesFontSubsettingAudit extends Audit {
 
 		if (isAuditApplicable()) {
 			debug('running');
-			const fonts: Array<{fontName: string; hasSubset: boolean}> = [];
-
+			const fonts: Array<{ fontName: string; hasSubset: boolean }> = [];
 			allCssSheets.map(sheet => {
 				const ast = csstree.parse(sheet.text);
 				csstree.walk(ast, {
@@ -70,14 +69,13 @@ export default class UsesFontSubsettingAudit extends Audit {
 
 									return false;
 								})
-								.tail.data.value.children.map((ch: any) => {
-									if ((ch.value && ch.value !== '') || ch.name) {
-										const text = ch.value || ch.name;
-										fontName = util.removeQuotes(text);
-									}
+								.tail?.data.value.children.map((ch: any) => {
+									const text = ch.value || ch.name;
+									fontName = util.removeQuotes(text);
+
 								});
 							if (fontName) {
-								fonts.push({fontName, hasSubset});
+								fonts.push({ fontName, hasSubset });
 							}
 						}
 					}
@@ -93,7 +91,7 @@ export default class UsesFontSubsettingAudit extends Audit {
 			});
 
 			let fontSubsets = {} as SubfontFormat[];
-			const score = Number(nonSubsetFonts.length === 0);
+			const score = Number(fonts.length && nonSubsetFonts.length === 0);
 			if (score === 0) {
 				const fontChars = traces.fonts.filter(font =>
 					nonSubsetFonts
@@ -114,10 +112,10 @@ export default class UsesFontSubsettingAudit extends Audit {
 				scoreDisplayMode: 'binary',
 				...(Array.from(fontSubsets).length
 					? {
-							extendedInfo: {
-								value: Array.from(fontSubsets)
-							}
-					  }
+						extendedInfo: {
+							value: Array.from(fontSubsets)
+						}
+					}
 					: {})
 			};
 		}

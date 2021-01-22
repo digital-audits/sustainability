@@ -2,8 +2,10 @@ import { Sustainability } from '.';
 
 (async () => {
 	Sustainability.auditStream.pipe(process.stdout);
-	await Sustainability.audit('https://audits.digital', {
-		connectionSettings: { streams: false, coldRun: false }
+	await Sustainability.audit('https://sitepoint.com', {
+		connectionSettings: { streams: true, coldRun: true }
 	});
+
+
 
 })();

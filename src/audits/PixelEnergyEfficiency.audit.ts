@@ -1,5 +1,5 @@
-import {Meta, Result} from '../types/audit';
-import {RGBPowerFormat, Traces} from '../types/traces';
+import { Meta, Result } from '../types/audit';
+import { Traces } from '../types/traces';
 import Audit from './audit';
 import * as util from '../utils/utils';
 
@@ -22,7 +22,7 @@ export default class PixelEnergyEfficiencyAudit extends Audit {
 	 * 	Get screenshot data and calculate the average RGB pixel ratio.
 	 *
 	 */
-	static async audit(traces: Traces): Promise<Result | undefined> {
+	static audit(traces: Traces): Result {
 		const debug = util.debugGenerator('PixelEnergyEfficiency Audit');
 		debug('running');
 		const pixelPower = traces.screenshot.power;

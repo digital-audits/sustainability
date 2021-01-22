@@ -1,7 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
-import {Traces} from '../types/traces';
-import {Meta, SkipResult, Result} from '../types/audit';
+import { Traces } from '../types/traces';
+import { Meta, Result } from '../types/audit';
 /**
  * @fileoverview Audits if compression is used. Instead of looking for the content encoding
  *  Response header, which may not reflect the origin server configuration if it serves
@@ -49,7 +49,7 @@ export default class UsesCompressionAudit extends Audit {
 		} as Meta;
 	}
 
-	static audit(traces: Traces): Result | SkipResult | undefined {
+	static audit(traces: Traces): Result {
 		const debug = util.debugGenerator('UsesCompression Audit');
 		debug('running');
 		const auditUrls = new Set();
@@ -57,7 +57,7 @@ export default class UsesCompressionAudit extends Audit {
 		// NOTE: js files considered secure (with identifiable content on HTTPS, e.g personal cookies )
 		// should not be compressed (to avoid CRIME & BREACH attacks)
 		let errorMessage: string | undefined;
-		const {hosts} = traces;
+		const { hosts } = traces;
 		let justOneTime = true;
 		const resources = traces.record
 			.filter(record => {
@@ -108,7 +108,7 @@ export default class UsesCompressionAudit extends Audit {
 				return {
 					url: util.getUrlLastSegment(recordUrl.toString()).split('?')[0],
 					resourceType: record.request.resourceType,
-					savings: {value: gzipSavings, units: 'bytes'}
+					savings: { value: gzipSavings, units: 'bytes' }
 				};
 			})
 			.filter(record => {
@@ -126,12 +126,12 @@ export default class UsesCompressionAudit extends Audit {
 			scoreDisplayMode: 'binary',
 			...(auditUrls.size > 0
 				? {
-						extendedInfo: {
-							value: resources
-						}
-				  }
+					extendedInfo: {
+						value: resources
+					}
+				}
 				: {}),
-			...(errorMessage ? {errorMessage} : {})
+			...(errorMessage ? { errorMessage } : {})
 		};
 	}
 }

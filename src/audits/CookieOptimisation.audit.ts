@@ -1,8 +1,7 @@
-import {Meta, Result, SkipResult} from '../types/audit';
-import {Traces} from '../types/traces';
+import { Meta, Result, SkipResult } from '../types/audit';
+import { Traces } from '../types/traces';
 import Audit from './audit';
 import * as util from '../utils/utils';
-import {Cookie} from 'puppeteer';
 
 const MAX_COOKIE_SIZE_IN_BYTES = 1024;
 
@@ -18,33 +17,34 @@ export default class CookieOptimisation extends Audit {
 		} as Meta;
 	}
 
-	static async audit(traces: Traces): Promise<Result | SkipResult | undefined> {
+	static audit(traces: Traces): Result | SkipResult {
 		const debug = util.debugGenerator('CookieOptimisation Audit');
 		debug('running');
 
 		const isAuditApplicable = (): boolean => {
-			if (traces.cookies.length === 0) return false;
+			if (!traces.cookies?.length) return false;
 			return true;
 		};
 
-		const {hosts} = traces;
-		const bigCookies = new Set();
+		const { hosts } = traces;
+		const bigCookies = new Map();
 		const findDuplicates = (data: string[]): string[] => {
 			return Array.from(new Set(data)).filter(
 				value => data.indexOf(value) !== data.lastIndexOf(value)
 			);
 		};
 
-		traces.cookies.filter(c => {
-			if (!hosts.includes(c.domain)) return false;
-			if (bigCookies.has(c.name)) return false;
-			if (c.size < MAX_COOKIE_SIZE_IN_BYTES) return false;
 
-			bigCookies.add(c.name);
-			return true;
-		});
 
 		if (isAuditApplicable()) {
+			traces.cookies.filter(c => {
+				if (!hosts.includes(c.domain)) return false;
+				if (bigCookies.has(c.name)) return false;
+				if (c.size < MAX_COOKIE_SIZE_IN_BYTES) return false;
+
+				bigCookies.set(c.name, c);
+				return true;
+			});
 			const duplicatedCookies: string[] = findDuplicates(
 				traces.cookies.map(c => c.name)
 			);
@@ -57,13 +57,10 @@ export default class CookieOptimisation extends Audit {
 
 			const cookiesBySize =
 				bigCookies.size > 0
-					? traces.cookies
-							.filter(c =>
-								Array.from(bigCookies.values()).find(name => name === c.name)
-							)
-							.map(c => {
-								return {name: c.name, size: c.size};
-							})
+					?
+					Array.from(bigCookies.values()).map(c => {
+						return { name: c.name, size: c.size };
+					})
 					: undefined;
 
 			return {
@@ -72,27 +69,26 @@ export default class CookieOptimisation extends Audit {
 				scoreDisplayMode: 'binary',
 				...(cookiesBySize || duplicatedCookies.length
 					? {
-							extendedInfo: {
-								value: {
-									...(cookiesBySize
-										? {
-												size: cookiesBySize
-										  }
-										: {}),
-									...(duplicatedCookies.length > 0
-										? {
-												dup: duplicatedCookies
-										  }
-										: {})
-								}
+						extendedInfo: {
+							value: {
+								...(cookiesBySize
+									? {
+										size: cookiesBySize
+									}
+									: {}),
+								...(duplicatedCookies.length > 0
+									? {
+										dup: duplicatedCookies
+									}
+									: {})
 							}
-					  }
+						}
+					}
 					: {})
 			};
 		}
 
 		debug('skipping non applicable audit');
-
 		return {
 			meta: util.skipMeta(CookieOptimisation.meta),
 			scoreDisplayMode: 'skip'

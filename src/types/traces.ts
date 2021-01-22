@@ -1,4 +1,4 @@
-import {Cookie} from 'puppeteer';
+import { Cookie } from 'puppeteer';
 
 export interface Format {
 	uid: string;
@@ -246,9 +246,9 @@ export type ResourceType =
 	| 'websocket'
 	| 'manifest'
 	| 'other';
-export type Headers = {
-	[x: string]: string;
-};
+
+export type Headers = globalThis.Record<string, string>
+
 export type ByteUnits = 'bytes' | 'kb' | 'mb' | 'gb';
 
 export interface Response {

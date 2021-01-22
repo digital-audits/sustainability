@@ -1,5 +1,5 @@
-import {Meta, Result, SkipResult} from '../types/audit';
-import {Traces} from '../types/traces';
+import { Meta, Result, SkipResult } from '../types/audit';
+import { Traces } from '../types/traces';
 import Audit from './audit';
 import * as util from '../utils/utils';
 
@@ -18,32 +18,33 @@ export default class UsesWebmVideoFormatAudit extends Audit {
 
 	static audit(traces: Traces): Result | SkipResult {
 		const debug = util.debugGenerator('UsesWebMVideoFormat Audit');
+
+		// @ts-ignore flatMap
+		let mediaVideos: string[] = traces.media.videos.flatMap(vid =>
+			vid.src ? [vid.src] : []
+		);
+
 		const isAuditApplicable = (): boolean => {
-			if (!traces.media.videos.length) return false;
+			if (!mediaVideos.length) return false;
 			return true;
 		};
 
 		if (isAuditApplicable()) {
 			debug('running');
 			const auditUrls = new Set<string>();
-			// @ts-ignore flatMap
-			let mediaVideos: string[] = traces.media.videos.flatMap(vid =>
-				vid.src ? [vid.src] : []
-			);
 
-			if (traces.lazyMedia.lazyVideos) {
+			if (traces.lazyMedia.lazyVideos.length) {
 				mediaVideos = [...mediaVideos, ...traces.lazyMedia.lazyVideos];
 			}
 
 			mediaVideos.filter(url => {
-				if (auditUrls.has(url)) return false;
 				if (url.endsWith('.webm')) return false;
 				const urlLastSegment =
 					url
 						.split('/')
 						.filter(Boolean)
-						.pop() ?? url;
-				auditUrls.add(urlLastSegment.split('?')[0]);
+						.pop()
+				auditUrls.add(urlLastSegment!.split('?')[0]);
 				return true;
 			});
 
@@ -59,10 +60,10 @@ export default class UsesWebmVideoFormatAudit extends Audit {
 				scoreDisplayMode: 'binary',
 				...(auditUrls.size > 0
 					? {
-							extendedInfo: {
-								value: Array.from(auditUrls.values())
-							}
-					  }
+						extendedInfo: {
+							value: Array.from(auditUrls.values())
+						}
+					}
 					: {})
 			};
 		}

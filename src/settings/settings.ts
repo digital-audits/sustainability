@@ -93,10 +93,12 @@ export const DEFAULT: DefaultSettings = {
 			CookieOptimisation,
 			AvoidInlineAssetsAudit,
 			LeverageBrowserCachingAudit,
+			UsesWebpImageFormatAudit,
 			UsesWebmVideoFormatAudit,
 			AvoidURLRedirectsAudit,
 			AvoidableBotTrafficAudit,
-			ReactiveAnimationsAudit
+			ReactiveAnimationsAudit,
+			UsesFontSubsettingAudit
 		]
 	},
 	REPORT: {

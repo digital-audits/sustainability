@@ -1,5 +1,5 @@
-import {Meta, Result} from '../types/audit';
-import {Traces} from '../types/traces';
+import { Meta, Result } from '../types/audit';
+import { Traces } from '../types/traces';
 import Audit from './audit';
 import * as util from '../utils/utils';
 
@@ -21,7 +21,7 @@ export default class UsesDarkModeAudit extends Audit {
 	 *  If they match (string comparaisson) dark mode is unavailable and so the audit fails.
 	 *
 	 */
-	static async audit(traces: Traces): Promise<Result | undefined> {
+	static audit(traces: Traces): Result {
 		const debug = util.debugGenerator('UsesDarkMode Audit');
 		debug('running');
 		const score = Number(traces.screenshot.hasDarkMode);

@@ -1,10 +1,10 @@
 import Collect from './collect';
-import {PageContext} from '../types';
+import { PageContext } from '../types';
 import * as util from '../utils/utils';
-import {ConsoleMessage} from 'puppeteer';
-import {CollectConsoleTraces, ConsoleMessageFormat} from '../types/traces';
-import {CollectMeta} from '../types/audit';
-import {PrivateSettings} from '../types/settings';
+import { ConsoleMessage } from 'puppeteer';
+import { CollectConsoleTraces, ConsoleMessageFormat } from '../types/traces';
+import { CollectMeta } from '../types/audit';
+import { PrivateSettings } from '../types/settings';
 
 export default class CollectConsole extends Collect {
 	static get meta() {
@@ -22,7 +22,7 @@ export default class CollectConsole extends Collect {
 		const debug = CollectConsole.meta.debug;
 		debug('running');
 		try {
-			const {page} = pageContext;
+			const { page } = pageContext;
 			const client = await page.target().createCDPSession();
 			await client.send('Page.enable');
 			const results: ConsoleMessageFormat[] = [];

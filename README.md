@@ -1,6 +1,6 @@
-<h2 align="center">
-<img src="https://raw.githubusercontent.com/digital-audits/sustainability/master/logo.png">
- </h2>
+<h2 style="text-align: center;">
+<img style="text-align: center;" src="https://raw.githubusercontent.com/digital-audits/sustainability/master/logo.png">
+</h2>
  
 # Digital sustainability audits
 
@@ -11,7 +11,7 @@
 [![Service](https://img.shields.io/badge/service-up-informational)](https://audits.digital)
 
 > A de facto standard for the Internet carbon footprint. Computes the carbon footprint (CF) index, determines the energy source of servers, the usage of HTTP2.0, WebP image format, lazy loading on images, font subsetting, etc.
-Effectively generates a customized report. May cut down your site's CF up to the 70%.
+> Effectively generates a customized report. May cut down your site's CF up to the 70% (no kidding, research [here](https://github.com/digital-audits/sustainability/blob/master/RESEARCH.md)).
 
 - [Installation](#Installation)
 - [Usage](#Usage)
@@ -27,7 +27,7 @@ Effectively generates a customized report. May cut down your site's CF up to the
 You supply a valid and reachable URL, maybe one that you have just finished to build or is already live, and evaluates the use given to the resources from a sustainability point of view.
 
 Under the hood it relies on the excellent
-[Puppeteer] library which uses the Headless Chrome Node API, maintained by the Google Chrome team.  
+[Puppeteer] library which uses the Headless Chrome Node API, maintained by the Google Chrome team.
 
 ## What does it audit
 
@@ -37,19 +37,27 @@ Audits are divided into two categories: server and design.
 
 Server aspects which are essential for online sustainability.
 
-* Running with renewable energy
-* Carbon footprint
-* Uses HTTP2
-* Uses text compression
+- Running with renewable energy
+- Carbon footprint
+- HTTP2
+- Text compression
+- Bot traffic
+- Cookie optimisation
+- Browser caching
+- URL redirects
 
 ### Design Audits
 
 Targets the website assets that convert code to user consumable content.
 
-* Uses WebP images
-* Uses lazy loading on images
-* Uses font subsetting
-* No console logs
+- WebP images
+- WebM videos
+- Lazy loading on media
+- Font subsetting
+- Console logs
+- Pixel energy efficiency
+- Dark mode
+- Reactive CSS animations
 
 ## Installation
 
@@ -72,13 +80,13 @@ Install sustainability CLI:
 Take as example the following code:
 
 ```js
-const {Sustainability} = require('sustainability');
+const { Sustainability } = require("sustainability");
 
-const url = 'https://www.example.org';
+const url = "https://www.example.org";
 
-(async () =>   {
-    const report = await Sustainability.audit(url);
-    console.log(report)
+(async () => {
+  const report = await Sustainability.audit(url);
+  console.log(report);
 })();
 ```
 
@@ -110,11 +118,13 @@ You can docker a chromium browser (e.g [docker alpine chrome](https://github.com
 # Linux
 CHROME_BIN=path_to_chrome_bin node index.js
 ```
+
 ## Debugging
 
 You can enable verbose logging to see the API in action.
 This is done by setting the `DEBUG` environmental variable to `sustainability:*.` or with the `-d` option in the CLI.
-You can see the example below or refer to the [debug docs](https://github.com/visionmedia/debug#windows-command-prompt-notes) for more information.
+
+For example:
 
 ```bash
 # Linux
@@ -132,13 +142,12 @@ Sustainability module provides a method to run the sustainability audits on a UR
 #### Sustainability.audit(URL, settings)
 
 - `URL` <[string]> A valid and reachable URL to evaluate. **Warning**: You are responsible for providing a valid URL.
-- `settings` <[Object]> Set of configurable settings for the audit. May include the following fields:
-    - `browser` <[Browser]> Your own puppeteer's browser instance. If you set this options, the API won't spawn a browser instance. This may be useful if you want to make use of the `launch.connect(wsEndpoint)` method to remotely run a headless browser and pass it to the API. **Warning**: You will be responsible for handling the browser instance.
-    - `page` <[Page]> Your own puppeteer's page instance. If you set this setting, the API won't spawn a page instance and merely behave like a function. **Warning**: All previously page settings will be overridden.
-    - `launchSettings` <[Object]> passed to [puppeteer.launch]. Refer to [Puppeteer] documentation for more information. Defaults to `{}`.
-    - `connectionSettings` <[Object]> Set of configurable connection settings. May include the following fields:
-      - `maxNavigationTime`<[number]> Specifies a timeout in milliseconds (ms) for all the tasks. Defaults to 60000ms.
-      - `maxScrollInterval` <[number]> Specifies the scrolling interval in milliseconds (ms) in the function that determines lazy loaded images. Defaults to 30ms.
+- `settings` <[Object]> Set of configurable settings for the audit. May include the following optional fields:
+  - `browser` <[Browser]> Your own puppeteer's browser instance. If you set this options, the API won't spawn a browser instance. This may be useful if you want to make use of the `launch.connect(wsEndpoint)` method to remotely run a headless browser and pass it to the API. **Warning**: You will be responsible for handling the browser instance.
+  - `launchSettings` <[Object]> passed to [puppeteer.launch]. Refer to [Puppeteer] documentation for more information. Defaults to `{}`.
+  - `connectionSettings` <[Object]> Set of configurable connection settings. May include the following fields:
+    - `maxNavigationTime`<[number]> Specifies a timeout in milliseconds (ms) for all the tasks. Defaults to 60000ms.
+    - `maxScrollInterval` <[number]> Specifies the scrolling interval in milliseconds (ms) in the function that determines lazy loaded images. Defaults to 30ms.
     - `emulatedDevice` <[Object]> Set of emulated device settings. May include the following fields:
       - `userAgent` <[string]> A user-agent string.
       - `viewport` <[Object]> Set of viewport settings. May include the following fields:
@@ -150,6 +159,23 @@ Sustainability module provides a method to run the sustainability audits on a UR
         - `latitude` <[number]> Latitude between -90 and 90
         - `longitude` <[number]> Longitude between -180 and 180
         - `accuracy`<[number]> Optional non-negative accuracy value
+    - `coldRun` <[boolean]> Should initialise a cold run to find any potential URL redirect. Defaults to true.
+    - `streams` <[boolean]> Should push individual audits results as they go. Defaults to false.
+
+#### Sustainability.auditStream
+
+A readable stream of audits to pipe from. Used in combination with streams option.
+
+For example:
+
+```js
+(async () => {
+  Sustainability.auditStream.pipe(process.stdout);
+  await Sustainability.audit(url, {
+    connectionSettings: { streams: true },
+  });
+})();
+```
 
 ## With a server
 
@@ -159,16 +185,14 @@ Typically you would like sustainability to process the maximum number of process
 
 Visit [DAS](https://audits.digital/) to test the software with **environmental awareness**.
 
-
 ## Contributions are welcomed
 
 This is open-source software. I highly encourage everyone interested to help pushing up this project.\
 Core development? Join the team! Make sure you read first the [contributions-dev notes.](https://github.com/digital-audits/sustainability/blob/master/CONTRIBUTION-dev.md)\
-Visibility, business aspects, sharing your thoughts? Join us on [Slack](https://join.slack.com/t/das-e2x6193/shared_invite/zt-fk08bitv-vWB6_OIJTncf93OvcRdKnQ).\
-Sponsoring? Help us to keep the project running in  [Open Collective](https://opencollective.com/das).
+Found and issue, visibility, business aspects, sharing your thoughts? [Open a new issue](https://github.com/digital-audits/sustainability/issues/new)\
+Sponsoring? Help us to keep the project running in [Open Collective](https://opencollective.com/das).
 
-
-[Puppeteer]: https://github.com/GoogleChrome/puppeteer "Puppeteer"
+[puppeteer]: https://github.com/GoogleChrome/puppeteer "Puppeteer"
 [puppeteer.launch]: https://github.com/GoogleChrome/puppeteer/blob/v1.5.0/docs/api.md#puppeteerlaunchoptions "puppeteer.launch"
-[Page]: https://github.com/GoogleChrome/puppeteer/blob/v1.5.0/docs/api.md#class-page "Page"
-[Browser]: https://github.com/puppeteer/puppeteer/blob/v1.5.0/docs/api.md#class-browser "Browser"
+[page]: https://github.com/GoogleChrome/puppeteer/blob/v1.5.0/docs/api.md#class-page "Page"
+[browser]: https://github.com/puppeteer/puppeteer/blob/v1.5.0/docs/api.md#class-browser "Browser"

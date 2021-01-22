@@ -1,15 +1,15 @@
-import {LoadEvent, Page} from 'puppeteer';
-import {DEFAULT} from '../settings/settings';
+import { LoadEvent, Page } from 'puppeteer';
+import { DEFAULT } from '../settings/settings';
 import path = require('path');
 import fs = require('fs');
-import {Tracker, PageContext, AuditSettings} from '../types';
+import { Tracker, PageContext, AuditSettings } from '../types';
 import * as util from '../utils/utils';
-import {PrivateSettings, ConnectionSettings} from '../types/settings';
-import {CollectorsIds, PassContext} from '../types/audit';
+import { PrivateSettings, ConnectionSettings } from '../types/settings';
+import { CollectorsIds, PassContext } from '../types/audit';
 import Collect from '../collect/collect';
-import {Traces} from '../types/traces';
-import {auditStream} from '../sustainability/stream';
-import {once, EventEmitter} from 'events';
+import { Traces } from '../types/traces';
+import { auditStream } from '../sustainability/stream';
+import { once, EventEmitter } from 'events';
 
 const debug = util.debugGenerator('Commander');
 
@@ -24,9 +24,9 @@ class Commander {
 	): Promise<Page> {
 		try {
 			debug('Running set up');
-			const {page, url} = pageContext;
+			const { page, url } = pageContext;
 			this.settings = settings?.connectionSettings
-				? {...DEFAULT.CONNECTION_SETTINGS, ...settings.connectionSettings}
+				? { ...DEFAULT.CONNECTION_SETTINGS, ...settings.connectionSettings }
 				: DEFAULT.CONNECTION_SETTINGS;
 
 			this.tracker = util.createTracker(page);
@@ -158,7 +158,7 @@ class Commander {
 				]);
 				debug('parsing traces');
 				const parsedTraces = util.parseAllSettled(traces);
-				globalTraces = {...globalTraces, ...parsedTraces};
+				globalTraces = { ...globalTraces, ...parsedTraces };
 				collectInstances.forEach(collect =>
 					globalEventEmitter.emit(collect.meta.id)
 				);

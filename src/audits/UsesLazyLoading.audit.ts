@@ -1,7 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
-import {Meta, Result, SkipResult} from '../types/audit';
-import {Traces} from '../types/traces';
+import { Meta, Result, SkipResult } from '../types/audit';
+import { Traces } from '../types/traces';
 
 /**
  * Test with https://mathiasbynens.be/demo/img-loading-lazy
@@ -25,8 +25,8 @@ export default class UsesLazyLoadingAudit extends Audit {
 
 		const isAuditApplicable = (): boolean => {
 			if (!traces.lazyMedia) return false;
-			if (!traces.media) return false;
 			const nonLazyMedia = [...traces.media.images, ...traces.media.videos];
+			if (!nonLazyMedia.length) return false
 			if (!nonLazyMedia.some(media => !media.isVisible)) return false;
 
 			return true;

@@ -30,16 +30,14 @@ afterAll(async () => {
 	await server.close();
 });
 
-describe('run test on sites', () => {
+/*describe('run test on sites', () => {
 	it('scores audits', async () => {
 		const report = await runAudit('', {}, 'https://audits.digital')
 		expect(report.globalScore).toBeGreaterThan(40)
 	})
-	it('scores akiles', async () => {
-		const report = await runAudit('', {}, 'https://akiles.app')
-		expect(report.globalScore).toBeDefined()
-	})
+
 })
+*/
 
 
 

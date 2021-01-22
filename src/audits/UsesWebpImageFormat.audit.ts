@@ -1,7 +1,7 @@
 import Audit from './audit';
 import * as util from '../utils/utils';
-import {Meta, SkipResult, Result} from '../types/audit';
-import {Traces} from '../types/traces';
+import { Meta, SkipResult, Result } from '../types/audit';
+import { Traces } from '../types/traces';
 
 export default class UsesWebpImageFormatAudit extends Audit {
 	static get meta() {
@@ -19,23 +19,19 @@ export default class UsesWebpImageFormatAudit extends Audit {
 	/**
 	 *
 	 * @applicable if the page has requested images.
-	 * Get image format using the MIME/type (header: content-type)
+	 * Get image format using the MIME/type (header: content-type), 
+	 * (careful with this: because sometimes as in AWS S3 the content-type defaults to binary/octet-stream)
 	 * WebP should be used against PNG, JPG or GIF images and ofc base64 data images
 	 */
 
 	static audit(traces: Traces): Result | SkipResult {
 		const debug = util.debugGenerator('UsesWebPImageFormat Audit');
-		// @ts-ignore flatMap
-		let mediaImages: string[] = traces.media.images.flatMap(img =>
-			img.src ? [img.src] : []
-		);
 
-		if (traces.lazyMedia?.lazyImages) {
-			mediaImages = [...mediaImages, ...traces.lazyMedia.lazyImages];
-		}
+		const mediaImages = [...traces.lazyMedia.lazyImages,
+		...traces.record.filter(r => r.request.resourceType === 'image').map(r => r.response.url.toString())];
 
 		const isAuditApplicable = (): boolean => {
-			if (!traces.media.images.length) return false;
+			if (!mediaImages.length) return false;
 			if (!mediaImages.some(url => /\.(?:jpg|gif|png|svg)$/.test(url)))
 				return false;
 
@@ -47,16 +43,12 @@ export default class UsesWebpImageFormatAudit extends Audit {
 			const auditUrls = new Set<string>();
 
 			mediaImages.filter(url => {
-				if (auditUrls.has(url)) return false;
 				if (url.startsWith('data:')) {
-					auditUrls.add(url.slice(0, 15));
+					auditUrls.add(url.slice(0, 40));
 					return false;
 				}
-
 				if (url.endsWith('.webp')) return false;
-
 				if (!/\.(?:jpg|gif|png)$/.test(url)) return false;
-
 				const urlLastSegment = util.getUrlLastSegment(url);
 				auditUrls.add(urlLastSegment.split('?')[0]);
 				return true;
@@ -74,10 +66,10 @@ export default class UsesWebpImageFormatAudit extends Audit {
 				scoreDisplayMode: 'binary',
 				...(auditUrls.size > 0
 					? {
-							extendedInfo: {
-								value: Array.from(auditUrls.values())
-							}
-					  }
+						extendedInfo: {
+							value: Array.from(auditUrls.values())
+						}
+					}
 					: {})
 			};
 		}
