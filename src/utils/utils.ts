@@ -536,11 +536,12 @@ export function shouldSkipRecord(headers: Headers, cacheControl: any) {
 
 export function getUrlLastSegment(url: string) {
 	return (
-		url
+		(url
 			.split('/')
 			.filter(Boolean)
 			.pop() ?? url
-	);
+		).split('?')[0]
+	)
 }
 
 export function str2ab(string: string): ArrayBuffer {

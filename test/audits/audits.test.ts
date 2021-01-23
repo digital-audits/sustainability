@@ -7,15 +7,20 @@ import UsesCompressionAudit from "../../src/audits/UsesCompression.audit"
 import UsesDarkModeAudit from "../../src/audits/UsesDarkMode.audit"
 import UsesFontSubsettingAudit from "../../src/audits/UsesFontSubsetting.audit"
 import { Result } from "../../src/types/audit"
-import { Traces, Headers, ConsoleMessageFormat, AnimationsFormat, Sheets, SubfontFormat, InlineStyles, MediaFormat } from "../../src/types/traces"
+import {
+    Traces, Headers, ConsoleMessageFormat, AnimationsFormat, Sheets, SubfontFormat, InlineStyles,
+    MediaFormat, InlineScripts, RedirectResponse, MetaTagFormat, RobotsFormat, Record
+} from "../../src/types/traces"
 import fetch, { Response } from 'node-fetch';
-import { mocked } from 'ts-jest/utils'
 
 import UsesGreenServerAudit from "../../src/audits/UsesGreenServer.audit"
-import { error } from "console"
 import UsesHTTP2Audit from "../../src/audits/UsesHTTP2.audit"
 import UsesLazyLoadingAudit from "../../src/audits/UsesLazyLoading.audit"
 import UsesWebmVideoFormatAudit from "../../src/audits/UsesWebmVideoFormat.audit"
+import UsesWebpImageFormatAudit from "../../src/audits/UsesWebpImageFormat.audit"
+import AvoidInlineAssetsAudit from "../../src/audits/AvoidInlineAssets.audit"
+import AvoidURLRedirectsAudit from "../../src/audits/AvoidURLRedirects.audits"
+import AvoidableBotTrafficAudit from "../../src/audits/AvoidableBotTraffic.audit"
 const traces = {
     hosts: ['localhost'],
     cookies: [
@@ -1321,8 +1326,282 @@ describe('UsesWebmVideoFormat audit', () => {
         expect(auditResult.score).toEqual(1)
 
     })
+})
+
+describe('UsesWebpImageFormat audit', () => {
+    it('ignores audits without media images', () => {
+        const auditResult = UsesWebpImageFormatAudit.audit({
+            lazyMedia: {
+                lazyImages: [] as string[]
+            },
+            record: [
+                {
+                    request: {
+                        resourceType: 'script'
+                    },
+                    response: {
+                        url: new URL('http://localhost/script.js')
+                    }
+                }
+            ]
+        } as Traces)
+
+        expect(auditResult.scoreDisplayMode).toEqual('skip')
+    })
+    it('ignores audits that dont have at least one image type of (png, jpg, gif, webp)', () => {
+        const auditResult = UsesWebpImageFormatAudit.audit({
+            lazyMedia: {
+                lazyImages: [] as string[]
+            },
+            record: [
+                {
+                    request: {
+                        resourceType: 'image'
+                    },
+                    response: {
+                        url: new URL('http://localhost/spinner.svg')
+                    }
+                },
+
+            ]
+        } as Traces)
+
+        expect(auditResult.scoreDisplayMode).toEqual('skip')
+    })
+    it('shortens base64 images and long image url', () => {
+        const originalB64Image = 'data:image/jpeg;base64,/9j/4RiDRXhpZgAATU0AK4RiDRXhpZgAATU0AK4RiDRXhpZgAATU0AK'
+        const auditResult = UsesWebpImageFormatAudit.audit({
+            lazyMedia: {
+                lazyImages: [] as string[]
+            },
+            record: [
+                {
+                    request: {
+                        resourceType: 'image'
+                    },
+                    response: {
+                        url: new URL(originalB64Image)
+                    }
+                },
+                {
+                    request: {
+                        resourceType: 'image'
+                    },
+                    response: {
+                        url: new URL('http://localhost/islong?=1&really-really-longimage.png')
+                    }
+                }
+            ]
+        } as Traces) as Result
+
+        expect(auditResult.score).toEqual(0)
+        expect(auditResult?.extendedInfo?.value.length).toEqual(2)
+        expect(auditResult?.extendedInfo?.value[0].length).toBeLessThan(originalB64Image.length)
+
+    })
+    it('passess successful audits', () => {
+        const auditResult = UsesWebpImageFormatAudit.audit({
+            lazyMedia: {
+                lazyImages: ['http://localhost/image2.svg'] as string[]
+            },
+            record: [
+                {
+                    request: {
+                        resourceType: 'image'
+                    },
+                    response: {
+                        url: new URL('http://localhost/image.webp')
+                    }
+                },
+            ]
+        } as Traces) as Result
+
+        expect(auditResult.score).toEqual(1)
+    })
+})
+
+describe('AvoidInlineAssets audit', () => {
+    it('fails on audits with big sized inline css or js assets', () => {
+        const auditResult = AvoidInlineAssetsAudit.audit({
+            css: {
+                info: {
+                    styles: [
+                        {
+                            src: 'http://localhost#styles[0]',
+                            text: '',
+                            size: 3000
+                        }
+                    ],
+                    styleHrefs: [{ src: 'http://localhost', attr: ['defer'] }]
+                }
+            },
+            js: {
+                info: {
+                    scripts: [] as InlineScripts[]
+                }
+            }
+        } as Traces)
+        expect(auditResult.score).toEqual(0)
+        expect(auditResult?.extendedInfo?.value.length).toEqual(1)
+    })
+    it('passess successful audits', () => {
+        const auditResult = AvoidInlineAssetsAudit.audit({
+            css: {
+                info: {
+                    styles: [
+                        {
+                            src: 'http://localhost#styles[0]',
+                            text: '',
+                            size: 1000
+                        }
+                    ],
+                    styleHrefs: [{ src: 'http://localhost', attr: ['defer'] }]
+                }
+            },
+            js: {
+                info: {
+                    scripts: [] as InlineScripts[]
+                }
+            }
+        } as Traces)
+        expect(auditResult.score).toEqual(1)
+
+    })
+})
+describe('AvoidURLRedirects audit', () => {
+    it('ignores empty redirects', () => {
+        const auditResult = AvoidURLRedirectsAudit.audit({
+            hosts: ['localhost'],
+            redirect: [
+
+            ] as RedirectResponse[]
+        } as Traces)
+        expect(auditResult.score).toEqual(1)
+    })
+    it('ignores cross site redirects', () => {
+        const auditResult = AvoidURLRedirectsAudit.audit({
+            hosts: ['localhost'],
+            redirect: [
+                {
+                    url: 'http://remotehost',
+                    redirectsTo: 'http://remotehost2',
+                    requestId: '1'
+
+                }
+            ]
+        } as Traces)
+        expect(auditResult.score).toEqual(1)
+    })
+    it('fails on audits with redirects originated at the same host', () => {
+        const auditResult = AvoidURLRedirectsAudit.audit({
+            hosts: ['localhost'],
+            redirect: [
+                {
+                    url: 'http://localhost',
+                    redirectsTo: 'http://remotehost2',
+                    requestId: '1'
+
+                }
+            ]
+        } as Traces)
+        expect(auditResult.score).toEqual(0)
+        expect(auditResult?.extendedInfo?.value.length).toEqual(1)
+    })
+})
+describe('AvoidableBotTraffic audit', () => {
+    it('skips audits without robots traces', () => {
+        const auditResult = AvoidableBotTrafficAudit.audit({
+        } as Traces)
+        expect(auditResult.scoreDisplayMode).toEqual('skip')
+    })
+    it('fails audits with poorly configured robots.txt file', () => {
+        const auditResult = AvoidableBotTrafficAudit.audit({
+            metatag: [] as MetaTagFormat[],
+            record: [] as Record[],
+            robots: {
+                agents: {
+                },
+                allow: [],
+                disallow: [],
+                host: '',
+                sitemaps: []
+            } as RobotsFormat
+        } as Traces) as Result
+
+        expect(auditResult.score).toEqual(0)
+    })
+    it('passess successful audits with robots metatag or X-Robots-Tag header but warns to do otherwise ', () => {
+        const auditResult = AvoidableBotTrafficAudit.audit({
+            metatag: [
+                {
+                    attr: [
+                        {
+                            name: 'robots'
+                        }
+                    ]
+                }
+            ] as MetaTagFormat[],
+            record: [
+                {
+                    response: {
+                        headers: { 'content-type': 'text/plain', 'x-robots-tag': 'allow' } as Headers
+                    }
+                }
+            ],
+            robots: {
+                agents: {},
+                allow: [],
+                disallow: [],
+                host: '',
+                sitemaps: []
+            } as RobotsFormat
+        } as Traces) as Result
+        expect(auditResult.score).toEqual(1)
+        expect(auditResult?.errorMessage).toBeTruthy()
+    })
+    it('passess successful audits with disallow all UA', () => {
+        const auditResult = AvoidableBotTrafficAudit.audit({
+            metatag: [] as MetaTagFormat[],
+            record: [] as Record[],
+            robots: {
+                agents: {
+                    all: {
+                        allow: [],
+                        disallow: ['/']
+                    }
+                },
+                allow: [],
+                disallow: [],
+                host: '',
+                sitemaps: []
+            } as RobotsFormat
+        } as Traces) as Result
+        expect(auditResult.score).toEqual(1)
+    })
+    it('passess successful audits specific UA rules', () => {
+        const auditResult = AvoidableBotTrafficAudit.audit({
+            metatag: [] as MetaTagFormat[],
+            record: [] as Record[],
+            robots: {
+                agents: {
+                    'spider-bot': {
+                        allow: [],
+                        disallow: ['/']
+                    }
+                },
+                allow: [],
+                disallow: [],
+                host: '',
+                sitemaps: []
+            } as RobotsFormat
+        } as Traces) as Result
+        expect(auditResult.score).toEqual(1)
+    })
+
+
 
 })
+
 
 
 

@@ -1,5 +1,5 @@
-import {Meta, Result} from '../types/audit';
-import {Traces} from '../types/traces';
+import { Meta, Result } from '../types/audit';
+import { Traces } from '../types/traces';
 import Audit from './audit';
 import * as util from '../utils/utils';
 
@@ -30,9 +30,7 @@ export default class AvoidInlineAssetsAudit extends Audit {
 				};
 			})
 			.filter(asset => {
-				if (asset.size < MAX_SINGLE_INLINE_ASSET_SIZE) return false;
-
-				return true;
+				return asset.size > MAX_SINGLE_INLINE_ASSET_SIZE
 			});
 
 		const score = Number(bigInlineAssets.length === 0);
@@ -46,10 +44,10 @@ export default class AvoidInlineAssetsAudit extends Audit {
 			scoreDisplayMode: 'binary',
 			...(bigInlineAssets.length > 0
 				? {
-						extendedInfo: {
-							value: bigInlineAssets
-						}
-				  }
+					extendedInfo: {
+						value: bigInlineAssets
+					}
+				}
 				: {})
 		};
 	}

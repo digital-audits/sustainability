@@ -1,5 +1,5 @@
-import {Meta, Result} from '../types/audit';
-import {Traces} from '../types/traces';
+import { Meta, Result } from '../types/audit';
+import { Traces } from '../types/traces';
 import Audit from './audit';
 import * as util from '../utils/utils';
 
@@ -15,15 +15,13 @@ export default class AvoidURLRedirectsAudit extends Audit {
 		} as Meta;
 	}
 
-	static async audit(traces: Traces): Promise<Result> {
+	static audit(traces: Traces): Result {
 		const debug = util.debugGenerator('AvoidURLRedirects Audit');
-		const {hosts} = traces;
+		const { hosts } = traces;
 		debug('running');
 		const redirects = traces.redirect
 			.filter(record => {
-				if (!record) return false;
-				if (!hosts.includes(new URL(record.url).hostname)) return false;
-				return true;
+				return hosts.includes(new URL(record.url).hostname)
 			})
 			.map(r => {
 				return {
@@ -41,10 +39,10 @@ export default class AvoidURLRedirectsAudit extends Audit {
 			scoreDisplayMode: 'binary',
 			...(redirects.length
 				? {
-						extendedInfo: {
-							value: redirects
-						}
-				  }
+					extendedInfo: {
+						value: redirects
+					}
+				}
 				: {})
 		};
 	}

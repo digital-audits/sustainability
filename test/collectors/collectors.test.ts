@@ -242,15 +242,6 @@ describe('Lazy media collector', () => {
 		);
 		expect(assets?.lazyMedia.lazyImages.length).toBeGreaterThan(1)
 	});
-	it('collects lazy loaded videos with page being able to scroll', async () => {
-		const path = 'videos'
-		const assets: CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(
-			path,
-			CollectLazyMedia.collect
-		);
-
-		expect(assets?.lazyMedia.lazyVideos.length).toBeGreaterThanOrEqual(1)
-	})
 	it('returns undefined with pages unable to scroll', async () => {
 		const path = 'unable-to-scroll'
 		const assets: CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(

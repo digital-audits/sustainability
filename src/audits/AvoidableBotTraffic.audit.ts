@@ -1,8 +1,8 @@
-import {Meta, Result, SkipResult} from '../types/audit';
-import {Traces} from '../types/traces';
+import { Meta, Result, SkipResult } from '../types/audit';
+import { Traces } from '../types/traces';
 import Audit from './audit';
 import * as util from '../utils/utils';
-import {trace} from 'console';
+import { trace } from 'console';
 
 export default class AvoidableBotTrafficAudit extends Audit {
 	static get meta() {
@@ -19,63 +19,57 @@ export default class AvoidableBotTrafficAudit extends Audit {
 	static audit(traces: Traces): Result | SkipResult {
 		const debug = util.debugGenerator('AvoidableBotTraffic Audit');
 		debug('running');
-		let errorMessage: string | undefined;
-
-		try {
-			const robotMetaTag = traces.metatag.filter(m => {
-				return m.attr.some(
-					attr => attr.hasOwnProperty('name') && attr.name === 'robots'
-				);
-			});
-
-			// @ts-ignore flatMap
-			const xRobotTag = traces.record.flatMap(r =>
-				r.response.headers.hasOwnProperty('x-robots-tag')
-					? r.response.headers['x-robots-tag']
-					: []
-			);
-			const disallowRulesForAllUserAgents =
-				traces?.robots?.agents['all']?.disallow;
-			const agentsList = traces?.robots?.agents
-				? Object.keys(traces?.robots?.agents)
-				: [];
-			const UAwithSpecificRules = agentsList.filter(agent => {
-				traces.robots.agents[agent].disallow.length;
-			});
-			const passAudit = () => {
-				if (robotMetaTag.length || xRobotTag.length) {
-					return true;
-				}
-
-				if (!traces.robots)
-					errorMessage = 'Consider handling bot traffic in a robots.txt file';
-
-				if (disallowRulesForAllUserAgents?.length) return true;
-				if (UAwithSpecificRules?.length) return true;
-
-				return false;
-			};
-
-			const score = Number(passAudit());
-			const meta = util.successOrFailureMeta(
-				AvoidableBotTrafficAudit.meta,
-				score
-			);
-			debug('done');
-
-			return {
-				meta,
-				score,
-				scoreDisplayMode: 'binary',
-				...(errorMessage ? {errorMessage} : {})
-			};
-		} catch (error) {
-			util.log(error);
+		if (!traces.robots) {
 			return {
 				meta: util.skipMeta(AvoidableBotTrafficAudit.meta),
 				scoreDisplayMode: 'skip',
-				errorMessage: 'Failed to fetch robots.txt file'
+				errorMessage: 'Could not find a valid robots.txt file'
 			};
 		}
+		let errorMessage: string | undefined;
+		const robotMetaTag = traces.metatag.filter(m => {
+			return m.attr.some(
+				attr => attr.hasOwnProperty('name') && attr.name === 'robots'
+			);
+		});
+		const xRobotTag = traces.record.filter(r =>
+			r.response.headers['x-robots-tag']
+		);
+		const disallowRulesForAllUserAgents =
+			traces.robots.agents['all']?.disallow;
+		const agentsList = Object.keys(traces.robots.agents)
+
+		const UAwithSpecificRules = agentsList.filter(agent =>
+			traces.robots.agents[agent].disallow.length
+		);
+		const passAudit = () => {
+			if (robotMetaTag.length || xRobotTag.length) {
+				errorMessage = 'Consider handling all bot in a robots.txt file';
+				return true;
+			}
+			if (disallowRulesForAllUserAgents?.length) return true;
+			if (UAwithSpecificRules.length) return true;
+
+			return false;
+		};
+
+		const score = Number(passAudit());
+		const meta = util.successOrFailureMeta(
+			AvoidableBotTrafficAudit.meta,
+			score
+		);
+		debug('done');
+
+		return {
+			meta,
+			score,
+			scoreDisplayMode: 'binary',
+			...(errorMessage ? { errorMessage } : {})
+		};
+
 	}
 }
+
+describe('CarbonFootprintAudit', () => {
+
+})

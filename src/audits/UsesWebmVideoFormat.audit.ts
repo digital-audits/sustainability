@@ -39,12 +39,8 @@ export default class UsesWebmVideoFormatAudit extends Audit {
 
 			mediaVideos.filter(url => {
 				if (url.endsWith('.webm')) return false;
-				const urlLastSegment =
-					url
-						.split('/')
-						.filter(Boolean)
-						.pop()
-				auditUrls.add(urlLastSegment!.split('?')[0]);
+				const urlLastSegment = util.getUrlLastSegment(url)
+				auditUrls.add(urlLastSegment);
 				return true;
 			});
 
