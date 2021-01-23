@@ -70,6 +70,4 @@ export default class AvoidableBotTrafficAudit extends Audit {
 	}
 }
 
-describe('CarbonFootprintAudit', () => {
 
-})

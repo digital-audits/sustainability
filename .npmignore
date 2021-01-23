@@ -1,7 +1,11 @@
 architecture.png 
 logo.png
+research.png
+changelog.md
 test
 CONTRIBUTION-dev.md 
+reports-by-url.csv
+RESEARCH.md
 src
 tsconfig.json
 .travis.yml

@@ -1,7 +1,10 @@
 # Changelog
 
-## v. 1.0.0
+## v. 0.4.0
 
+- Achieved 100% coverage
+- Added research notes
+- New logo
 - Needs node ^10.0.x
 
 ### Dependency updates

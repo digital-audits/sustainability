@@ -21,6 +21,7 @@ import UsesWebpImageFormatAudit from "../../src/audits/UsesWebpImageFormat.audit
 import AvoidInlineAssetsAudit from "../../src/audits/AvoidInlineAssets.audit"
 import AvoidURLRedirectsAudit from "../../src/audits/AvoidURLRedirects.audits"
 import AvoidableBotTrafficAudit from "../../src/audits/AvoidableBotTraffic.audit"
+import CarbonFootprintAudit from "../../src/audits/CarbonFootprint.audit"
 const traces = {
     hosts: ['localhost'],
     cookies: [
@@ -915,9 +916,8 @@ describe('UsesFontSubsetting audit', () => {
         expect(auditResult.extendedInfo?.value[0].name).toEqual('sensation')
     })
 })
-
+const fetchSpy = jest.spyOn(fetch, 'default')
 describe('UsesGreenServer audit', () => {
-    const fetchSpy = jest.spyOn(fetch, 'default')
     afterEach(() => {
         fetchSpy.mockClear()
     })
@@ -968,7 +968,7 @@ describe('UsesGreenServer audit', () => {
 
     })
     it('skips when API response is undefined', async () => {
-        fetchSpy.mockRejectedValue({ message: 'undefined' })
+        fetchSpy.mockRejectedValueOnce({ message: 'undefined' })
         const auditResult = await UsesGreenServerAudit.audit({
             hosts: ['localhost'],
             record: [
@@ -1597,8 +1597,95 @@ describe('AvoidableBotTraffic audit', () => {
         } as Traces) as Result
         expect(auditResult.score).toEqual(1)
     })
+})
+describe('CarbonFootprintAudit', () => {
+    it('passess successful audits', async () => {
+        fetchSpy.mockResolvedValueOnce({
+            status: 200,
+            json: async () => ({
+                green: false,
+            })
+        } as Response)
+        fetchSpy.mockResolvedValueOnce({
+            status: 200,
+            json: async () => ({
+                green: true,
+            })
+        } as Response)
+        fetchSpy.mockResolvedValueOnce({
+            status: 200,
+            json: async () => ({
+                green: true,
+            })
+        } as Response)
+        fetchSpy.mockRejectedValueOnce({ message: 'undefined' })
 
+        const auditResult = await CarbonFootprintAudit.audit({
+            record: [
+                {
+                    request: {
+                        resourceType: 'script',
 
+                    },
+                    response: {
+                        url: new URL('http://localhost/script.js'),
+                        uncompressedSize: { value: 16000, units: 'bytes' }
+                    },
+                    CDP: {
+                        compressedSize: { value: 12200, units: 'bytes' }
+                    }
+                },
+                {
+                    request: {
+                        resourceType: 'script',
+
+                    },
+                    response: {
+                        url: new URL('http://remotehost/main.js'),
+                        uncompressedSize: { value: 12000, units: 'bytes' }
+                    },
+                    CDP: {
+                        compressedSize: { value: 9000, units: 'bytes' }
+                    }
+                },
+                {
+                    request: {
+                        resourceType: 'image',
+
+                    },
+                    response: {
+                        url: new URL('http://remotehost/cover2.webp'),
+                        uncompressedSize: { value: 12000, units: 'bytes' }
+                    },
+                    CDP: {
+                        compressedSize: { value: 0, units: 'bytes' }
+                    }
+                },
+                {
+                    request: {
+                        resourceType: 'image',
+
+                    },
+                    response: {
+                        url: new URL('http://remotehost/'),
+                        uncompressedSize: { value: 0, units: 'bytes' }
+                    },
+                    CDP: {
+                        compressedSize: { value: 0, units: 'bytes' }
+                    }
+                }
+
+            ]
+        } as Traces) as Result
+
+        expect(auditResult.score).toBe(1)
+    })
+    it('skips on audits with unknown error', async () => {
+        const auditResult = await CarbonFootprintAudit.audit({
+            record: [] as Record[]
+        } as Traces)
+        expect(auditResult.scoreDisplayMode).toEqual('skip')
+    })
 
 })
 
