@@ -37,29 +37,68 @@ Audits are divided into two categories: server and design.
 
 Server aspects which are essential for online sustainability.
 
-- Running with renewable energy
-- Carbon footprint
-- HTTP2
-- Text compression
-- Bot traffic
-- Cookie optimisation
-- Browser caching
-- URL redirects
+<p>
+<details><summary>Running with renewable energy</summary><br/>
+Is it using an eco-friendly hosting solution powered with renewable energy? It will look it up for you.
+</details>
+<details><summary>Carbon footprint</summary><br/>
+What is its carbon footprint and how does it compare with others? It will look it up for you.
+</details>
+<details><summary>HTTP/2.0</summary><br/>
+Is it really using HTTP/2.0 protocol? It will look it up for you.
+</details>
+<details><summary>Text compression</summary><br/>
+Is it compressing all of its text data? It will look it up for you.
+</details>
+<details><summary>Bot traffic</summary><br/>
+Is it preventing bots from wasting its bandwidth? It will look it up for you.
+</details>
+<details><summary>Cookie optimisation</summary><br/>
+Are its cookies optimised and fairly sized? It will look it up for you.
+</details>
+<details><summary>Browser caching</summary><br/>
+Is it taking fully advantage of browser caching? Is it wasting resources? It will look it up for you.
+</details>
+<details><summary>URL redirects</summary><br/>
+Is it wasting resources with URL redirects? It will look it up for you.
+</details>
 
 ### Design Audits
 
 Targets the website assets that convert code to user consumable content.
 
-- WebP images
-- WebM videos
-- Lazy loading on media
-- Font subsetting
-- Console logs
-- Pixel energy efficiency
-- Dark mode
-- Reactive CSS animations
+<details><summary>WebP images</summary><br/>
+Is it using the lightweight but powerful WebP image format on its images? It will look it up for you.
+</details>
+<details><summary>WebM videos</summary><br/>
+Is it using the WebM video format on its videos? It will look it up for you.
+</details>
+<details><summary>Lazy loading on media</summary><br/>
+Is it lazily loading its media assets so they are only downloaded on demand? It will look it up for you.
+</details>
+<details><summary>Font subsetting</summary><br/>
+Is it subseting its fonts to only contain the necessary chars? It will look it up for you.
+</details>
+<details><summary>Console logs</summary><br/>
+Is it handling the error and warning console logs or simply ignoring them? It will look it up for you.
+</details>
+<details><summary>Pixel energy efficiency</summary><br/>
+Is it considering the energy produced by each pixel for displaying its contents? It will look it up for you.
+</details>
+<details><summary>Dark mode</summary><br/>
+Does it have a dark mode theme to save energy? It will look it up for you.
+</details>
+<details><summary>Reactive CSS animations</summary><br/>
+Is it implementing some logic to stop/display animations on demand? It will look it up for you.
+</details>
+<details><summary>Inline assets</summary><br/>
+Is it inlining big JS and CSS assets and thus preventing the browser from storing those in memory? It will look it up for you.
+</details>
+</p>
 
 ## Installation
+
+<details><summary>Installation steps</summary>
 
 Install puppeteer (if you don't already have it installed):
 
@@ -73,9 +112,12 @@ Install sustainability CLI:
 
 `npm i -g sustainability`
 
+</details>
+
 ## Usage
 
-### Locally
+<details><summary>Locally</summary>
+
 
 Take as example the following code:
 
@@ -89,10 +131,10 @@ const url = "https://www.example.org";
   console.log(report);
 })();
 ```
+</details>
+<details><summary>CLI</summary>
 
-### CLI
-
-`sustainability [opts] url`
+`sustainability [opts] url`<br/>
 Which produces the following report object:
 
 ```js
@@ -109,8 +151,8 @@ Which produces the following report object:
   ]
 }
 ```
-
-### Docker
+</details>
+<details><summary>Docker</summary>
 
 You can docker a chromium browser (e.g [docker alpine chrome](https://github.com/Zenika/alpine-chrome)) and run the audits by specifying a path with the `CHROME_BIN` environmental variable.
 
@@ -118,8 +160,11 @@ You can docker a chromium browser (e.g [docker alpine chrome](https://github.com
 # Linux
 CHROME_BIN=path_to_chrome_bin node index.js
 ```
+</details>
 
 ## Debugging
+
+<details><summary>Debugging steps</summary>
 
 You can enable verbose logging to see the API in action.
 This is done by setting the `DEBUG` environmental variable to `sustainability:*.` or with the `-d` option in the CLI.
@@ -132,14 +177,17 @@ DEBUG=sustainability:* node index.js
 # Windows Powershell
 $env:DEBUG=sustainability:* node index.js
 ```
+</details>
 
 ## API
 
-### class:Sustainability
+### class: Sustainability
 
 Sustainability module provides a method to run the sustainability audits on a URL.
 
-#### Sustainability.audit(URL, settings)
+<p>
+<details><summary>Sustainability.audit(URL, settings)</summary><br/>
+
 
 - `URL` <[string]> A valid and reachable URL to evaluate. **Warning**: You are responsible for providing a valid URL.
 - `settings` <[Object]> Set of configurable settings for the audit. May include the following optional fields:
@@ -161,8 +209,8 @@ Sustainability module provides a method to run the sustainability audits on a UR
         - `accuracy`<[number]> Optional non-negative accuracy value
     - `coldRun` <[boolean]> Should initialise a cold run to find any potential URL redirect. Defaults to true.
     - `streams` <[boolean]> Should push individual audits results as they go. Defaults to false.
-
-#### Sustainability.auditStream
+  </details>
+  <details><summary>Sustainability.auditStream</summary><br/>
 
 A readable stream of audits to pipe from. Used in combination with streams option.
 
@@ -177,13 +225,43 @@ For example:
 })();
 ```
 
+</details>
+</p>
+
 ## With a server
 
 Typically you would like sustainability to process the maximum number of processes at the same time. One way to do this, is implementing a queue management system with a set of service workers. To see a full working example with sustainability, please refer to [this repo](https://github.com/sirdmon/sustainable).
 
 ## Give it a spin
 
-Visit [DAS](https://audits.digital/) to test the software with **environmental awareness**.
+Visit [DAS site](https://audits.digital/) to test the software with **environmental awareness**.
+
+
+## FAQS
+
+<details><summary>Oh wow, what's the story behind this? Did you just sit down and make this one day?</summary><br/>
+
+There is a short and a long history.
+
+The short history is that the ICT in the worst case scenario will be responsible for 1/4 of the world's energy demand in the next 10 years and I'm not alone on this [external ref](https://www.nature.com/articles/d41586-018-06610-y).
+
+This is due to a faster digital transformation, a data-oriented society and a higher availability in developing countries.
+
+Knowing the adverse situation we are facing, I think that we can do much more to make sure our digital services engage with sustainability issues.
+
+The long history is that I can tell you from my first-hand experience that currently, we are not teaching our professionals to build a responsible and sustainable digital world, and neither we are consuming them with this in mind.
+
+Hopefully this tool will trigger the right actions in both sides.
+
+</details>
+
+<details><summary>I’d like to learn more about this topic. Would you be able to share articles or research?</summary><br/>
+
+This was initially part of my own [master's degree thesis work](http://dx.doi.org/10.13140/RG.2.2.31368.44809). <br/>
+Also, I had lately added some interesting research and insights [here](https://github.com/digital-audits/sustainability/blob/master/RESEARCH.md).
+
+</details>
+
 
 ## Contributions are welcomed
 
