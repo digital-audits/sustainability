@@ -11,7 +11,7 @@ import {
     Traces, Headers, ConsoleMessageFormat, AnimationsFormat, Sheets, SubfontFormat, InlineStyles,
     MediaFormat, InlineScripts, RedirectResponse, MetaTagFormat, RobotsFormat, Record
 } from "../../src/types/traces"
-import fetch, { Response } from 'node-fetch';
+import * as fetch from 'node-fetch';
 
 import UsesGreenServerAudit from "../../src/audits/UsesGreenServer.audit"
 import UsesHTTP2Audit from "../../src/audits/UsesHTTP2.audit"
@@ -929,7 +929,7 @@ describe('UsesGreenServer audit', () => {
                     green: true,
                     hostedby: 'you-know'
                 })
-            } as Response);
+            } as fetch.Response);
 
         const auditResult = await UsesGreenServerAudit.audit({
             hosts: ['localhost'],
@@ -952,7 +952,7 @@ describe('UsesGreenServer audit', () => {
                 json: async () => ({
                     green: false,
                 })
-            } as Response);
+            } as fetch.Response);
         const auditResult = await UsesGreenServerAudit.audit({
             hosts: ['localhost'],
             record: [
@@ -989,7 +989,7 @@ describe('UsesGreenServer audit', () => {
                 json: async () => ({
                     error: 'Server internal error'
                 })
-            } as Response);
+            } as fetch.Response);
         const auditResult = await UsesGreenServerAudit.audit({
             hosts: ['localhost'],
             record: [
@@ -1605,19 +1605,19 @@ describe('CarbonFootprintAudit', () => {
             json: async () => ({
                 green: false,
             })
-        } as Response)
+        } as fetch.Response)
         fetchSpy.mockResolvedValueOnce({
             status: 200,
             json: async () => ({
                 green: true,
             })
-        } as Response)
+        } as fetch.Response)
         fetchSpy.mockResolvedValueOnce({
             status: 200,
             json: async () => ({
                 green: true,
             })
-        } as Response)
+        } as fetch.Response)
         fetchSpy.mockRejectedValueOnce({ message: 'undefined' })
 
         const auditResult = await CarbonFootprintAudit.audit({

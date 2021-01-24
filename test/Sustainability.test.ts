@@ -7,7 +7,6 @@ import fastify, { FastifyInstance } from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 import * as path from 'path';
 import { Page, Browser } from 'puppeteer'
-import { resolve } from 'path';
 
 const server: FastifyInstance<
 	Server,

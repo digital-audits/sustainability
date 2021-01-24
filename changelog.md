@@ -5,11 +5,6 @@
 - Achieved 100% coverage
 - Added research notes
 - New logo
-- Needs node ^10.0.x
-
-### Dependency updates
-
-- Node fetch (3.0.0)
 
 ### API Audit Settings
 
