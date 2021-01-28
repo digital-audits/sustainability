@@ -153,13 +153,36 @@ Which produces the following report object:
 ```
 </details>
 <details><summary>Docker</summary>
+<br/>
 
-You can docker a chromium browser (e.g [docker alpine chrome](https://github.com/Zenika/alpine-chrome)) and run the audits by specifying a path with the `CHROME_BIN` environmental variable.
+You can pull the latest `trydas/sustainability` docker image from [this repository](https://hub.docker.com/repository/docker/trydas/sustainability)
 
-```bash
-# Linux
-CHROME_BIN=path_to_chrome_bin node index.js
+Note that you will also need to have a local installation of Redis or a running docker image.
+
+### Environment variables
+
+- REDIS_HOST (default to 127.0.0.1)
+- REDIS_PORT (default to 6379)
+
+### With docker compose
+
+1. Run docker-compose file in the root docker folder. <br/>
+
+```sh
+cd docker/
+docker-compose up -d
 ```
+
+2. Audit any URL with a POST request at `http://localhost/service/add` including a JSON body param `url` containing the corresponding URL to audit. <br/>
+
+```sh
+curl -d "url=https://www.example.org" http://localhost/service/add
+```
+
+
+
+
+
 </details>
 
 ## Debugging

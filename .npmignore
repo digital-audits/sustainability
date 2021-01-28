@@ -3,6 +3,9 @@ logo.png
 research.png
 changelog.md
 test
+coverage
+docker
+node_modules
 CONTRIBUTION-dev.md 
 reports-by-url.csv
 RESEARCH.md

@@ -11,10 +11,6 @@ export interface AuditSettings {
 	 */
 	browser?: Browser;
 	/**
-	 * Puppeteer page object. Defaults a new page
-	 */
-	page?: Page;
-	/**
 	 * Puppeteer launch settings. Defaults to puppeteer's
 	 */
 	launchSettings?: LaunchOptions;
