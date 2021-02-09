@@ -10,7 +10,7 @@ export default class AvoidableBotTrafficAudit extends Audit {
 			id: 'avoidablebottraffic',
 			title: `Successfully handles bot traffic`,
 			failureTitle: `Handle bot traffic`,
-			description: `About 40% of current internet traffic and bandwidth is due to bots or web crawlers. Proper handling of robot.txt and <meta name="robots"> allow to control which content should be allowed for bots visiting your site and thus save precious resources. More <a href="https://support.google.com/webmasters/answer/6062596?hl=en">info</a>`,
+			description: `About 40% of current internet traffic and bandwidth is due to bots or web crawlers. Proper handling of robot.txt and <meta name="robots"> allow to control which content should be allowed for bots visiting your site and thus save precious resources. More <a rel="noopener noreferrer" target="_blank" href="https://support.google.com/webmasters/answer/6062596?hl=en">info</a>`,
 			category: 'design',
 			collectors: ['robotscollect', 'metatagscollect', 'transfercollect']
 		} as Meta;

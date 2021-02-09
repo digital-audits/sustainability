@@ -1,5 +1,5 @@
-import {Meta, Result, SkipResult} from '../types/audit';
-import {Traces} from '../types/traces';
+import { Meta, Result, SkipResult } from '../types/audit';
+import { Traces } from '../types/traces';
 import Audit from './audit';
 import * as utils from '../utils/utils';
 
@@ -9,7 +9,7 @@ export default class ReactiveAnimationsAudit extends Audit {
 			id: 'reactiveanimations',
 			title: `Animations are reactive`,
 			failureTitle: `Animations are not reactive`,
-			description: `CSS animations should only run whenever the user is interacting with them and automatically pause otherwise. <a href="https://gist.github.com/sirdmon/0fda06c8288ad0fc9712d9f2f955c907">More info</a>`,
+			description: `CSS animations should only run whenever the user is interacting with them and automatically pause otherwise. <a rel="noopener noreferrer" target="_blank" href="https://gist.github.com/sirdmon/0fda06c8288ad0fc9712d9f2f955c907">More info</a>`,
 			category: 'design',
 			collectors: ['animationscollect', 'lazymediacollect']
 		} as Meta;
@@ -39,10 +39,10 @@ export default class ReactiveAnimationsAudit extends Audit {
 				...(score
 					? {}
 					: {
-							extendedInfo: {
-								value: traces.animations.notReactive
-							}
-					  })
+						extendedInfo: {
+							value: traces.animations.notReactive
+						}
+					})
 			};
 		}
 

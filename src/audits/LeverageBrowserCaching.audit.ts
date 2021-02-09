@@ -87,7 +87,7 @@ export default class LeverageBrowserCachingAudit extends Audit {
 			meta,
 			score,
 			scoreDisplayMode: 'numeric',
-			...(score < 0.5
+			...(results.length
 				? {
 					extendedInfo: {
 						value: {

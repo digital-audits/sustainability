@@ -86,6 +86,7 @@ export const DEFAULT: DefaultSettings = {
 			UsesCompressionAudit,
 			UsesHTTP2Audit,
 			CarbonFootprintAudit,
+			NoConsoleLogsAudit,
 			UsesGreenServerAudit,
 			UsesLazyLoadingAudit,
 			PixelEnergyEfficiencyAudit,
@@ -99,6 +100,7 @@ export const DEFAULT: DefaultSettings = {
 			AvoidableBotTrafficAudit,
 			ReactiveAnimationsAudit,
 			UsesFontSubsettingAudit
+
 		]
 	},
 	REPORT: {

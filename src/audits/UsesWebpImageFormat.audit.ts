@@ -27,7 +27,7 @@ export default class UsesWebpImageFormatAudit extends Audit {
 	static audit(traces: Traces): Result | SkipResult {
 		const debug = util.debugGenerator('UsesWebPImageFormat Audit');
 
-		const mediaImages = [...traces.lazyMedia.lazyImages,
+		const mediaImages = [...(traces.lazyMedia ? [traces.lazyMedia.lazyImages] : []).flat(),
 		...traces.record.filter(r => r.request.resourceType === 'image').map(r => r.response.url.toString())];
 
 		const isAuditApplicable = (): boolean => {

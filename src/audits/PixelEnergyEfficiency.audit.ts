@@ -39,7 +39,7 @@ export default class PixelEnergyEfficiencyAudit extends Audit {
 			scoreDisplayMode: 'binary',
 			extendedInfo: {
 				value: {
-					power: [pixelPower.toFixed(2), 'W']
+					power: { value: pixelPower.toFixed(2), units: 'W' }
 				}
 			}
 		};

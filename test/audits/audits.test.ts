@@ -1213,6 +1213,7 @@ describe('UsesLazyLoading audit', () => {
     })
 })
 describe('UsesWebmVideoFormat audit', () => {
+
     it('skips audits without media video traces', () => {
         const auditResult = UsesWebmVideoFormatAudit.audit({
             media: {
@@ -1329,6 +1330,26 @@ describe('UsesWebmVideoFormat audit', () => {
 })
 
 describe('UsesWebpImageFormat audit', () => {
+    it('skips audits with undefined lazymedia traces, ex: when page is unable to scroll', () => {
+        const auditResult = UsesWebpImageFormatAudit.audit({
+            record: [
+                {
+                    request: {
+                        url: new URL('http://localhost/script.js'),
+                        protocol: 'h1',
+                        resourceType: 'other'
+
+                    },
+                    response: {
+                        fromServiceWorker: false
+                    }
+                }
+            ]
+
+        } as Traces)
+        expect(auditResult.scoreDisplayMode).toEqual('skip')
+
+    })
     it('ignores audits without media images', () => {
         const auditResult = UsesWebpImageFormatAudit.audit({
             lazyMedia: {

@@ -13,7 +13,7 @@ export default class UsesFontSubsettingAudit extends Audit {
 			id: 'fontsubsetting',
 			title: 'Use font subsetting',
 			failureTitle: `Don’t use font subsetting`,
-			description: `Font subsetting is a method to only download the character sets of use. <a href="https://web.dev/reduce-webfont-size/#unicode-range-subsetting">More info</a>`,
+			description: `Font subsetting is a method to only download the character sets of use. <a rel="noopener noreferrer" target="_blank" href="https://web.dev/reduce-webfont-size/#unicode-range-subsetting">More info</a>`,
 			category: 'design',
 			collectors: ['assetscollect', 'subfontcollect', 'transfercollect']
 		} as Meta;

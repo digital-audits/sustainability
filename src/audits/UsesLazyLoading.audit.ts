@@ -14,7 +14,7 @@ export default class UsesLazyLoadingAudit extends Audit {
 			title: 'Use lazy loading on media assets',
 			failureTitle: `Don’t use lazy loading on media assets`,
 			description:
-				'Lazy loading is a powerful feature. It instructs the browser not to download an asset until an specific event happens. Now it is natively supported on HTML on img and iframe elements. <a href="https://developer.mozilla.org/en-US/docs/Web/Performance/Lazy_loading">More info</a>.',
+				'Lazy loading is a powerful feature. It instructs the browser not to download an asset until an specific event happens. Now it is natively supported on HTML on img and iframe elements. <a rel="noopener noreferrer" target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/Performance/Lazy_loading">More info</a>.',
 			category: 'design',
 			collectors: ['mediacollect', 'lazymediacollect']
 		} as Meta;

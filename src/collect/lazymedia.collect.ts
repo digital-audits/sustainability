@@ -1,10 +1,10 @@
 import Collect from './collect';
-import {PrivateSettings} from '../types/settings';
+import { PrivateSettings } from '../types/settings';
 import * as util from '../utils/utils';
-import {CollectMeta} from '../types/audit';
-import {PageContext} from '../types';
-import {CollectLazyMediaTraces} from '../types/traces';
-import {Request} from 'puppeteer';
+import { CollectMeta } from '../types/audit';
+import { PageContext } from '../types';
+import { CollectLazyMediaTraces } from '../types/traces';
+import { Request } from 'puppeteer';
 
 export default class CollectLazyMedia extends Collect {
 	static get meta() {
@@ -19,9 +19,9 @@ export default class CollectLazyMedia extends Collect {
 		pageContext: PageContext,
 		settings: PrivateSettings
 	): Promise<CollectLazyMediaTraces | undefined> {
+		const { page } = pageContext;
 		try {
 			const debug = CollectLazyMedia.meta.debug;
-			const {page} = pageContext;
 			await util.safeNavigateTimeout(
 				page,
 				'networkidle0',
@@ -60,6 +60,7 @@ export default class CollectLazyMedia extends Collect {
 			};
 		} catch (error) {
 			util.log(`Error: Lazy Media collect failed with message: ${error}`);
+			page.emit('scrollFinished');
 			return undefined;
 		}
 	}
