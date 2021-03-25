@@ -8,7 +8,7 @@ export default class UsesWebmVideoFormatAudit extends Audit {
 		return {
 			id: 'webmvideos',
 			title: 'Use WebM video format',
-			failureTitle: `Don’t use WebM video format`,
+			failureTitle: `Ensure WebM video format are used`,
 			description:
 				'WebM videos provides superior lossless and lossy compression for videos on the web. They maintain a low file size and high quality at the same time.  Although browser support is good (95%) you may use WebM videos along with other fallback sources.',
 			category: 'design',
@@ -18,12 +18,9 @@ export default class UsesWebmVideoFormatAudit extends Audit {
 
 	static audit(traces: Traces): Result | SkipResult {
 		const debug = util.debugGenerator('UsesWebMVideoFormat Audit');
-
 		// @ts-ignore flatMap
-		let mediaVideos: string[] = traces.media.videos.flatMap(vid =>
-			vid.src ? [vid.src] : []
-		);
-
+		let mediaVideos: Array<string[]> = traces.media.videos.filter(v => v.src.length)
+			.map(v => v.src)
 		const isAuditApplicable = (): boolean => {
 			if (!mediaVideos.length) return false;
 			return true;
@@ -34,12 +31,12 @@ export default class UsesWebmVideoFormatAudit extends Audit {
 			const auditUrls = new Set<string>();
 
 			if (traces.lazyMedia.lazyVideos.length) {
-				mediaVideos = [...mediaVideos, ...traces.lazyMedia.lazyVideos];
+				mediaVideos = [...mediaVideos, traces.lazyMedia.lazyVideos];
 			}
 
-			mediaVideos.filter(url => {
-				if (url.endsWith('.webm')) return false;
-				const urlLastSegment = util.getUrlLastSegment(url)
+			mediaVideos.filter(urls => {
+				if (urls.some(url => url.endsWith('.webm'))) return false;
+				const urlLastSegment = util.getUrlLastSegment(urls[0])
 				auditUrls.add(urlLastSegment);
 				return true;
 			});

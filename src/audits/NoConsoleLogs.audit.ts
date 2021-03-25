@@ -7,8 +7,8 @@ export default class NoConsoleLogsAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'noconsolelogs',
-			title: `Don’t have console logs`,
-			failureTitle: 'Have console logs',
+			title: `Does not have console logs`,
+			failureTitle: 'Avoid console logs',
 			description: `It is important to keep the console log clean of error, warning or info outputs.`,
 			category: 'design',
 			collectors: ['consolecollect']

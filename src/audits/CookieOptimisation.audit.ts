@@ -10,7 +10,7 @@ export default class CookieOptimisation extends Audit {
 		return {
 			id: 'cookieoptimisation',
 			title: `Cookies are optimised`,
-			failureTitle: `Cookies are not optimised`,
+			failureTitle: `Ensure cookies optimisation`,
 			description: `Cookies should never exceed more than 1kB in size and always be unique`,
 			category: 'server',
 			collectors: ['redirectcollect', 'cookiescollect']

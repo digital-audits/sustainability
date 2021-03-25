@@ -7,8 +7,8 @@ export default class AvoidURLRedirectsAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'avoidurlredirects',
-			title: `Avoids URL redirects`,
-			failureTitle: `Has URL redirects`,
+			title: `Does not have URL redirects`,
+			failureTitle: `Avoid URL redirects`,
 			description: `URL redirects create unnecessary HTTP traffic`,
 			category: 'server',
 			collectors: ['redirectcollect']

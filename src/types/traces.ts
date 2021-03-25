@@ -50,7 +50,7 @@ export interface MediaTrace {
 }
 
 export interface MediaFormat {
-	[key: string]: string | boolean;
+	[key: string]: string | boolean | any[];
 }
 
 export interface RobotsFormat {

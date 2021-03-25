@@ -7,8 +7,8 @@ export default class UsesWebpImageFormatAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'webpimages',
-			title: 'Use WebP image format',
-			failureTitle: `Don’t use WebP image format`,
+			title: 'Uses WebP image format',
+			failureTitle: `Ensure WebP image are used`,
 			description:
 				'WebP images provides superior lossless and lossy compression for images on the web. They maintain a low file size and high quality at the same time.  Although browser support is good (77%) you may use WebP images along with other fallback sources.',
 			category: 'design',

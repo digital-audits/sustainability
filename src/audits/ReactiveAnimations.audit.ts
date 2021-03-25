@@ -7,9 +7,9 @@ export default class ReactiveAnimationsAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'reactiveanimations',
-			title: `Animations are reactive`,
-			failureTitle: `Animations are not reactive`,
-			description: `CSS animations should only run whenever the user is interacting with them and automatically pause otherwise. <a rel="noopener noreferrer" target="_blank" href="https://gist.github.com/sirdmon/0fda06c8288ad0fc9712d9f2f955c907">More info</a>`,
+			title: `Animations and transitions are reactive`,
+			failureTitle: `Ensure reactive animations and transitions are used`,
+			description: `CSS animations and transitions should only run whenever the user is interacting with them and automatically pause otherwise. <a rel="noopener noreferrer" target="_blank" href="https://gist.github.com/sirdmon/0fda06c8288ad0fc9712d9f2f955c907">More info</a>`,
 			category: 'design',
 			collectors: ['animationscollect', 'lazymediacollect']
 		} as Meta;

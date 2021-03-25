@@ -1222,7 +1222,7 @@ describe('UsesWebmVideoFormat audit', () => {
         } as Traces)
         expect(auditResult.scoreDisplayMode).toEqual('skip')
     })
-    it('ignores videos without src atribute', () => {
+    it('ignores videos with empty src atribute', () => {
         const auditResult = UsesWebmVideoFormatAudit.audit({
             lazyMedia: {
                 lazyVideos: [] as string[]
@@ -1231,7 +1231,8 @@ describe('UsesWebmVideoFormat audit', () => {
                 videos: [
                     {
                         widht: '1080',
-                        height: '320'
+                        height: '320',
+                        src: []
                     }
                 ] as MediaFormat[]
             }
@@ -1246,7 +1247,7 @@ describe('UsesWebmVideoFormat audit', () => {
             media: {
                 videos: [
                     {
-                        src: 'http://localhost/myvideo.webm',
+                        src: ['http://localhost/myvideo.webm'],
                         widht: '1080',
                         height: '320'
                     }
@@ -1263,12 +1264,12 @@ describe('UsesWebmVideoFormat audit', () => {
             media: {
                 videos: [
                     {
-                        src: 'http://localhost/lazyvideo.mp4',
+                        src: ['http://localhost/lazyvideo.mp4'],
                         widht: '1080',
                         height: '320'
                     },
                     {
-                        src: 'http://localhost/lazyvideo.mp4',
+                        src: ['http://localhost/lazyvideo.mp4'],
                         widht: '1080',
                         height: '320'
                     },
@@ -1287,12 +1288,12 @@ describe('UsesWebmVideoFormat audit', () => {
             media: {
                 videos: [
                     {
-                        src: 'http://localhost/lazyvideo.webm',
+                        src: ['http://localhost/lazyvideo.webm'],
                         widht: '1080',
                         height: '320'
                     },
                     {
-                        src: 'http://localhost/lazyvideo2.mp4',
+                        src: ['http://localhost/lazyvideo2.mp4'],
                         widht: '1080',
                         height: '320'
                     }
@@ -1311,12 +1312,12 @@ describe('UsesWebmVideoFormat audit', () => {
             media: {
                 videos: [
                     {
-                        src: 'http://localhost/lazyvideo.webm',
+                        src: ['http://localhost/lazyvideo.webm', 'http://localhost/lazyvideo.mp4'],
                         widht: '1080',
                         height: '320'
                     },
                     {
-                        src: 'http://localhost/lazyvideo2.webm',
+                        src: ['http://localhost/lazyvideo2.webm'],
                         widht: '1080',
                         height: '320'
                     }

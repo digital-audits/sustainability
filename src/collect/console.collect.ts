@@ -35,13 +35,13 @@ export default class CollectConsole extends Collect {
 				/*
 			Console log client messages. Useful for debugging page evaluate
 			*/
-
 				/*
-			for (let i = 0; i < message.args().length; ++i) {
-				debug(`${i}: ${message.args()[i]}`);
-			}
-			*/
-
+				
+								for (let i = 0; i < message.args().length; ++i) {
+									debug(`${i}: ${message.args()[i]}`);
+								}
+				
+				*/
 				results.push(information);
 			});
 			if (settings.streams)

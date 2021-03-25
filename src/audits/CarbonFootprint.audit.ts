@@ -14,8 +14,8 @@ export default class CarbonFootprintAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'carbonfootprint',
-			title: `Website’s carbon footprint is moderate`,
-			failureTitle: `Website’s carbon footprint is high`,
+			title: `Carbon footprint is moderate`,
+			failureTitle: `Carbon footprint is high`,
 			description: `The carbon footprint is the total amount of greenhouse gases released into the atmosphere for directly or indirectly supporting a particular activity. Keeping it as low as possible it’s key to prevent the climate change.`,
 			category: 'server',
 			collectors: ['transfercollect']

@@ -203,13 +203,13 @@ describe('Redirect collector', () => {
 	});
 });
 
-describe('Media collector', () => {
+describe('Images collector', () => {
 	let assets: CollectMediaTraces | undefined;
 	beforeAll(async () => {
 		const path = 'images';
 		assets = await navigateAndReturnAssets(path, CollectMedia.collect);
 	});
-	it('collects media', () => {
+	it('collects images', () => {
 		expect(assets?.media.images.length).toEqual(15);
 	});
 
@@ -233,7 +233,23 @@ describe('Media collector', () => {
 	});
 });
 
-describe('Lazy media collector', () => {
+describe('Videos collector', () => {
+	let assets: CollectMediaTraces | undefined;
+	beforeAll(async () => {
+		const path = 'videos';
+		assets = await navigateAndReturnAssets(path, CollectMedia.collect);
+	});
+	it('collects videos', () => {
+		expect(assets?.media.videos.length).toBe(2)
+	})
+	it('collected videos has src attribute', () => {
+		const collectedVideos = assets?.media.videos.map(v => v.src)!
+		expect(collectedVideos).toBeTruthy()
+		expect(typeof collectedVideos[0]).toBe('object')
+	})
+})
+
+describe('Lazy images collector', () => {
 	it('collects lazy loaded images with page being able to scroll', async () => {
 		const path = 'images';
 		const assets: CollectLazyMediaTraces | undefined = await navigateAndReturnAssets(
@@ -252,6 +268,17 @@ describe('Lazy media collector', () => {
 		expect(assets?.lazyMedia).toBe(undefined)
 	})
 });
+
+describe.only('Lazy videos collector', () => {
+	let assets: CollectLazyMediaTraces | undefined;
+	beforeAll(async () => {
+		const path = 'videos-lazy';
+		assets = await navigateAndReturnAssets(path, CollectLazyMedia.collect);
+	});
+	it('collects lazy loaded videos', () => {
+		expect(assets?.lazyMedia.lazyVideos.length).toBeGreaterThanOrEqual(1)
+	})
+})
 
 describe('Transfer collector', () => {
 	let assets: CollectTransferTraces | undefined;

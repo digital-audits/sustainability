@@ -11,8 +11,8 @@ export default class UsesHTTP2Audit extends Audit {
 	static get meta() {
 		return {
 			id: 'useshttp2',
-			title: 'Use HTTP2',
-			failureTitle: `Don’t use HTTP2`,
+			title: 'Uses HTTP2',
+			failureTitle: `Serve assets over HTTP2`,
 			description: `HTTP2 provides advantages such as:
             multiplexing, server push, binary headers and increased security.`,
 			category: 'server',

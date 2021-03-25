@@ -34,7 +34,7 @@ export default class CollectLazyMedia extends Collect {
 
 			const lazyImages: string[] = [];
 			const lazyVideos: string[] = [];
-			const requestListener = () => {
+			(function () {
 				page.on('requestfinished', (request: Request) => {
 					if (request.resourceType() === 'image') {
 						lazyImages.push(request.url());
@@ -44,9 +44,7 @@ export default class CollectLazyMedia extends Collect {
 						lazyVideos.push(request.url());
 					}
 				});
-			};
-
-			requestListener();
+			})()
 
 			await util.scrollFunction(page, settings.maxScrollInterval, debug),
 				page.removeAllListeners('requestfinished');

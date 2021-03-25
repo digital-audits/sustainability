@@ -41,8 +41,8 @@ export default class UsesCompressionAudit extends Audit {
 	static get meta() {
 		return {
 			id: 'usescompression',
-			title: 'Use compression',
-			failureTitle: `Don’t use compression`,
+			title: 'Uses compression',
+			failureTitle: `Ensure compression is used`,
 			description: `Text compression is important because it reduces the total amount of data transferred to clients`,
 			category: 'server',
 			collectors: ['transfercollect', 'redirectcollect']
