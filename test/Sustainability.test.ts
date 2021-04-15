@@ -23,10 +23,9 @@ server.get('/health.html', (_, reply) => {
 	reply.redirect('http://localhost:3334/animations.html');
 });
 
-const runAudit = (path: string, options?: AuditSettings, url?: string, enableTelemetry = false) => {
+const runAudit = (path: string, options?: AuditSettings, url?: string) => {
 	if (!url) url = `http://localhost:3334/${path}.html`;
-	const connectionSettings = { ...options?.connectionSettings, telemetry: false }
-	return Sustainability.audit(url, (enableTelemetry ? options : { ...options, connectionSettings }));
+	return Sustainability.audit(url, options);
 };
 
 beforeAll(async () => {
@@ -44,29 +43,31 @@ describe('Sustainability', () => {
 			launchSettings: {
 				headless: true,
 				timeout: 0
-			}
+			},
+			connectionSettings: { telemetry: false }
 		})
 		expect(report).toBeTruthy()
 	})
 	it('works on redirected URLs', async () => {
-		const report = await runAudit('health')
+		const report = await runAudit('health', { connectionSettings: { telemetry: false } })
 		expect(report).toBeTruthy()
 	})
 	it('works with coldRun disabled and streams enabled', async () => {
-		await runAudit('animations', { connectionSettings: { coldRun: false, streams: true } })
+		await runAudit('animations', { connectionSettings: { telemetry: false, coldRun: false, streams: true } })
 		Sustainability.auditStream.pipe(process.stdout);
 		expect(true).toBeTruthy()
 	})
 	it('works when custom browser is passed', async () => {
 		const browser = await Connection.setUp()
 		await runAudit('animations', {
-			browser
+			browser,
+			connectionSettings: { telemetry: false }
 		})
 		expect(true).toBeTruthy()
 	})
 	it('sends telemetry', async () => {
 		const fetchMock = jest.spyOn(fetch, 'default');
-		await runAudit('health', {}, '', true)
+		await runAudit('health')
 		const fetchCallsWithTelemetryEnabled = fetchMock.mock.calls.length
 		fetchMock.mockClear()
 		await runAudit('health', { connectionSettings: { telemetry: false } })
@@ -97,6 +98,7 @@ describe('targeted tests to improve coverage', () => {
 		process.env.CHROME_BIN = '/usr/local/bin/chrome'
 		try {
 			await runAudit('animations', {
+				connectionSettings: { telemetry: false }
 			})
 		} catch (error) {
 			expect(true).toBeTruthy()
@@ -107,7 +109,7 @@ describe('targeted tests to improve coverage', () => {
 			await runAudit('animations', {
 				browser: {
 					newPage: async () => new Promise((resolve) => resolve({} as Page))
-				} as Browser, connectionSettings: { coldRun: false }
+				} as Browser, connectionSettings: { coldRun: false, telemetry: false }
 			})
 		} catch (error) {
 			expect(true).toBeTruthy()

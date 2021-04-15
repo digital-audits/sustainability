@@ -9,7 +9,7 @@
   "types": "build/index.d.ts",
   "scripts": {
     "test": "DEBUG='sustainability:*' jest",
-    "coverage": "jest --coverage",
+    "coverage": "jest --coverage --silent",
     "dev": "DEBUG='sustainability:*' ts-node-dev --respawn --poll --clear ./src/index-dev.ts",
     "format": "xo --fix",
     "build": "tsc && cp ./src/bin/glyphhanger-script.js ./build/bin/"
