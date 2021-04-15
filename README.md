@@ -118,7 +118,6 @@ Install sustainability CLI:
 
 <details><summary>Locally</summary>
 
-
 Take as example the following code:
 
 ```js
@@ -131,6 +130,7 @@ const url = "https://www.example.org";
   console.log(report);
 })();
 ```
+
 </details>
 <details><summary>CLI</summary>
 
@@ -151,6 +151,7 @@ Which produces the following report object:
   ]
 }
 ```
+
 </details>
 <details><summary>Docker</summary>
 <br/>
@@ -179,10 +180,6 @@ docker-compose up -d
 curl -d "url=https://www.example.org" http://localhost/service/add
 ```
 
-
-
-
-
 </details>
 
 ## Debugging
@@ -200,6 +197,7 @@ DEBUG=sustainability:* node index.js
 # Windows Powershell
 $env:DEBUG=sustainability:* node index.js
 ```
+
 </details>
 
 ## API
@@ -210,7 +208,6 @@ Sustainability module provides a method to run the sustainability audits on a UR
 
 <p>
 <details><summary>Sustainability.audit(URL, settings)</summary><br/>
-
 
 - `URL` <[string]> A valid and reachable URL to evaluate. **Warning**: You are responsible for providing a valid URL.
 - `settings` <[Object]> Set of configurable settings for the audit. May include the following optional fields:
@@ -232,8 +229,9 @@ Sustainability module provides a method to run the sustainability audits on a UR
         - `accuracy`<[number]> Optional non-negative accuracy value
     - `coldRun` <[boolean]> Should initialise a cold run to find any potential URL redirect. Defaults to true.
     - `streams` <[boolean]> Should push individual audits results as they go. Defaults to false.
-  </details>
-  <details><summary>Sustainability.auditStream</summary><br/>
+    - `telemetry` <[boolean]> Should send completely anonimously telemetry [see sendTelemetry function](https://github.com/digital-audits/sustainability/blob/master/src/utils/utils.ts). Defaults to true.
+    </details>
+    <details><summary>Sustainability.auditStream</summary><br/>
 
 A readable stream of audits to pipe from. Used in combination with streams option.
 
@@ -259,7 +257,6 @@ Typically you would like sustainability to process the maximum number of process
 
 Visit [DAS site](https://audits.digital/) to test the software with **environmental awareness**.
 
-
 ## FAQS
 
 <details><summary>Oh wow, what's the story behind this? Did you just sit down and make this one day?</summary><br/>
@@ -284,7 +281,6 @@ This was initially part of my own [master's degree thesis work](http://dx.doi.or
 Also, I had lately added some interesting research and insights [here](https://github.com/digital-audits/sustainability/blob/master/RESEARCH.md).
 
 </details>
-
 
 ## Contributions are welcomed
 

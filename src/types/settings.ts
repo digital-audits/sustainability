@@ -59,6 +59,10 @@ export interface ConnectionSettings {
 	 * Should initialise a cold run to find any potential URL redirect. Defaults to true
 	 */
 	coldRun?: boolean;
+	/**
+ * Enable or disable telemetry. Currently only sends report object.
+ */
+	telemetry?: boolean
 }
 
 export interface PrivateSettings {
@@ -69,6 +73,7 @@ export interface PrivateSettings {
 	location: EmulatedLocation;
 	maxThrottle: number;
 	streams: boolean;
+	telemetry: boolean;
 	coldRun: boolean;
 }
 

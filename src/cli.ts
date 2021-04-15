@@ -2,8 +2,8 @@
 
 import * as minimist from 'minimist';
 import * as Debug from 'debug';
-import {Sustainability} from '.';
-import {AuditSettings} from './types';
+import { Sustainability } from '.';
+import { AuditSettings } from './types';
 import * as fs from 'fs';
 import * as util from './utils/utils';
 const version: string = require('../package.json').version;
@@ -51,6 +51,7 @@ if (argv.help) {
     --nosandbox                   Launches puppeteer with [’--no-sandbox’, ’--disable-setuid-sandbox’]
     --debug or -d                 Enables verbose logging.
     --version or -v               Prints out ${name} version
+	--notelemetry                 Disables telemetry (completely anonimous and only sends output)
     `);
 	process.exit(0);
 }
@@ -75,6 +76,10 @@ if (argv.nosandbox) {
 	debug('Set nosandbox opt in puppeteer launch');
 }
 
+if (argv.notelemetry) {
+	debug('Disabled telemetry')
+}
+
 try {
 	new URL(url);
 } catch (error) {
@@ -87,34 +92,40 @@ try {
 const options: AuditSettings = {
 	...(argv.nosandbox
 		? {
-				launchSettings: {
-					args: ['--no-sandbox', '--disable-setuid-sandbox']
-				}
-		  }
+			launchSettings: {
+				args: ['--no-sandbox', '--disable-setuid-sandbox']
+			}
+		}
 		: {}),
 	...(argv.viewport || argv.maxnav
 		? {
-				connectionSettings: {
-					...(argv.viewport === 'mobile'
-						? {
-								emulatedDevice: {
-									name: 'mobile',
-									userAgent:
-										'Mozilla/5.0 (Linux; Android 7.0; SM-G930V Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36',
-									viewport: {
-										width: 360,
-										height: 640
-									}
-								}
-						  }
-						: {}),
-					...(argv.maxnav
-						? {
-								maxNavigationTime: parsedMaxNav(argv.maxnav)
-						  }
-						: {})
-				}
-		  }
+			connectionSettings: {
+				...(argv.viewport === 'mobile'
+					? {
+						emulatedDevice: {
+							name: 'mobile',
+							userAgent:
+								'Mozilla/5.0 (Linux; Android 7.0; SM-G930V Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36',
+							viewport: {
+								width: 360,
+								height: 640
+							}
+						}
+					}
+					: {}),
+				...(argv.maxnav
+					? {
+						maxNavigationTime: parsedMaxNav(argv.maxnav)
+					}
+					: {}),
+				...(argv.notelemetry
+					? {
+						telemetry: false
+					}
+					: {}
+				)
+			}
+		}
 		: {})
 };
 

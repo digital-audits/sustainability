@@ -1,5 +1,9 @@
 # Changelog
 
+## v. 0.4.11 (15/4/2021)
+
+- New option: Enable/Disable optional telemetry collected completely anonimously and never including private data.
+
 ## v. 0.4.0
 
 - Achieved 100% coverage

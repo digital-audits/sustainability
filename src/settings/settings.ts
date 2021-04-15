@@ -55,6 +55,7 @@ export const DEFAULT: DefaultSettings = {
 			accuracy: 100
 		},
 		streams: false,
+		telemetry: true,
 		coldRun: true
 	},
 	CATEGORIES: {

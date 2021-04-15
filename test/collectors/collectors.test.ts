@@ -269,16 +269,7 @@ describe('Lazy images collector', () => {
 	})
 });
 
-describe.only('Lazy videos collector', () => {
-	let assets: CollectLazyMediaTraces | undefined;
-	beforeAll(async () => {
-		const path = 'videos-lazy';
-		assets = await navigateAndReturnAssets(path, CollectLazyMedia.collect);
-	});
-	it('collects lazy loaded videos', () => {
-		expect(assets?.lazyMedia.lazyVideos.length).toBeGreaterThanOrEqual(1)
-	})
-})
+
 
 describe('Transfer collector', () => {
 	let assets: CollectTransferTraces | undefined;

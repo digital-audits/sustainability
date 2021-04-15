@@ -23,6 +23,8 @@ export const variables: Variables = {
 	defaultCarbonIntensity
 };
 
+export const TELEMETRY_API_URL = 'https://vtdnv367qg.execute-api.eu-central-1.amazonaws.com/default/DAStoDB'
+
 interface Variables {
 	[key: string]: [number, string];
 }

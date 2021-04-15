@@ -46,16 +46,19 @@ export default class Sustainability {
 			}
 
 			page = await browser.newPage();
+			const isTelemetryEnabled = settings?.connectionSettings?.telemetry ?? DEFAULT.CONNECTION_SETTINGS.telemetry
+			let report = {} as Report
 			try {
 				const pageContext = { page, url };
-				const report = await sustainability.handler(pageContext, settings);
+				report = await sustainability.handler(pageContext, settings);
 				if (comments.length) report.comments = comments;
-
 				return report;
 			} catch (error) {
 				throw new Error(`Error: Test failed with message: ${error.message}`);
 			} finally {
 				await page.close();
+				if (isTelemetryEnabled && Object.keys(report).length)
+					await util.sendTelemetry(report)
 			}
 		} catch (error) {
 			throw new Error(`Error: ${error.message}`);

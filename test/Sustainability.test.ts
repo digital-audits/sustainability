@@ -7,6 +7,7 @@ import fastify, { FastifyInstance } from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 import * as path from 'path';
 import { Page, Browser } from 'puppeteer'
+import * as fetch from 'node-fetch'
 
 const server: FastifyInstance<
 	Server,
@@ -22,10 +23,10 @@ server.get('/health.html', (_, reply) => {
 	reply.redirect('http://localhost:3334/animations.html');
 });
 
-const runAudit = (path: string, options?: AuditSettings, url?: string) => {
+const runAudit = (path: string, options?: AuditSettings, url?: string, enableTelemetry = false) => {
 	if (!url) url = `http://localhost:3334/${path}.html`;
-
-	return Sustainability.audit(url, options);
+	const connectionSettings = { ...options?.connectionSettings, telemetry: false }
+	return Sustainability.audit(url, (enableTelemetry ? options : { ...options, connectionSettings }));
 };
 
 beforeAll(async () => {
@@ -35,6 +36,8 @@ beforeAll(async () => {
 afterAll(async () => {
 	await server.close();
 });
+
+
 describe('Sustainability', () => {
 	it('works with default options', async () => {
 		const report = await runAudit('animations', {
@@ -61,6 +64,17 @@ describe('Sustainability', () => {
 		})
 		expect(true).toBeTruthy()
 	})
+	it('sends telemetry', async () => {
+		const fetchMock = jest.spyOn(fetch, 'default');
+		await runAudit('health', {}, '', true)
+		const fetchCallsWithTelemetryEnabled = fetchMock.mock.calls.length
+		fetchMock.mockClear()
+		await runAudit('health', { connectionSettings: { telemetry: false } })
+		const fetchCallsWithTelemetryDisabled = fetchMock.mock.calls.length
+		expect(fetchCallsWithTelemetryDisabled).toBeLessThan(fetchCallsWithTelemetryEnabled)
+	})
+
+
 })
 
 describe('targeted tests to improve coverage', () => {

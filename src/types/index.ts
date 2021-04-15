@@ -1,5 +1,5 @@
-import {LaunchOptions, Page, Browser} from 'puppeteer';
-import {ConnectionSettings} from './settings';
+import { LaunchOptions, Page, Browser } from 'puppeteer';
+import { ConnectionSettings } from './settings';
 
 export interface AuditSettings {
 	/**
@@ -18,6 +18,7 @@ export interface AuditSettings {
 	 * Sustainability test settings
 	 */
 	connectionSettings?: ConnectionSettings;
+
 }
 
 export interface Tracker {
