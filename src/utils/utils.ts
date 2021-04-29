@@ -563,7 +563,8 @@ function getReportObject(reqReport: Report) {
 	const totalSkips = reqReport.audits[0].audits.skip.map(audit => audit.meta.id).concat(reqReport.audits[1].audits.skip.map(audit => audit.meta.id))
 
 	const serverAudits = reqReport.audits.find(audits => audits.category.name === 'server')!.audits
-	const cfAuditType = Object.values(serverAudits).find(type => type.some((audit: AuditReportFormat) => audit.scoreDisplayMode === 'numeric')).find((audit: AuditReportFormat) => audit.scoreDisplayMode === 'numeric')
+	const cfAuditType = Object.values(serverAudits).find((type: AuditReportFormat[]) => type.some(audit => audit.meta.id === 'carbonfootprint')).find((audit: AuditReportFormat) => audit.meta.id === 'carbonfootprint')
+
 	return {
 		url: reqReport.meta.url,
 		lastAuditDate,
