@@ -23,7 +23,7 @@ export default class UsesHTTP2Audit extends Audit {
 	static audit(traces: Traces): Result {
 		const debug = util.debugGenerator('UsesHTTP2 Audit');
 		debug('running');
-		const { hosts } = traces;
+		const { hosts } = traces.server;
 		let urlCounter = 0
 		traces.record
 			.filter(record => {

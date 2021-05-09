@@ -23,7 +23,7 @@ import AvoidURLRedirectsAudit from "../../src/audits/AvoidURLRedirects.audits"
 import AvoidableBotTrafficAudit from "../../src/audits/AvoidableBotTraffic.audit"
 import CarbonFootprintAudit from "../../src/audits/CarbonFootprint.audit"
 const traces = {
-    hosts: ['localhost'],
+    server: { hosts: ['localhost'] },
     cookies: [
         {
             name: 'fatCookie',
@@ -62,7 +62,7 @@ const traces = {
 } as Traces
 
 const skipTraces = {
-    hosts: ['localhost'],
+    server: { hosts: ['localhost'] },
 } as Traces
 
 describe('CookieOptimisation Audit', () => {
@@ -74,8 +74,10 @@ describe('CookieOptimisation Audit', () => {
     it('extendedInfo only contains dup field when only duplicated cookies found', () => {
         const auditResult = CookieOptimisation.audit(
             {
-                hosts:
-                    ['localhost'],
+                server: {
+                    hosts:
+                        ['localhost']
+                },
                 cookies: [
                     {
                         name: 'cookie',
@@ -118,8 +120,10 @@ describe('CookieOptimisation Audit', () => {
     it('extendedInfo only contains size field when only big sized cookies found', () => {
         const auditResult = CookieOptimisation.audit(
             {
-                hosts:
-                    ['localhost'],
+                server: {
+                    hosts:
+                        ['localhost']
+                },
                 cookies: [
                     {
                         name: 'cookie',
@@ -141,8 +145,10 @@ describe('CookieOptimisation Audit', () => {
     it('ignores cross site cookies', () => {
         const auditResult = CookieOptimisation.audit(
             {
-                hosts:
-                    ['localhost'],
+                server: {
+                    hosts:
+                        ['localhost']
+                },
                 cookies: [
                     {
                         name: 'ga-cookie',
@@ -163,8 +169,10 @@ describe('CookieOptimisation Audit', () => {
     it('big sized cookies dont include duplications if any', () => {
         const auditResult = CookieOptimisation.audit(
             {
-                hosts:
-                    ['localhost'],
+                server: {
+                    hosts:
+                        ['localhost']
+                },
                 cookies: [
                     {
                         name: 'cookie',
@@ -195,7 +203,7 @@ describe('CookieOptimisation Audit', () => {
 
     })
     it('skips when no cookie are in traces', () => {
-        const auditResult = CookieOptimisation.audit({ hosts: ['localhost'] } as Traces)
+        const auditResult = CookieOptimisation.audit({ server: { hosts: ['localhost'] } } as Traces)
         expect(auditResult?.scoreDisplayMode).toEqual('skip')
     })
 })
@@ -203,7 +211,9 @@ describe('CookieOptimisation Audit', () => {
 describe('LeverageBrowserCaching audit', () => {
     it('ignores cross site assets', () => {
         const auditResult = LeverageBrowserCachingAudit.audit({
-            hosts: ['localhost'],
+            server: {
+                hosts: ['localhost']
+            },
             record: [
                 {
                     request: {
@@ -237,7 +247,7 @@ describe('LeverageBrowserCaching audit', () => {
     })
     it('ignores non cacheable assets (resource type)', () => {
         const auditResult = LeverageBrowserCachingAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -271,7 +281,7 @@ describe('LeverageBrowserCaching audit', () => {
     })
     it('ignores assets with implicit non caching policy in request headers', () => {
         const auditResult = LeverageBrowserCachingAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -305,7 +315,7 @@ describe('LeverageBrowserCaching audit', () => {
     })
     it('ignores assets with invalid cache lifetime', () => {
         const auditResult = LeverageBrowserCachingAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -339,7 +349,7 @@ describe('LeverageBrowserCaching audit', () => {
     })
     it('ignores assets with cache hit probability higher than threshold', () => {
         const auditResult = LeverageBrowserCachingAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -372,7 +382,7 @@ describe('LeverageBrowserCaching audit', () => {
     })
     it('extendedInfo has totalWastedBytes and records field for failed audits', () => {
         const auditResult = LeverageBrowserCachingAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -475,6 +485,7 @@ describe('UsesCompression audit', () => {
     it('ignores records with invalid gzip size (0 bytes)', () => {
         const auditResult = UsesCompressionAudit.audit(
             {
+                server: { hosts: ['localhost'] },
                 record: [
                     {
                         request: {},
@@ -496,6 +507,7 @@ describe('UsesCompression audit', () => {
     it('ignores records with invalid MIME types', () => {
         const auditResult = UsesCompressionAudit.audit(
             {
+                server: { hosts: ['localhost'] },
                 record: [
                     {
                         request: {},
@@ -517,7 +529,7 @@ describe('UsesCompression audit', () => {
     it('ignores records with gzip savings lower than threshold', () => {
         const auditResult = UsesCompressionAudit.audit(
             {
-                hosts: ['localhost'],
+                server: { hosts: ['localhost'] },
                 record: [
                     {
                         request: {
@@ -541,6 +553,7 @@ describe('UsesCompression audit', () => {
     it('ignores records already compressed', () => {
         const auditResult = UsesCompressionAudit.audit(
             {
+                server: { hosts: ['localhost'] },
                 record: [
                     {
                         request: {},
@@ -562,6 +575,7 @@ describe('UsesCompression audit', () => {
     it('ignores records with compressed size lower than gzipped size', () => {
         const auditResult = UsesCompressionAudit.audit(
             {
+                server: { hosts: ['localhost'] },
                 record: [
                     {
                         request: {},
@@ -583,7 +597,7 @@ describe('UsesCompression audit', () => {
     it('ignores cross-site requests', () => {
         const auditResult = UsesCompressionAudit.audit(
             {
-                hosts: ['localhost'],
+                server: { hosts: ['localhost'] },
                 record: [
                     {
                         request: {
@@ -607,7 +621,7 @@ describe('UsesCompression audit', () => {
     it('reports low nginx gzip compression level', () => {
         const auditResult = UsesCompressionAudit.audit(
             {
-                hosts: ['localhost'],
+                server: { hosts: ['localhost'] },
                 record: [
                     {
                         request: {
@@ -632,7 +646,7 @@ describe('UsesCompression audit', () => {
     it('ignores repeated records', () => {
         const auditResult = UsesCompressionAudit.audit(
             {
-                hosts: ['localhost'],
+                server: { hosts: ['localhost'] },
                 record: [
                     {
                         request: {
@@ -916,23 +930,10 @@ describe('UsesFontSubsetting audit', () => {
         expect(auditResult.extendedInfo?.value[0].name).toEqual('sensation')
     })
 })
-const fetchSpy = jest.spyOn(fetch, 'default')
 describe('UsesGreenServer audit', () => {
-    afterEach(() => {
-        fetchSpy.mockClear()
-    })
     it('passess on audits with green origin servers', async () => {
-        fetchSpy.mockResolvedValueOnce(
-            {
-                status: 200,
-                json: async () => ({
-                    green: true,
-                    hostedby: 'you-know'
-                })
-            } as fetch.Response);
-
         const auditResult = await UsesGreenServerAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'], energySource: { isGreen: true, hostedby: 'you-know' } },
             record: [
                 {
                     response: {
@@ -946,15 +947,8 @@ describe('UsesGreenServer audit', () => {
 
     })
     it('works when API response is fetched', async () => {
-        fetchSpy.mockResolvedValueOnce(
-            {
-                status: 429,
-                json: async () => ({
-                    green: false,
-                })
-            } as fetch.Response);
         const auditResult = await UsesGreenServerAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'], energySource: { isGreen: false } },
             record: [
                 {
                     response: {
@@ -968,9 +962,8 @@ describe('UsesGreenServer audit', () => {
 
     })
     it('skips when API response is undefined', async () => {
-        fetchSpy.mockRejectedValueOnce({ message: 'undefined' })
         const auditResult = await UsesGreenServerAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'], energySource: undefined },
             record: [
                 {
                     response: {
@@ -983,15 +976,9 @@ describe('UsesGreenServer audit', () => {
         expect(auditResult?.scoreDisplayMode).toEqual('skip')
     })
     it('skips when API response has error', async () => {
-        fetchSpy.mockResolvedValueOnce(
-            {
-                status: 501,
-                json: async () => ({
-                    error: 'Server internal error'
-                })
-            } as fetch.Response);
+
         const auditResult = await UsesGreenServerAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'], energySource: undefined },
             record: [
                 {
                     response: {
@@ -1003,24 +990,11 @@ describe('UsesGreenServer audit', () => {
 
         expect(auditResult?.scoreDisplayMode).toEqual('skip')
     })
-    it('skips when a valid hostname was not found', async () => {
-        const auditResult = await UsesGreenServerAudit.audit({
-            hosts: ['localhost'],
-            record: [
-                {
-                    response: {
-                        url: new URL('http://random')
-                    }
-                }
-            ]
-        } as Traces)
-
-        expect(auditResult?.scoreDisplayMode).toEqual('skip')
-    })
 })
 describe('UsesHTTP2 audit', () => {
     it('ignores request without a protocol field', () => {
         const auditResult = UsesHTTP2Audit.audit({
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -1033,6 +1007,7 @@ describe('UsesHTTP2 audit', () => {
     })
     it('ignores responses served from service workers', () => {
         const auditResult = UsesHTTP2Audit.audit({
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -1052,7 +1027,7 @@ describe('UsesHTTP2 audit', () => {
 
     it('ignores cross site requests', () => {
         const auditResult = UsesHTTP2Audit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -1070,7 +1045,7 @@ describe('UsesHTTP2 audit', () => {
     })
     it('passess records with a data request protocol', () => {
         const auditResult = UsesHTTP2Audit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -1088,7 +1063,7 @@ describe('UsesHTTP2 audit', () => {
     })
     it('passess records with a h2 request protocol', () => {
         const auditResult = UsesHTTP2Audit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -1106,7 +1081,7 @@ describe('UsesHTTP2 audit', () => {
     })
     it('fails on non-h2 audits', () => {
         const auditResult = UsesHTTP2Audit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -1125,7 +1100,7 @@ describe('UsesHTTP2 audit', () => {
     })
     it('passess successful audits', () => {
         const auditResult = UsesHTTP2Audit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             record: [
                 {
                     request: {
@@ -1493,7 +1468,7 @@ describe('AvoidInlineAssets audit', () => {
 describe('AvoidURLRedirects audit', () => {
     it('ignores empty redirects', () => {
         const auditResult = AvoidURLRedirectsAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             redirect: [
 
             ] as RedirectResponse[]
@@ -1502,7 +1477,7 @@ describe('AvoidURLRedirects audit', () => {
     })
     it('ignores cross site redirects', () => {
         const auditResult = AvoidURLRedirectsAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             redirect: [
                 {
                     url: 'http://remotehost',
@@ -1516,7 +1491,7 @@ describe('AvoidURLRedirects audit', () => {
     })
     it('fails on audits with redirects originated at the same host', () => {
         const auditResult = AvoidURLRedirectsAudit.audit({
-            hosts: ['localhost'],
+            server: { hosts: ['localhost'] },
             redirect: [
                 {
                     url: 'http://localhost',
@@ -1622,27 +1597,8 @@ describe('AvoidableBotTraffic audit', () => {
 })
 describe('CarbonFootprintAudit', () => {
     it('passess successful audits', async () => {
-        fetchSpy.mockResolvedValueOnce({
-            status: 200,
-            json: async () => ({
-                green: false,
-            })
-        } as fetch.Response)
-        fetchSpy.mockResolvedValueOnce({
-            status: 200,
-            json: async () => ({
-                green: true,
-            })
-        } as fetch.Response)
-        fetchSpy.mockResolvedValueOnce({
-            status: 200,
-            json: async () => ({
-                green: true,
-            })
-        } as fetch.Response)
-        fetchSpy.mockRejectedValueOnce({ message: 'undefined' })
-
         const auditResult = await CarbonFootprintAudit.audit({
+            server: { hosts: ['localhost'], energySource: { isGreen: true } },
             record: [
                 {
                     request: {

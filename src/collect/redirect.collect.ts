@@ -1,10 +1,10 @@
 import Collect from './collect';
-import {PageContext} from '../types';
+import { PageContext } from '../types';
 import * as util from '../utils/utils';
-import {Response} from 'puppeteer';
-import {CollectMeta} from '../types/audit';
-import {CollectRedirectTraces, RedirectResponse} from '../types/traces';
-import {PrivateSettings} from '../types/settings';
+import { Response } from 'puppeteer';
+import { CollectMeta } from '../types/audit';
+import { CollectRedirectTraces, RedirectResponse } from '../types/traces';
+import { PrivateSettings } from '../types/settings';
 
 export default class CollectRedirect extends Collect {
 	static get meta() {
@@ -22,8 +22,8 @@ export default class CollectRedirect extends Collect {
 		const debug = CollectRedirect.meta.debug;
 		debug('running');
 		const results: RedirectResponse[] = [];
-		const {page, url} = pageContext;
-
+		const { page, url } = pageContext;
+		const initialHost = new URL(url).hostname;
 		page.on('response', (response: Response) => {
 			const status = response.status();
 			const url = response.url();
@@ -42,9 +42,28 @@ export default class CollectRedirect extends Collect {
 				results.push(information);
 			}
 		});
+		const getEnergySource = async () => {
+			debug('evaluating energy source');
+			const response = await util.isGreenServerMem(initialHost);
+
+			if (response && !response.error) {
+				const { green, hostedby } = response;
+
+				return {
+					isGreen: green,
+					hostedby
+				}
+			}
+
+
+			debug(
+				`failed to fetch response from url: ${initialHost} with error: ${response?.error}`
+			);
+
+			return undefined
+		}
 		const getPageHosts = () => {
 			const hosts = new Set<string>();
-			const initialHost = new URL(url).hostname;
 			hosts.add(initialHost);
 			const redirect = results.find(
 				record => new URL(record.url).hostname === initialHost
@@ -65,9 +84,13 @@ export default class CollectRedirect extends Collect {
 				debug
 			);
 			const hosts = getPageHosts();
+			const energySource = await getEnergySource()
 			debug('done');
 			return {
-				hosts,
+				server: {
+					hosts,
+					energySource
+				},
 				redirect: results
 			};
 		} catch (error) {

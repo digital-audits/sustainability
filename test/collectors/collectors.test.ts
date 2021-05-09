@@ -6,6 +6,8 @@ import * as path from 'path';
 import * as puppeteer from 'puppeteer';
 import * as util from '../../src/utils/utils';
 import * as fs from 'fs';
+import * as fetch from 'node-fetch';
+
 
 import CollectAssets from '../../src/collect/assets.collect';
 import { DEFAULT } from '../../src/settings/settings';
@@ -184,7 +186,11 @@ describe('Failed transfer collector', () => {
 	});
 });
 
+const fetchSpy = jest.spyOn(fetch, 'default')
 describe('Redirect collector', () => {
+	afterEach(() => {
+		fetchSpy.mockClear()
+	})
 	it('collects redirect requests', async () => {
 		const path = '305';
 		const assets = await navigateAndReturnAssets(path, CollectRedirect.collect);
@@ -197,10 +203,47 @@ describe('Redirect collector', () => {
 	it('collects page hosts', async () => {
 		const path = 'redirect-host';
 		const assets = await navigateAndReturnAssets(path, CollectRedirect.collect);
-		expect(assets?.hosts.length).toEqual(2);
-		expect(assets?.hosts[0]).toMatch('localhost');
-		expect(assets?.hosts[1]).toMatch('mylocalhost');
+		expect(assets?.server.hosts.length).toEqual(2);
+		expect(assets?.server.hosts[0]).toMatch('localhost');
+		expect(assets?.server.hosts[1]).toMatch('mylocalhost');
 	});
+
+	it('collects energy source of green hosts', async () => {
+		fetchSpy.mockResolvedValueOnce(
+			{
+				status: 200,
+				json: async () => ({
+					green: true,
+					hostedby: 'you-know'
+				})
+			} as fetch.Response);
+		const path = 'redirect-host'
+		const assets = await navigateAndReturnAssets(path, CollectRedirect.collect);
+		expect(Object.keys(assets?.server.energySource as {})).toEqual(['isGreen', 'hostedby'])
+		expect(assets?.server.energySource?.isGreen).toBe(true)
+
+	})
+
+	it('returns energy source undefined when API response is undefined', async () => {
+		fetchSpy.mockRejectedValueOnce({ message: 'undefined' })
+		const path = 'redirect-host'
+		const assets = await navigateAndReturnAssets(path, CollectRedirect.collect);
+		expect(assets?.server.energySource).toBeUndefined()
+	})
+
+	it('returns energy source undefined when API response has error', async () => {
+		fetchSpy.mockResolvedValueOnce(
+			{
+				status: 501,
+				json: async () => ({
+					error: 'Server internal error'
+				})
+			} as fetch.Response);
+		const path = 'redirect-host'
+		const assets = await navigateAndReturnAssets(path, CollectRedirect.collect);
+		expect(assets?.server.energySource).toBeUndefined()
+	})
+
 });
 
 describe('Images collector', () => {

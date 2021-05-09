@@ -26,7 +26,7 @@ export default class CookieOptimisation extends Audit {
 			return true;
 		};
 
-		const { hosts } = traces;
+		const { hosts } = traces.server;
 		const bigCookies = new Map();
 		const findDuplicates = (data: string[]): string[] => {
 			return Array.from(new Set(data)).filter(
