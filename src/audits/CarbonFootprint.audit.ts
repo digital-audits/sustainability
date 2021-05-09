@@ -2,7 +2,6 @@ import Audit from './audit';
 import { variables } from '../references/references';
 import { DEFAULT } from '../settings/settings';
 import { sum } from '../bin/statistics';
-import { isGreenServerMem } from '../utils/utils';
 import * as util from '../utils/utils';
 import { Meta, Result, SkipResult } from '../types/audit';
 import { Traces } from '../types/traces';
@@ -46,39 +45,40 @@ export default class CarbonFootprintAudit extends Audit {
 		try {
 			debug('running');
 			const getValidRecords = async () => {
-				const getGreenRecord = async () => {
+				/*const getGreenRecord = async () => {
 					const pArray = traces.record.map(async record => {
 						const isGreen = await isGreenServerMem(record.response.url.hostname);
 						return isGreen?.green ?? false;
 					});
 					const isGreen = await Promise.all(pArray);
-					return traces.record.map((record, index) => {
-						return {
-							size: record.CDP.compressedSize.value,
-							unSize: record.response.uncompressedSize.value,
-							isGreen: isGreen[index]
-						};
-					});
-				};
-
-				return getGreenRecord();
-				// TODO: Bring the carbon data by regions first
-				/* Return records.map(record=>{
-	
-					    
-					   /* if(record.isGreen === false){
-							const location = getGeoLocationMem(record.ip)
-	
-							return {
-								...record,
-								location
-							}
-						}
-	
-						return record
-					})
 					*/
+				return traces.record.map((record, index) => {
+					return {
+						size: record.CDP.compressedSize.value,
+						unSize: record.response.uncompressedSize.value,
+						//isGreen: isGreen[index]
+					};
+				});
 			};
+
+			//return getGreenRecord();
+			// TODO: Bring the carbon data by regions first
+			/* Return records.map(record=>{
+	
+				    
+				   /* if(record.isGreen === false){
+						const location = getGeoLocationMem(record.ip)
+	
+						return {
+							...record,
+							location
+						}
+					}
+	
+					return record
+				})
+				*/
+			//};
 
 			debug('evaluating energy source');
 			const records = await getValidRecords();
@@ -118,7 +118,7 @@ export default class CarbonFootprintAudit extends Audit {
 				}
 
 				size /= MB_TO_BYTES * GB_TO_MB;
-				if (record.isGreen) {
+				if (traces.server.energySource && traces.server.energySource.isGreen) {
 					size *= variables.coreNetwork[0];
 				} else {
 					size *= variables.dataCenter[0] + variables.coreNetwork[0];

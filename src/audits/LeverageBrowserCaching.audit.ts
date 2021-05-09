@@ -31,7 +31,7 @@ export default class LeverageBrowserCachingAudit extends Audit {
 		debug('running');
 		const results: any = [];
 		let totalWastedBytes = 0;
-		const { hosts } = traces;
+		const { hosts } = traces.server;
 		// @ts-ignore
 		traces.record.filter(r => {
 			const recordUrl = r.request.url;

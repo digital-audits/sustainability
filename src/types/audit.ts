@@ -1,4 +1,4 @@
-import {LoadEvent} from 'puppeteer';
+import { LoadEvent } from 'puppeteer';
 
 export interface Meta {
 	/** String identifier of the audit */
@@ -33,7 +33,7 @@ export type CollectorsIds =
 	| 'lazymediacollect'
 	| 'metatagscollect'
 	| 'robotscollect'
-	| 'cookiescollect';
+	| 'cookiescollect'
 
 export type PassContext =
 	| 'beforenavigation'
@@ -49,7 +49,7 @@ export interface Result {
 	score: number;
 	scoreDisplayMode: ScoreDisplayMode;
 	meta: SuccessOrFailureMeta;
-	extendedInfo?: {value: ExtendedInfo};
+	extendedInfo?: { value: ExtendedInfo };
 	errorMessage?: string;
 }
 
@@ -73,7 +73,7 @@ export interface SuccessOrFailureMeta {
 export interface SkipResult {
 	scoreDisplayMode: ScoreDisplayMode;
 	meta: SkipMeta;
-	extendedInfo?: {value: ExtendedInfo};
+	extendedInfo?: { value: ExtendedInfo };
 	errorMessage?: string;
 }
 
@@ -118,7 +118,7 @@ export interface AuditReportFormat {
 	score: number;
 	scoreDisplayMode: ScoreDisplayMode;
 	meta: Meta;
-	extendedInfo?: {value: ExtendedInfo};
+	extendedInfo?: { value: ExtendedInfo };
 	errorMessage?: string;
 }
 

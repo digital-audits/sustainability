@@ -18,26 +18,9 @@ export default class UsesGreenServerAudit extends Audit {
 	static async audit(traces: Traces): Promise<Result | SkipResult | undefined> {
 		const debug = util.debugGenerator('UsesGreenServer Audit');
 		debug('running');
-		const { hosts } = traces;
-		const hostname = traces.record.find(record => {
-			const recordUrl = record.response.url.hostname;
-			return hosts.includes(recordUrl);
-		})?.response.url.hostname;
-
-		if (!hostname) {
-			debug('hostname checks failed')
-			return {
-				meta: util.skipMeta(UsesGreenServerAudit.meta),
-				scoreDisplayMode: 'skip',
-				errorMessage: 'Failed to fetch response body'
-			};
-		}
-		debug('evaluating energy source');
-		const response = await util.isGreenServerMem(hostname);
-
-		if (response && !response.error) {
-			const { green, hostedby } = response;
-			const score = Number(green);
+		if (traces.server.energySource) {
+			const { isGreen, hostedby } = traces.server.energySource;
+			const score = Number(isGreen);
 
 			const meta = util.successOrFailureMeta(UsesGreenServerAudit.meta, score);
 
@@ -56,13 +39,10 @@ export default class UsesGreenServerAudit extends Audit {
 			};
 		}
 
-		debug(
-			`failed to fetch response from url: ${hostname} with error: ${response?.error}`
-		);
 		return {
 			meta: util.skipMeta(UsesGreenServerAudit.meta),
 			scoreDisplayMode: 'skip',
-			errorMessage: 'Failed to fetch response body'
+			errorMessage: 'Failed to fetch energy source of host'
 		};
 	}
 }

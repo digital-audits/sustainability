@@ -57,7 +57,7 @@ export default class UsesCompressionAudit extends Audit {
 		// NOTE: js files considered secure (with identifiable content on HTTPS, e.g personal cookies )
 		// should not be compressed (to avoid CRIME & BREACH attacks)
 		let errorMessage: string | undefined;
-		const { hosts } = traces;
+		const { hosts } = traces.server;
 		let justOneTime = true;
 		const resources = traces.record
 			.filter(record => {

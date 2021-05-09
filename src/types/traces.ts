@@ -16,7 +16,7 @@ export interface MonitorStats {
 }
 
 export interface Traces {
-	hosts: string[];
+	server: ServerFormat
 	html: string[];
 	css: CssTrace;
 	js: JsTrace;
@@ -296,6 +296,17 @@ export interface RedirectResponse {
 	redirectsTo: string;
 }
 
+export interface ServerFormat {
+	energySource: EnergySourceFormat | undefined
+	hosts: string[];
+
+}
+
+export interface EnergySourceFormat {
+	isGreen: boolean
+	hostedby: string | undefined
+}
+
 /**
 	Return Types for Collectors
 */
@@ -329,7 +340,7 @@ export interface CollectPerformanceTraces {
 
 export interface CollectRedirectTraces {
 	redirect: RedirectResponse[];
-	hosts: string[];
+	server: ServerFormat
 }
 
 export interface CollectSubfontsTraces {
@@ -359,3 +370,4 @@ export interface CollectRobotsTraces {
 export interface CollectMetaTagsTraces {
 	metatag: MetaTagFormat[];
 }
+
