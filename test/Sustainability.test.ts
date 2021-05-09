@@ -38,6 +38,10 @@ afterAll(async () => {
 
 
 describe('Sustainability', () => {
+	const fetchMock = jest.spyOn(fetch, 'default');
+	afterEach(() => {
+		fetchMock.mockClear()
+	})
 	it('works with default options', async () => {
 		const report = await runAudit('animations', {
 			launchSettings: {
@@ -65,14 +69,15 @@ describe('Sustainability', () => {
 		})
 		expect(true).toBeTruthy()
 	})
-	it('sends telemetry', async () => {
-		const fetchMock = jest.spyOn(fetch, 'default');
+	it('sends telemetry when enabled', async () => {
 		await runAudit('health')
-		const fetchCallsWithTelemetryEnabled = fetchMock.mock.calls.length
-		fetchMock.mockClear()
+		const fetchedURLCalls = fetchMock.mock.calls.map(fetch => fetch[0])
+		expect(fetchedURLCalls).toContain('https://vtdnv367qg.execute-api.eu-central-1.amazonaws.com/default/DAStoDB')
+	})
+	it('does not send telemetry when disabled', async () => {
 		await runAudit('health', { connectionSettings: { telemetry: false } })
-		const fetchCallsWithTelemetryDisabled = fetchMock.mock.calls.length
-		expect(fetchCallsWithTelemetryDisabled).toBeLessThan(fetchCallsWithTelemetryEnabled)
+		const fetchedURLCalls = fetchMock.mock.calls.map(fetch => fetch[0])
+		expect(fetchedURLCalls.includes('https://vtdnv367qg.execute-api.eu-central-1.amazonaws.com/default/DAStoDB')).toBe(false)
 	})
 
 

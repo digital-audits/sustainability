@@ -187,7 +187,7 @@ describe('Failed transfer collector', () => {
 });
 
 const fetchSpy = jest.spyOn(fetch, 'default')
-describe.only('Redirect collector', () => {
+describe('Redirect collector', () => {
 	afterEach(() => {
 		fetchSpy.mockClear()
 	})
